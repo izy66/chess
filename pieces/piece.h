@@ -1,17 +1,26 @@
 #ifndef PIECE_H
 #define PIECE_H
 
-#include "board.h"
+#include "square.h"
 #include <string>
 
-class Piece : public Board {
+#define BLACK 'B'
+#define WHITE 'W'
+
+class Piece : public Square {
 	protected:
 		// std::string loc;
-		char name, col;
+		char name, col; // default capital = WHITE lowercase = BLACK
 	public:
 		Piece(char n = ' ', char c = ' ') : name{n}, col{c} {}
 		virtual ~Piece();
-		virtual char Print(const std::string&) override;
+		
+		char Print(const std::string&) const override;
+		bool Empty() const override { return 0; }
+
+		char Name() const { return name; }
+		char Color() const { return col; }
+		
 		virtual void Move(const std::string&) = 0;
 };
 

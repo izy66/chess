@@ -50,7 +50,9 @@
 		"vector": "cpp",
 		"algorithm": "cpp",
 		"map": "cpp",
-		"iostream": "cpp"
+		"iostream": "cpp",
+		"stack": "cpp",
+		"deque": "cpp"
 	},
 	"C_Cpp.default.configurationProvider": "ms-vscode.makefile-tools"
 }

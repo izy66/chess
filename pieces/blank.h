@@ -1,13 +1,13 @@
 #ifndef BLANK_H
 #define BLANK_H
 
-#include "piece.h"
+#include "square.h"
 
-class Blank : public Board {
+class Blank : public Square {
 	public: 
-		// Blank(const std::string& loc) : loc{loc} {}
 		~Blank() {}
-		char Print(const std::string& loc) override;
+		char Print(const std::string& loc) const override;
+		bool Empty() const override { return 1; }
 };
 
 #endif

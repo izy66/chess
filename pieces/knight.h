@@ -5,8 +5,8 @@
 
 class Knight : public Piece {
 	public:
-	Knight(char col) : Piece{'n', col} {}
-	void Move(const std::string&) override {}
+		Knight(char col) : Piece{'n', col} {}
+		void Move(const std::string&) override {}
 };
 
 #endif

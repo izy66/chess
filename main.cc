@@ -1,10 +1,9 @@
+#include "game.h"
 #include "chessboard.h"
 using namespace std;
 
 int main() {
-	ChessBoard chess;
-	chess.Reset();
-	// chess.SetPiece("e2", 'k', WHITE);
-	// chess.RemovePiece("e1");
-	chess.Print();
+	ChessBoard chess_board;
+	Game chess_game;
+	chess_game.Start(&chess_board);
 }
