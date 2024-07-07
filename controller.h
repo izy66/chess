@@ -6,6 +6,7 @@
 #include "decisiontree.h"
 #include <memory>
 #include <iostream>
+#include <stack>
 
 class Controller {
 	ChessBoard* chess_board;
@@ -13,6 +14,7 @@ class Controller {
 	DecisionTree* decisions; // Controller owns the decision tree
 	DecisionTree* recent_decision;
 	
+	std::stack<Move*> moves; // Controller owns the moves too
 	std::unique_ptr<Parser> parser;
 
 	char player, opponent;

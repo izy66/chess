@@ -3,11 +3,14 @@
 
 #include "square.h"
 
-class Blank : public Square {
+#define LIGHT '+'
+#define DARK '-'
+
+class Blank {
 	public: 
 		~Blank() {}
-		char Print(const std::string& loc) const override;
-		bool Empty() const override { return 1; }
+		char Print(const std::string& loc) const;
+		bool Empty() const { return 1; }
 };
 
 #endif

@@ -1,5 +1,5 @@
 #include "controller.h"
-#include "command.h"
+#include "kingmove.h"
 #include "pieces/piece.h"
 #include <iostream>
 #include <sstream>
@@ -7,6 +7,10 @@
 Controller::~Controller() { 
 	DisplayFinalScores();
 	delete decisions; 
+	while (!moves.empty()) {
+		delete moves.top();
+		moves.pop();
+	}
 }
 
 void Controller::DisplayScores() {
@@ -22,9 +26,9 @@ void Controller::DisplayFinalScores() {
 }
 
 void Controller::FetchMove() {
-	std::unique_ptr<Command> command = parser->ParseCommand();
-	if (!command->Execute()) return;
-	recent_decision = recent_decision->AddDecision(std::move(command));
+	// std::unique_ptr<Move> move = parser->ParseCommand();
+	// if (!command->Execute()) return;
+	// recent_decision = recent_decision->AddDecision(std::move(command));
 }
 
 void Controller::StartGame() {
@@ -36,11 +40,6 @@ void Controller::StartGame() {
 }
 
 void Controller::GameOver() {
-	if (player == WHITE) {
-		BlackWon();
-	} else {
-		WhiteWon();
-	}
 	player = WHITE;
 	opponent = BLACK;
 }
@@ -60,11 +59,21 @@ bool Controller::RunGame() {
 		std::stringstream ss{read_line};
 		ss >> command;
 		if (command.compare("resign") == 0) {
+			if (player == WHITE) {
+				BlackWon();
+			} else {
+				WhiteWon();
+			}
+			GameOver();
+			break;
+		} else
+		if (command.compare("draw") == 0) {
+			Draw();
 			GameOver();
 			break;
 		} else
 		if (command.compare("undo") == 0) {
-			// undo last move
+			recent_decision = recent_decision->UndoDecision(chess_board);
 		} else 
 		if (command.compare("move") == 0) {
 			if (!(ss >> from)) { }
@@ -73,19 +82,33 @@ bool Controller::RunGame() {
 				std::cout << "You can't move your opponent's pieces! Please make another move." << std::endl;
 				continue;
 			}
-			if (!chess_board->MovePiece(from, to)) { // check rules
-				std::cout << "You can't do that move. Please try another one." << std::endl;
+			if (chess_board->Empty(from)) {
+				std::cout << "You have to move a piece!" << std::endl;
 				continue;
 			}
+			if (chess_board->GetPieceColor(to) == player) {
+				std::cout << "You can't step over your own pieces!" << std::endl;
+				continue;
+			}
+			moves.emplace(parser->ParseCommand(chess_board, from, to));
+			if (!chess_board->MakeMove(moves.top())) { // check rules
+				std::cout << "You can't do that move. Please try another one." << std::endl;
+				delete moves.top();
+				moves.pop();
+				continue;
+			}
+			recent_decision = recent_decision->AddDecision(moves.top());
 			if (chess_board->GameOver()) { // ok, last move is very good
 				GameOver();
 				break;
 			}
 		} else {
 			std::cout << "Invalid command!" << std::endl;
+			continue;
 		}
 		std::swap(player, opponent);
 	}
+	return 1;
 }
 
 void Controller::Setup() {
@@ -101,6 +124,14 @@ void Controller::Setup() {
 		std::stringstream ss{command};
 		ss >> option;
 		if (option.compare("done") == 0) {
+			if (!white_king) {
+				std::cout << "You need a white king on board." << std::endl;
+				continue;
+			}
+			if (!black_king) {
+				std::cout << "You need a black king on board." << std::endl;
+				continue;
+			}
 			break;
 		} else 
 		if (option.compare("+") == 0) {

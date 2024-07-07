@@ -5,7 +5,7 @@
 
 class Pawn : public Piece {
 	public:
-	Pawn(char col) : Piece{'p', col} {}
+	Pawn(char col) : Piece{col == WHITE ? 'P' : 'p', col} {}
 	void Move(const std::string&) override {}
 };
 

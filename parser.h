@@ -1,13 +1,14 @@
 #ifndef PARSER_H
 #define PARSER_H
 
-#include "command.h"
+#include "move.h"
+#include "chessboard.h"
 #include <memory>
 
 class Parser {
 	public:
 		Parser() {}
-		std::unique_ptr<Command> ParseCommand(); // return a unique_ptr<Command> from text input
+		Move* ParseCommand(ChessBoard*, std::string&, std::string&);
 };
 
 #endif

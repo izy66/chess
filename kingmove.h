@@ -1,18 +1,14 @@
 #ifndef KING_MOVE_H
 #define KING_MOVE_H
 
-#include "command.h"
-#include "pieces/piece.h"
-#include "chessboard.h"
+#include "move.h"
+#include <string>
 
-class KingMove : public Command {
-	ChessBoard *chess_board;
-	Piece *captured;
-	std::string from, to;
+class KingMove : public Move {
 	public:
-		KingMove(const std::string& from, const std::string& to, ChessBoard* board);
-		bool Execute() override;
-		void Undo() override;
+		KingMove(std::string& from, std::string& to);
+		bool MakeMoveOn(ChessBoard*) override;
+		void Undo(ChessBoard*) override;
 };
 
 #endif

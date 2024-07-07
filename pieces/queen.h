@@ -5,7 +5,7 @@
 
 class Queen : public Piece {
 	public:
-	Queen(char col) : Piece{'q', col} {}
+	Queen(char col) : Piece{col == WHITE ? 'Q' : 'q', col} {}
 	void Move(const std::string&) override {}
 };
 

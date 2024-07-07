@@ -11,7 +11,7 @@ CXX = g++          # compiler
 CXXFLAGS = -std=c++20 -g -Wall -MMD      # compiler flags
 MAKEFILE_NAME = ${Makefile ${MAKEFILE_LIST}}  # makefile name
 
-SOURCES = pieces/blank.cc pieces/piece.cc pieces/king.cc subject.cc board.cc chessboard.cc textui.cc parser.cc decisiontree.cc controller.cc game.cc main.cc      # source files (*.cc)
+SOURCES = pieces/blank.cc pieces/piece.cc pieces/king.cc subject.cc board.cc chessboard.cc textui.cc kingmove.cc pawnmove.cc decisiontree.cc parser.cc controller.cc game.cc main.cc     # source files (*.cc)
 OBJECTS = ${SOURCES:.cc=.o}     # object files forming executable
 DEPENDS = ${OBJECTS:.o=.d}      # substitute ".o" with ".d"
 EXEC = chess # executable name

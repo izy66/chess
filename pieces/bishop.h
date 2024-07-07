@@ -5,7 +5,7 @@
 
 class Bishop : public Piece {
 	public:
-		Bishop(char col) : Piece{'b', col} {}
+		Bishop(char col) : Piece{col == WHITE ? 'B' : 'b', col} {}
 		void Move(const std::string&) override {}
 };
 

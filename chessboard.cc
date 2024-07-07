@@ -23,18 +23,32 @@ char ChessBoard::GetPieceChar(const std::string& loc) {
 }
 
 char ChessBoard::GetPieceColor(const std::string& loc) {
-	return board->get_color(loc);
+	return board->color(loc);
 }
 
 bool ChessBoard::MovePiece(const std::string& from, const std::string& to) {
 
+	captured = false;
+
+	if (board->color(from) == board->color(to)) {
+		std::cerr << "You can't step over your own pieces!" << std::endl;
+		return 0;
+	}
+
 	if (tolower(board->get(to)) == 'k') game_over = 1;
 
-	if (!board->empty(to)) board->capture(to);
-	board->set(to, board->get(from), board->get_color(from));
-	board->remove(from);
+	board->move_piece(from, to);
+	last_moved = to;
 
 	return 1;
+}
+
+bool ChessBoard::HasMoved(const std::string& loc) {
+	return board->has_moved(loc);
+}
+
+void ChessBoard::Recapture(const std::string& loc) {
+	board->recapture(loc);
 }
 
 std::vector<char> ChessBoard::WhiteCaptured() {
@@ -43,4 +57,8 @@ std::vector<char> ChessBoard::WhiteCaptured() {
 
 std::vector<char> ChessBoard::BlackCaptured() {
 	return board->captured_color(BLACK);
+}
+
+bool ChessBoard::MakeMove(Move* move) {
+	return move->MakeMoveOn(this);
 }

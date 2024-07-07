@@ -5,7 +5,7 @@
 
 class Rook : public Piece {
 	public:
-	Rook(char col) : Piece{'r', col} {}
+	Rook(char col) : Piece{col == WHITE ? 'R' : 'r', col} {}
 	void Move(const std::string&) override {}
 };
 

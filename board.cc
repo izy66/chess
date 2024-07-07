@@ -32,9 +32,19 @@ bool Board::set(const std::string& loc, char name, char col) {
 	return 1;
 }
 
+char Board::get(const std::string& loc) { 
+	if (empty(loc)) return blank.Print(loc);
+	return pieces[loc]->Print(); 
+}
+
+char Board::color(const std::string& loc) {
+	if (empty(loc)) return blank.Print(loc);
+	return pieces[loc]->Color();
+}
+
 bool Board::remove(const std::string& loc) {
-	if (pieces[loc] != nullptr && pieces[loc]->Empty()) return 0; // nothing to remove
-	pieces[loc] = std::make_unique<Blank>();
+	if (pieces[loc] == BLANK) return 0; // nothing to remove
+	pieces[loc] = BLANK;
 	return 1;
 }
 
@@ -70,15 +80,39 @@ void Board::reset() {
 	for (char c = 'a'; c <= 'h'; ++c) {
 		set(std::string() + c + '7', 'p', BLACK);
 	}
+	captured_white.clear();
+	captured_black.clear();
+}
+
+void Board::capture(const std::string& loc) {
+	if (pieces[loc] != BLANK) {
+		if (pieces[loc]->Color() == BLACK) {
+			captured_white.emplace_back(pieces[loc]->Name());
+		} else {
+			captured_black.emplace_back(pieces[loc]->Name());
+		}
+		captured_pieces.push(std::move(pieces[loc]));
+		pieces[loc] = BLANK;
+	}
+}
+
+void Board::recapture(const std::string& loc) {
+	pieces[loc] = std::move(captured_pieces.top());
+	if (pieces[loc]->Color() == BLACK) captured_white.pop_back();
+	else captured_black.pop_back();
+	captured_pieces.pop();
 }
 
 std::vector<char> Board::captured_color(char color) {
-	std::vector<char> captured_list;
-	for (const auto& captured: captured_pieces) {
-		if ((isupper(captured) && color == WHITE)
-		|| (islower(captured) && color == BLACK)) {
-			captured_list.push_back(captured);
-		}
+	if (color == WHITE) {
+		return captured_white;
+	} else {
+		return captured_black;
 	}
-	return captured_list;
+}
+
+void Board::move_piece(const std::string& from, const std::string& to) {
+	if (pieces[to] != BLANK) capture(to);
+	pieces[from]->JustMoved();
+	pieces[to] = std::move(pieces[from]);
 }

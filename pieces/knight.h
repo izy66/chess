@@ -5,7 +5,7 @@
 
 class Knight : public Piece {
 	public:
-		Knight(char col) : Piece{'n', col} {}
+		Knight(char col) : Piece{col == WHITE ? 'N' : 'n', col} {}
 		void Move(const std::string&) override {}
 };
 
