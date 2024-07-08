@@ -1,22 +1,29 @@
 #ifndef DECISION_TREE_H
 #define DECISION_TREE_H
 
-#include "move.h"
 #include <memory>
 #include <vector>
 
 class ChessBoard;
+class Move;
 
 class DecisionTree {
-	Move* decision;
-	DecisionTree* last_decision;
-	std::vector<DecisionTree*> next_decisions;
+	std::shared_ptr<Move> decision;
+	std::shared_ptr<DecisionTree> last_decision;
+	std::vector<std::shared_ptr<DecisionTree>> next_decisions;
 
 	public:
-		DecisionTree(DecisionTree* last) : last_decision{last} {}
-		DecisionTree* AddDecision(Move* decision);
-		DecisionTree* UndoDecision(ChessBoard*);
-		~DecisionTree();
+		DecisionTree() : last_decision{nullptr} {}
+		DecisionTree(std::shared_ptr<Move> decision, std::shared_ptr<DecisionTree> last) : decision{std::move(decision)}, last_decision{last} {}
+		std::shared_ptr<DecisionTree> AddDecision(std::unique_ptr<Move> decision);
+		std::shared_ptr<DecisionTree> UndoDecision(ChessBoard*);
+		std::shared_ptr<Move>& GetDecision() { return decision; }
+
+		DecisionTree(const DecisionTree& other) {
+			decision = other.decision;
+			last_decision = other.last_decision;
+			next_decisions = other.next_decisions;
+		}
 };
 
 #endif 

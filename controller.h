@@ -11,10 +11,9 @@
 class Controller {
 	ChessBoard* chess_board;
 
-	DecisionTree* decisions; // Controller owns the decision tree
-	DecisionTree* recent_decision;
+	std::shared_ptr<DecisionTree> decisions; // Controller owns the decision tree
+	std::shared_ptr<DecisionTree> recent_decision;
 	
-	std::stack<Move*> moves; // Controller owns the moves too
 	std::unique_ptr<Parser> parser;
 
 	char player, opponent;
@@ -22,7 +21,7 @@ class Controller {
 	int white_score, black_score;
 	
 	public:
-		Controller(ChessBoard* board) : chess_board{board}, decisions{new DecisionTree(nullptr)}, recent_decision{decisions}, parser{std::make_unique<Parser>()}, player{WHITE}, opponent{BLACK}, white_score{0}, black_score{0} {}
+		Controller(ChessBoard* board) : chess_board{board}, decisions{std::make_shared<DecisionTree>()}, recent_decision{decisions}, parser{std::make_unique<Parser>()}, player{WHITE}, opponent{BLACK}, white_score{0}, black_score{0} {}
 		~Controller();
 
 		void StartGame(); // plays matches (not in setup mode)

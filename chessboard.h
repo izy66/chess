@@ -40,7 +40,7 @@ class ChessBoard : public Subject {
 		std::vector<char> BlackCaptured();
 
 		/* Game move interface */
-		bool MakeMove(Move* move);
+		bool MakeMove(std::unique_ptr<Move>& move);
 		bool MovePiece(const std::string& from, const std::string& to);
 		bool FirstMove(const std::string& loc) { return board->first_move(loc); }
 

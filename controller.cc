@@ -6,11 +6,6 @@
 
 Controller::~Controller() { 
 	DisplayFinalScores();
-	delete decisions; 
-	while (!moves.empty()) {
-		delete moves.top();
-		moves.pop();
-	}
 }
 
 void Controller::DisplayScores() {
@@ -90,14 +85,17 @@ bool Controller::RunGame() {
 				std::cout << "You can't step over your own pieces!" << std::endl;
 				continue;
 			}
-			moves.emplace(parser->ParseCommand(chess_board, from, to));
-			if (!chess_board->MakeMove(moves.top())) { // check rules
+			// moves.emplace(parser->ParseCommand(chess_board, from, to));
+			// Move* move = parser->ParseCommand(chess_board, from, to);
+			std::unique_ptr<Move> move = parser->ParseCommand(chess_board, from, to);
+			if (!chess_board->MakeMove(move)) { // check rules
 				std::cout << "You can't do that move. Please try another one." << std::endl;
-				delete moves.top();
-				moves.pop();
 				continue;
 			}
-			recent_decision = recent_decision->AddDecision(moves.top());
+			if (recent_decision == nullptr) {
+				std::cout << "nullptr!" << std::endl;
+			}
+			recent_decision = recent_decision->AddDecision(std::move(move));
 			if (chess_board->GameOver()) { // ok, last move is very good
 				GameOver();
 				break;

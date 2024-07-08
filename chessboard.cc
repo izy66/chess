@@ -59,6 +59,6 @@ std::vector<char> ChessBoard::BlackCaptured() {
 	return board->captured_color(BLACK);
 }
 
-bool ChessBoard::MakeMove(Move* move) {
+bool ChessBoard::MakeMove(std::unique_ptr<Move>& move) {
 	return move->MakeMoveOn(this);
 }

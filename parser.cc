@@ -6,29 +6,28 @@
 #include "knightmove.h"
 #include "rookmove.h"
 
-Move* Parser::ParseCommand(ChessBoard* chess_board, std::string& from, std::string& to) {
-	Move *move = nullptr;
+std::unique_ptr<Move> Parser::ParseCommand(ChessBoard* chess_board, std::string& from, std::string& to) {
+	// Move move;
 	switch (char c = tolower(chess_board->GetPieceChar(from))) {
 	case 'k':
-		move = new KingMove{from, to};
+		return std::make_unique<KingMove>(from, to);
 		break;
 	case 'p':
-		move = new PawnMove{from, to};
+		return std::make_unique<PawnMove>(from, to);
 		break;
 	case 'q':
-		move = new QueenMove{from, to};
+		return std::make_unique<QueenMove>(from, to);
 		break;
 	case 'b':
-		move = new BishopMove{from, to};
+		return std::make_unique<BishopMove>(from, to);
 		break;
 	case 'n':
-		move = new KnightMove{from, to};
+		return std::make_unique<KnightMove>(from, to);
 		break;
 	case 'r':
-		move = new RookMove{from, to};
+		return std::make_unique<RookMove>(from, to);
 		break;
 	default:
 		break;
 	}
-	return move;
 }

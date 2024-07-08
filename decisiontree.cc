@@ -1,19 +1,16 @@
+#include "move.h"
 #include "decisiontree.h"
 
-DecisionTree* DecisionTree::AddDecision(Move* decision) {
-	DecisionTree* new_decision = new DecisionTree{this};
-	new_decision->decision = decision;
+std::shared_ptr<DecisionTree> DecisionTree::AddDecision(std::unique_ptr<Move> decision) {
+	auto new_decision = std::make_shared<DecisionTree>(std::move(decision), std::make_shared<DecisionTree>(*this));
+	// auto new_decision = std::make_shared<DecisionTree>();
+	// new_decision->decision = std::move(decision);
+	// new_decision->last_decision = std::make_shared<DecisionTree>(*this);
 	next_decisions.push_back(new_decision);
 	return new_decision;
 }
 
-DecisionTree::~DecisionTree() {
-	for (auto next : next_decisions) {
-		delete next;
-	}
-}
-
-DecisionTree* DecisionTree::UndoDecision(ChessBoard* chess_board) {
-	decision->Undo(chess_board);
-	return last_decision; 
+std::shared_ptr<DecisionTree> DecisionTree::UndoDecision(ChessBoard* chess_board) {
+	// decision->Undo(chess_board);
+	// return last_decision; 
 }

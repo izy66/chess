@@ -8,7 +8,7 @@
 class Parser {
 	public:
 		Parser() {}
-		Move* ParseCommand(ChessBoard*, std::string&, std::string&);
+		std::unique_ptr<Move> ParseCommand(ChessBoard*, std::string&, std::string&);
 };
 
 #endif
