@@ -5,7 +5,7 @@
 
 class PawnMove : public Move {
 	public:
-		PawnMove(std::string& from, std::string& to, bool first_move = false) : Move{from, to, first_move} {}
+		PawnMove(std::string& from, std::string& to) : Move{from, to} {}
 		bool MakeMoveOn(ChessBoard*) override;
 		void Undo(ChessBoard*) override {}
 };
