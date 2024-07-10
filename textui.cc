@@ -1,7 +1,7 @@
 #include <iostream>
 #include "textui.h"
 
-TextUI::TextUI(ChessBoard* board) : chess_board{board} {
+TextUI::TextUI(Board* board) : chess_board{board} {
 	chess_board->Attach(this);
 }
 
@@ -19,13 +19,13 @@ void TextUI::Notify() {
 	}
 	std::cout << std::endl;
 	std::cout << "White captured:";
-	std::vector<char> captured = chess_board->WhiteCaptured();
+	std::vector<char> captured = chess_board->CapturedBy(WHITE);
 	for (const auto& cap : captured) {
 		std::cout << ' ' << cap;
 	}
 	std::cout << std::endl;
 	std::cout << "Black captured:";
-	captured = chess_board->BlackCaptured();
+	captured = chess_board->CapturedBy(BLACK);
 	for (const auto& cap : captured) {
 		std::cout << ' ' << cap;
 	}

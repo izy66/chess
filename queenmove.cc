@@ -1,7 +1,6 @@
 #include "queenmove.h"
-#include "chessboard.h"
 
-bool QueenMove::MakeMoveOn(ChessBoard* chess_board) {
+bool QueenMove::MakeMoveOn(Board* chess_board) {
 	if (from[0] == to[0]) {
 		for (char row = std::min(from[1], to[1]) + 1; row <= std::max(from[1], to[1]) - 1; ++row) {
 			std::string path = std::string() + from[0] + row;

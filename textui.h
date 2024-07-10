@@ -2,12 +2,12 @@
 #define TEXTUI_H
 
 #include "observer.h"
-#include "chessboard.h"
+#include "board.h"
 
 class TextUI : public Observer {
-	ChessBoard *chess_board;
+	Board *chess_board;
 	public:
-		TextUI(ChessBoard* chess_board);
+		TextUI(Board* chess_board);
 		void Notify() override;
 };
 

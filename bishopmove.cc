@@ -1,7 +1,6 @@
 #include "bishopmove.h"
-#include "chessboard.h"
 
-bool BishopMove::MakeMoveOn(ChessBoard* chess_board) {
+bool BishopMove::MakeMoveOn(Board* chess_board) {
 	if (abs(from[0] - to[0]) == abs(from[1] - to[1])) {
 		int col_dir = (to[1] - from[1]) / (to[0] - from[0]);
 		for (char col = std::min(from[0], to[0]) + 1, row = std::min(from[1], to[1]) + 1; 

@@ -6,8 +6,8 @@
 class BishopMove : public Move {
 	public:
 		BishopMove(std::string& from, std::string& to) : Move{from, to} {}
-		bool MakeMoveOn(ChessBoard*) override;
-		void Undo(ChessBoard*) override {}
+		bool MakeMoveOn(Board*) override;
+		void Undo(Board*) override {}
 };
 
 #endif

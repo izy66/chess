@@ -3,6 +3,7 @@
 
 #include "pieces/blank.h"
 #include "pieces/piece.h"
+#include "subject.h"
 #include <vector>
 #include <memory>
 #include <map>
@@ -11,48 +12,62 @@
 #define BLANK nullptr
 #define FOG '?'
 
-class Board {
+class Move;
+
+class Board : public Subject {
 	std::map<std::string, std::unique_ptr<Piece>> pieces;
 	std::stack<std::unique_ptr<Piece>> captured_pieces;
-	std::vector<char> captured_white, captured_black;
+	std::map<char, std::vector<char>> captured_by;
 	Blank blank;
 	std::map<char, std::map<std::string, int>> visibility_counter;
 
 	char player = WHITE, opponent = BLACK;
 	std::map<char, std::string> king_loc;
-	bool game_over = false;
+	bool game_over = false, captured = false;
+	std::string last_moved;
+
+	/* internal state refreshers */
+	void refresh_vision();
+	bool checked();
+	bool check_mated();
 
 	public:
-		bool empty(const std::string& loc) { return pieces[loc] == BLANK; }
-		bool set(const std::string& loc, char name, char col);
-		char get_name(const std::string& loc);
-		char get_player(const std::string& loc);
-		
-		bool remove(const std::string& loc);
+		/* general interface */
+		bool Empty(const std::string& loc) { return pieces[loc] == BLANK; }
+		bool SetPiece(const std::string& loc, char name, char col);
+		bool RemovePiece(const std::string& loc);
+		virtual char GetPieceName(const std::string& loc); // overwritten in Fog of War
+		char GetPiecePlayer(const std::string& loc);
 
-		void refresh_vision();
+		virtual void Reset(); // overwritten in Horde, 960
+		void Clear();
+		void Print() { NotifyObservers(); }
 
-		bool checked();
-		bool check_mated();
+		bool GameOver() { return game_over; }
 
-		void clear();
-		void reset();
+		/* action interface */
+		bool MakeMove(std::unique_ptr<Move>& move);
+		bool MovePiece(const std::string& from, const std::string& to);
+		void JustMoved(const std::string& loc) { pieces[loc]->JustMoved(); }
+		bool HasItMoved(const std::string& loc) { return pieces[loc]->HasMoved(); }
+		bool FirstMove(const std::string& loc) { return pieces[loc] != BLANK && pieces[loc]->FirstMove(); }
+		std::string LastMovedLoc() { return last_moved; }
 
-		bool move_piece(const std::string& from, const std::string& to);
-		void just_moved(const std::string& loc) { pieces[loc]->JustMoved(); }
-		bool has_moved(const std::string& loc) { return pieces[loc]->HasMoved(); }
-		bool first_move(const std::string& loc) { return pieces[loc] != BLANK && pieces[loc]->FirstMove(); }
-
-		void capture(const std::string& loc);
-		void recapture(const std::string& loc);
-
-		std::vector<char> captured_color(char color);
+		/* captured pieces interface */
+		std::vector<char> CapturedBy(char player);
+		bool Captured() { return captured; }
+		void Capture(const std::string& loc);
+		void Recapture(const std::string& loc);
 
 		bool in_bound(const std::string& loc) {
 			return LEFT_COL <= loc[0] && loc[0] <= RIGHT_COL && BOT_ROW <= loc[1] && loc[1] <= TOP_ROW;
 		}
 
-		Board() { reset(); }
+		Board() { Reset(); }
+
+		int Distance(const std::string& from, const std::string& to)  {
+			return std::abs(from[0] - to[0]) + std::abs(from[1] - to[1]);
+		}
 };
 
 #endif

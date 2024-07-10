@@ -3,7 +3,7 @@
 
 void QueenIterator::operator++() {
 	std::string next_loc = cloc;
-	if (board->empty(cloc)) {
+	if (board->Empty(cloc)) {
 		next_loc[0] += dir[cur_dir][0];
 		next_loc[1] += dir[cur_dir][1];
 		if (board->in_bound(next_loc)) {

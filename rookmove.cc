@@ -1,7 +1,7 @@
 #include "rookmove.h"
-#include "chessboard.h"
+#include "board.h"
 
-bool RookMove::MakeMoveOn(ChessBoard* chess_board) {
+bool RookMove::MakeMoveOn(Board* chess_board) {
 	if (from[0] == to[0]) {
 		for (char row = std::min(from[1], to[1]) + 1; row <= std::max(from[1], to[1]) - 1; ++row) {
 			std::string path = std::string() + from[0] + row;

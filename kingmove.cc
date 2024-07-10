@@ -3,7 +3,7 @@
 
 KingMove::KingMove(std::string& from, std::string& to) : Move{from, to} {}
 
-bool KingMove::MakeMoveOn(ChessBoard* chess_board) {
+bool KingMove::MakeMoveOn(Board* chess_board) {
 	if (chess_board->Distance(from, to) == 2 && (from[0] == to[0] || from[1] == to[1])) return 0;
 	if (chess_board->Distance(from, to) > 2) return 0;
 	// valid move 
@@ -12,9 +12,5 @@ bool KingMove::MakeMoveOn(ChessBoard* chess_board) {
 	return 1;
 }
 
-void KingMove::Undo(ChessBoard* chess_board) {
-	chess_board->MovePiece(to, from);
-	if (captured) {
-		chess_board->Recapture(to);
-	}
+void KingMove::Undo(Board* chess_board) {
 }
