@@ -52,7 +52,8 @@
 		"map": "cpp",
 		"iostream": "cpp",
 		"stack": "cpp",
-		"deque": "cpp"
+		"deque": "cpp",
+		"iterator": "cpp"
 	},
 	"C_Cpp.default.configurationProvider": "ms-vscode.makefile-tools"
 }

@@ -8,7 +8,7 @@
 
 std::unique_ptr<Move> Parser::ParseCommand(ChessBoard* chess_board, std::string& from, std::string& to) {
 	// Move move;
-	switch (char c = tolower(chess_board->GetPieceChar(from))) {
+	switch (char c = tolower(chess_board->GetPieceName(from))) {
 	case 'k':
 		return std::make_unique<KingMove>(from, to);
 		break;

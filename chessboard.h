@@ -26,8 +26,8 @@ class ChessBoard : public Subject {
 		void SetPiece(const std::string& loc, char name, char col);
 		void RemovePiece(const std::string& loc);
 		
-		char GetPieceChar(const std::string& loc);
-		char GetPieceColor(const std::string& loc);
+		char GetPieceName(const std::string& loc);
+		char GetPiecePlayer(const std::string& loc);
 		
 		bool Empty(const std::string& loc) { return board->empty(loc); }
 		bool HasMoved(const std::string& loc);

@@ -9,7 +9,7 @@ void TextUI::Notify() {
 	for (char r = TOP_ROW; r >= BOT_ROW; --r) {
 		std::cout << r << ' ';
 		for (char c = LEFT_COL; c <= RIGHT_COL; ++c) {
-			std::cout << chess_board->GetPieceChar(std::string() + c + r) << ' ';
+			std::cout << chess_board->GetPieceName(std::string() + c + r) << ' ';
 		}
 		std::cout << std::endl;
 	}

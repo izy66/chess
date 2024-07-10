@@ -18,24 +18,19 @@ void ChessBoard::RemovePiece(const std::string& loc) {
 	}
 }
 
-char ChessBoard::GetPieceChar(const std::string& loc) {
-	return board->get(loc);
+char ChessBoard::GetPieceName(const std::string& loc) {
+	return board->get_name(loc);
 }
 
-char ChessBoard::GetPieceColor(const std::string& loc) {
-	return board->color(loc);
+char ChessBoard::GetPiecePlayer(const std::string& loc) {
+	return board->get_player(loc);
 }
 
 bool ChessBoard::MovePiece(const std::string& from, const std::string& to) {
 
 	captured = false;
 
-	if (board->color(from) == board->color(to)) {
-		std::cerr << "You can't step over your own pieces!" << std::endl;
-		return 0;
-	}
-
-	if (tolower(board->get(to)) == 'k') game_over = 1;
+	if (tolower(board->get_name(to)) == 'k') game_over = 1;
 
 	board->move_piece(from, to);
 	last_moved = to;

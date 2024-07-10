@@ -8,10 +8,10 @@
 ########## Variables ##########
 
 CXX = g++          # compiler
-CXXFLAGS = -std=c++20 -g -Wall -MMD      # compiler flags
+CXXFLAGS = -std=c++20 -g -Wall -MMD -I ~/chess     # compiler flags
 MAKEFILE_NAME = ${Makefile ${MAKEFILE_LIST}}  # makefile name
 
-SOURCES = pieces/blank.cc pieces/piece.cc pieces/king.cc subject.cc board.cc chessboard.cc textui.cc kingmove.cc queenmove.cc pawnmove.cc bishopmove.cc rookmove.cc knightmove.cc decisiontree.cc parser.cc controller.cc game.cc main.cc     # source files (*.cc)
+SOURCES = pieces/blank.cc pieces/piece.cc pieces/king.cc subject.cc board.cc chessboard.cc pieces/iterators/king_iterator.cc pieces/iterators/queen_iterator.cc pieces/iterators/bishop_iterator.cc pieces/iterators/knight_iterator.cc pieces/iterators/rook_iterator.cc pieces/iterators/pawn_iterator.cc textui.cc kingmove.cc queenmove.cc pawnmove.cc bishopmove.cc rookmove.cc knightmove.cc decisiontree.cc parser.cc controller.cc game.cc main.cc     # source files (*.cc)
 OBJECTS = ${SOURCES:.cc=.o}     # object files forming executable
 DEPENDS = ${OBJECTS:.o=.d}      # substitute ".o" with ".d"
 EXEC = chess # executable name
@@ -30,4 +30,4 @@ ${OBJECTS} : ${MAKEFILE_NAME}     # OPTIONAL : changes to this file => recom    
 -include ${DEPENDS}       # include *.d files containing program dependences
 
 clean :           # remove files that can be regenerated
-	rm -f ${DEPENDS} ${OBJECTS} ${EXEC}
+	rm -f ${OBJECTS} ${DEPENDS}

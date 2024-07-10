@@ -2,25 +2,36 @@
 #define PIECE_H
 
 #include "square.h"
+#include "iterators/iterator.h"
 #include <string>
+#include <memory>
+#include <iostream>
 
 #define BLACK 'B'
 #define WHITE 'W'
+#define KING 'K'
+#define QUEEN 'Q'
+#define BISHOP 'B'
+#define KNIGHT 'N'
+#define ROOK 'R'
+#define PAWN 'P'
+
+class Board;
 
 class Piece {
 	protected:
 		// std::string loc;
-		char name, col; // default capital = WHITE lowercase = BLACK
+		char name, player; // default capital = WHITE lowercase = BLACK
 		bool has_moved, first_move;
 	public:
-		Piece(char n, char c) : name{n}, col{c}, has_moved{false}, first_move{false} {}
+		Piece(char n, char p) : name{n}, player{p}, has_moved{false}, first_move{false} {}
 		virtual ~Piece();
 		
 		char Print() const;
 		bool Empty() const { return 0; }
 
 		char Name() const { return name; }
-		char Color() const { return col; }
+		char Player() const { return player; }
 
 		void JustMoved() { 
 			if (!has_moved) first_move = true; 
@@ -38,6 +49,23 @@ class Piece {
 		bool FirstMove() { return first_move; }
 		
 		virtual void Move(const std::string&) = 0;
+
+		class Iterator {
+			friend class Piece;
+			
+			std::shared_ptr<PieceIterator> iterator;
+			public:
+
+				Iterator(const std::shared_ptr<PieceIterator>& it) : iterator{it} {}
+				virtual bool operator!=(const Iterator& other) {
+					return *iterator != *other.iterator;
+				}
+				virtual void operator++() { ++(*iterator); }
+				virtual std::string operator*() { return **iterator; }
+		};
+
+		virtual Iterator begin(Board* board, const std::string& loc) = 0;
+		virtual Iterator end() = 0;
 };
 
 #endif

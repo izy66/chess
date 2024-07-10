@@ -8,7 +8,7 @@
 #include "pieces/rook.h"
 
 bool Board::set(const std::string& loc, char name, char col) {
-	if (name == get(loc)) return 0; // don't need to set again
+	if (name == get_name(loc)) return 0; // don't need to set again
 	switch(tolower(name)) {
 		case 'k':
 			pieces[loc] = std::make_unique<King>(col);
@@ -29,22 +29,44 @@ bool Board::set(const std::string& loc, char name, char col) {
 			pieces[loc] = std::make_unique<Rook>(col);
 			break;
 	}
-	return 1;
+	refresh_vision();
+ 	return 1;
 }
 
-char Board::get(const std::string& loc) { 
-	if (empty(loc)) return blank.Print(loc);
-	return pieces[loc]->Print(); 
+void Board::refresh_vision() {
+	for (char c = LEFT_COL; c <= RIGHT_COL; ++c) {
+		for (char r = BOT_ROW; r <= TOP_ROW; ++r) {
+			std::string loc = std::string() + c + r;
+			visibility_counter[player][loc] = 0;
+			visibility_counter[opponent][loc] = 0;
+		}
+	}
+	for (const auto& [loc, piece] : pieces) {
+		if (piece != BLANK) {
+			for (Piece::Iterator visible_block = piece->begin(this, loc); visible_block != piece->end(); ++visible_block) {
+				if (visible_block != piece->begin(this, loc)) {
+					++visibility_counter[piece->Player()][*visible_block];
+				}
+			}
+		}
+	}
 }
 
-char Board::color(const std::string& loc) {
+char Board::get_name(const std::string& loc) { 
+	// if (visibility_counter[player][loc] == 0 && (empty(loc) || pieces[loc]->Player() != player)) return FOG;
 	if (empty(loc)) return blank.Print(loc);
-	return pieces[loc]->Color();
+	return pieces[loc]->Name();
+}
+
+char Board::get_player(const std::string& loc) {
+	if (empty(loc)) return blank.Print(loc);
+	return pieces[loc]->Player();
 }
 
 bool Board::remove(const std::string& loc) {
 	if (pieces[loc] == BLANK) return 0; // nothing to remove
 	pieces[loc] = BLANK;
+	refresh_vision();
 	return 1;
 }
 
@@ -82,11 +104,13 @@ void Board::reset() {
 	}
 	captured_white.clear();
 	captured_black.clear();
+	king_loc[WHITE] = "e1";
+	king_loc[BLACK] = "e8";
 }
 
 void Board::capture(const std::string& loc) {
 	if (pieces[loc] != BLANK) {
-		if (pieces[loc]->Color() == BLACK) {
+		if (pieces[loc]->Player() == BLACK) {
 			captured_white.emplace_back(pieces[loc]->Name());
 		} else {
 			captured_black.emplace_back(pieces[loc]->Name());
@@ -98,7 +122,7 @@ void Board::capture(const std::string& loc) {
 
 void Board::recapture(const std::string& loc) {
 	pieces[loc] = std::move(captured_pieces.top());
-	if (pieces[loc]->Color() == BLACK) captured_white.pop_back();
+	if (pieces[loc]->Player() == BLACK) captured_white.pop_back();
 	else captured_black.pop_back();
 	captured_pieces.pop();
 }
@@ -111,8 +135,46 @@ std::vector<char> Board::captured_color(char color) {
 	}
 }
 
-void Board::move_piece(const std::string& from, const std::string& to) {
+bool Board::move_piece(const std::string& from, const std::string& to) {
+	if (get_player(from) != player) {
+		std::cout << "You can't move your opponent's pieces! Please make another move." << std::endl;
+		return 0;
+	}
+	if (empty(from)) {
+		std::cout << "You have to move a piece!" << std::endl;
+		return 0;
+	}
+	if (get_player(to) == player) {
+		std::cout << "You can't step over your own pieces!" << std::endl;
+		return 0;
+	}
 	if (pieces[to] != BLANK) capture(to);
 	pieces[from]->JustMoved();
 	pieces[to] = std::move(pieces[from]);
+
+	if (tolower(get_name(to)) == 'k') {
+		king_loc[player] = to;
+	}
+
+	refresh_vision();
+
+	if (check_mated()) {
+		std::cout << "Check Mate!" << std::endl;
+	} else 
+	if (checked()) {
+		std::cout << "Check!" << std::endl;
+	}
+	
+	std::swap(player, opponent);
+}
+
+bool Board::checked() {
+	return visibility_counter[player][king_loc[opponent]] > 0;
+}
+
+bool Board::check_mated() {
+	for (Piece::Iterator move = pieces[king_loc[opponent]]->begin(this, king_loc[opponent]); move != pieces[king_loc[opponent]]->end(); ++move) {
+		if (visibility_counter[player][*move] == 0) return 0;
+	}
+	return 1;
 }

@@ -73,20 +73,6 @@ bool Controller::RunGame() {
 		if (command.compare("move") == 0) {
 			if (!(ss >> from)) { }
 			if (!(ss >> to)) { }
-			if (chess_board->GetPieceColor(from) != player) {
-				std::cout << "You can't move your opponent's pieces! Please make another move." << std::endl;
-				continue;
-			}
-			if (chess_board->Empty(from)) {
-				std::cout << "You have to move a piece!" << std::endl;
-				continue;
-			}
-			if (chess_board->GetPieceColor(to) == player) {
-				std::cout << "You can't step over your own pieces!" << std::endl;
-				continue;
-			}
-			// moves.emplace(parser->ParseCommand(chess_board, from, to));
-			// Move* move = parser->ParseCommand(chess_board, from, to);
 			std::unique_ptr<Move> move = parser->ParseCommand(chess_board, from, to);
 			if (!chess_board->MakeMove(move)) { // check rules
 				std::cout << "You can't do that move. Please try another one." << std::endl;
@@ -157,10 +143,10 @@ void Controller::Setup() {
 		} else 
 		if (option.compare("-") == 0) {
 			if (!(ss >> param1)) { }
-			char cur_piece = chess_board->GetPieceChar(param1);
+			// char cur_piece = chess_board->GetPieceChar(param1);
 			chess_board->RemovePiece(param1); // if fails, doesn't affect king's flag
-			if (cur_piece == 'K') white_king = false;
-			if (cur_piece == 'k') black_king = false;
+			// if (cur_piece == 'K') white_king = false;
+			// if (cur_piece == 'k') black_king = false;
 		} else 
 		if (option.compare("=") == 0) {
 			if (!(ss >> param1)) { }

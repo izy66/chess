@@ -3,7 +3,7 @@
 Piece::~Piece() {}
 
 char Piece::Print() const {
-	if (col == BLACK) {
+	if (player == BLACK) {
 		return tolower(name);
 	} else {
 		return toupper(name);
