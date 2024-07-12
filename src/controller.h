@@ -16,12 +16,10 @@ class Controller {
 	
 	std::unique_ptr<Parser> parser;
 
-	char player, opponent;
-
 	int white_score, black_score;
 	
 	public:
-		Controller(ChessBoard* board) : chess_board{board}, decisions{std::make_shared<DecisionTree>()}, recent_decision{decisions}, parser{std::make_unique<Parser>()}, player{WHITE}, opponent{BLACK}, white_score{0}, black_score{0} {}
+		Controller(ChessBoard* board) : chess_board{board}, decisions{std::make_shared<DecisionTree>()}, recent_decision{decisions}, parser{std::make_unique<Parser>()}, white_score{0}, black_score{0} {}
 		~Controller();
 
 		void StartGame(); // plays matches (not in setup mode)
@@ -40,9 +38,6 @@ class Controller {
 			++black_score; 
 		}
 		void Draw() { white_score += 0.5; black_score += 0.5; }
-
-		void WhiteMovesNext() { player = WHITE; opponent = BLACK; }
-		void BlackMovesNext() { player = BLACK; opponent = WHITE; }
 
 		void DisplayScores();
 		void DisplayFinalScores();

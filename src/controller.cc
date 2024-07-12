@@ -34,15 +34,14 @@ void Controller::StartGame() {
 }
 
 void Controller::GameOver() {
-	player = WHITE;
-	opponent = BLACK;
+	DisplayScores();
 }
 
 bool Controller::RunGame() {
 	std::string read_line, command, from, to, promotion;
 	while (true) {
 		chess_board->Print();
-		if (player == WHITE) {
+		if (chess_board->Player() == WHITE) {
 			std::cout << "White to move." << std::endl;
 		} else {
 			std::cout << "Black to move." << std::endl;
@@ -53,7 +52,7 @@ bool Controller::RunGame() {
 		std::stringstream ss{read_line};
 		ss >> command;
 		if (command.compare("resign") == 0) {
-			if (player == WHITE) {
+			if (chess_board->Player() == WHITE) {
 				BlackWon();
 			} else {
 				WhiteWon();
@@ -72,8 +71,9 @@ bool Controller::RunGame() {
 		if (command.compare("move") == 0) {
 			if (!(ss >> from)) { }
 			if (!(ss >> to)) { }
-			if (!(ss >> promotion)) { }
-			std::unique_ptr<Move> move = parser->ParseCommand(chess_board, from, to, promotion[0]);
+			std::unique_ptr<Move> move;
+			if (!(ss >> promotion)) move = parser->ParseCommand(chess_board, from, to);
+			else move = parser->ParseCommand(chess_board, from, to, promotion[0]);
 			if (move == nullptr) continue;
 			if (!chess_board->MakeMove(move)) { // check rules
 				std::cout << "You can't do that move. Please try another one." << std::endl;
@@ -89,7 +89,6 @@ bool Controller::RunGame() {
 			ss.ignore();
 			continue;
 		}
-		std::swap(player, opponent);
 	}
 	return 1;
 }
@@ -120,42 +119,36 @@ void Controller::Setup() {
 		if (option.compare("+") == 0) {
 			if (!(ss >> param1)) { }
 			if (!(ss >> param2)) { }
-			if ((param1[0] == 'P' || param1[0] == 'p') && (param2[1] == TOP_ROW || param2[1] == BOT_ROW)) {
+			if (toupper(param1[0]) == PAWN && (param2[1] == TOP_ROW || param2[1] == BOT_ROW)) {
 				std::cout << "You can't put pawn on the last line! That's unfair!" << std::endl;
 				continue;
 			}
 			if (isupper(param1[0])) {
-				if (param1[0] == 'K' && white_king) {
+				if (param1[0] == toupper(KING) && white_king) {
 					std::cout << "You can't put two white kings on the board! That's unfair!" << std::endl;
 				} else {
 					chess_board->SetPiece(param2, param1[0], WHITE);
-					if (param1[0] == 'K') white_king = true;
+					if (param1[0] == KING) white_king = true;
 				}
 			} else {
-				if (param1[0] == 'k' && black_king) {
+				if (param1[0] == tolower(KING) && black_king) {
 					std::cout << "You can't put two black kings on the board! That's unfair!" << std::endl;
 				} else {
 					chess_board->SetPiece(param2, param1[0], BLACK);
-					if (param1[0] == 'k') black_king = true;
+					if (param1[0] == tolower(KING)) black_king = true;
 				}
 			}
 		} else 
 		if (option.compare("-") == 0) {
 			if (!(ss >> param1)) { }
-			// char cur_piece = chess_board->GetPieceChar(param1);
+			char cur_piece = chess_board->GetPieceName(param1);
 			chess_board->RemovePiece(param1); // if fails, doesn't affect king's flag
-			// if (cur_piece == 'K') white_king = false;
-			// if (cur_piece == 'k') black_king = false;
+			if (cur_piece == KING) white_king = false;
+			if (cur_piece == tolower(KING)) black_king = false;
 		} else 
 		if (option.compare("=") == 0) {
 			if (!(ss >> param1)) { }
-			// param1 = tolower(param1);
-			if (param1.compare("white") == 0) {
-				WhiteMovesNext();
-			} else
-			if (param1.compare("black") == 0) {
-				BlackMovesNext();
-			}
+			chess_board->PlayerMovesNext(param1[0]);
 		} else {
 			std::cout << "invalid command." << std::endl;
 		}

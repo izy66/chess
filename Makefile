@@ -8,11 +8,14 @@
 ########## Variables ##########
 
 CXX = g++          # compiler
-CXXFLAGS = -std=c++20 -g -Wall -MMD -I ~/chess     # compiler flags
+CXXFLAGS = -std=c++20 -g -Wall -MMD    # compiler flags
 MAKEFILE_NAME = ${Makefile ${MAKEFILE_LIST}}  # makefile name
-
-SOURCES = pieces/blank.cc pieces/piece.cc pieces/king.cc subject.cc pieces/iterators/king_iterator.cc pieces/iterators/queen_iterator.cc pieces/iterators/bishop_iterator.cc pieces/iterators/knight_iterator.cc pieces/iterators/rook_iterator.cc pieces/iterators/pawn_iterator.cc textui.cc moves/king_move.cc moves/pawn_move.cc moves/move.cc decisiontree.cc parser.cc controller.cc board.cc chessboard.cc game.cc main.cc     # source files (*.cc)
-OBJECTS = ${SOURCES:.cc=.o}     # object files forming executable
+SORCE_DIR = src
+BUILD_DIR = build
+BUILD_DIRS = ${BUILD_DIR} ${BUILD_DIR}/pieces ${BUILD_DIR}/pieces/iterators ${BUILD_DIR}/moves
+FILE_LIST = pieces/blank.cc pieces/piece.cc pieces/king.cc subject.cc pieces/iterators/king_iterator.cc pieces/iterators/queen_iterator.cc pieces/iterators/bishop_iterator.cc pieces/iterators/knight_iterator.cc pieces/iterators/rook_iterator.cc pieces/iterators/pawn_iterator.cc textui.cc moves/king_move.cc moves/pawn_move.cc moves/move.cc decisiontree.cc parser.cc controller.cc board.cc chessboard.cc game.cc main.cc
+SOURCES = ${addprefix ${SORCE_DIR}/, ${FILE_LIST}}     # source files (*.cc)
+OBJECTS = ${addprefix ${BUILD_DIR}/, ${FILE_LIST:.cc=.o}}     # object files forming executable
 DEPENDS = ${OBJECTS:.o=.d}      # substitute ".o" with ".d"
 EXEC = chess # executable name
 
@@ -20,8 +23,13 @@ EXEC = chess # executable name
 
 .PHONY : clean          # not file names
 
+$(shell mkdir -p $(BUILD_DIRS))
+
 ${EXEC} : ${OBJECTS}        # link step
-	${CXX} ${CXXFLAGS} $^ -o $@   # additional object files before $^
+	${CXX} $^ -o $@   # additional object files before $^
+
+${BUILD_DIR}/%.o: ${SORCE_DIR}/%.cc
+	${CXX} ${CXXFLAGS} -Isrc -c -o $@ $<
 
 ${OBJECTS} : ${MAKEFILE_NAME}     # OPTIONAL : changes to this file => recom    pile
 

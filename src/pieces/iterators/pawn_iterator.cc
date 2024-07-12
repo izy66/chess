@@ -8,7 +8,7 @@ void PawnIterator::operator++() {
 		cloc = sloc;
 		cloc[0] += dir[cur_dir][0] * player_dir;
 		cloc[1] += dir[cur_dir][1];
-		if (board->in_bound(cloc) && ((dir[cur_dir][0] == 0 && board->Empty(cloc)) || (dir[cur_dir][0] != 0 && !board->Empty(cloc)))) {
+		if (board->in_bound(cloc) && ((dir[cur_dir][0] == 0 && board->Empty(cloc)) || (dir[cur_dir][0] != 0 && (!board->Empty(cloc) || board->IsEnPassant(sloc, cloc))))) {
 			found_next = true;
 		}
 		++cur_dir;

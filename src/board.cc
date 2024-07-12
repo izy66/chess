@@ -8,26 +8,27 @@
 #include "pieces/pawn.h"
 #include "pieces/rook.h"
 
-bool Board::SetPiece(const std::string& loc, char name, char col) {
+bool Board::SetPiece(const std::string& loc, char name, char player) {
 	if (name == GetPieceName(loc)) return 0; // don't need to set again
 	switch(tolower(name)) {
 		case 'k':
-			pieces[loc] = std::make_unique<King>(col);
+			pieces[loc] = std::make_unique<King>(player);
+			king_loc[player] = loc;
 			break;
 		case 'q':
-			pieces[loc] = std::make_unique<Queen>(col);
+			pieces[loc] = std::make_unique<Queen>(player);
 			break;
 		case 'b':
-			pieces[loc] = std::make_unique<Bishop>(col);
+			pieces[loc] = std::make_unique<Bishop>(player);
 			break;
 		case 'n':
-			pieces[loc] = std::make_unique<Knight>(col);
+			pieces[loc] = std::make_unique<Knight>(player);
 			break;
 		case 'p':
-			pieces[loc] = std::make_unique<Pawn>(col);
+			pieces[loc] = std::make_unique<Pawn>(player);
 			break;
 		case 'r':
-			pieces[loc] = std::make_unique<Rook>(col);
+			pieces[loc] = std::make_unique<Rook>(player);
 			break;
 	}
 	refresh_vision();
@@ -47,9 +48,7 @@ void Board::refresh_vision() {
 			Piece::Iterator visible_block = piece->begin(this, loc);
 			++visible_block;
 			for (; visible_block != piece->end(); ++visible_block) {
-				// if (visible_block != piece->begin(this, loc)) {
-					++visibility_counter[piece->Player()][*visible_block];
-				// }
+				++visibility_counter[piece->Player()][*visible_block];
 			}
 		}
 	}
@@ -158,8 +157,41 @@ bool Board::ValidMove(const std::string& from, const std::string& to) {
 	return 0;
 }
 
+bool Board::IsEnPassant(const std::string& from, const std::string& to) {
+	if (toupper(pieces[from]->Name()) != PAWN || from[0] == to[0] || abs(from[1] - to[1]) > 1) return 0;
+	std::string en_passant_loc = std::string() + to[0] + from[1];
+	return !Empty(en_passant_loc) && toupper(pieces[en_passant_loc]->Name()) == PAWN &&
+			FirstMove(en_passant_loc) && LastMovedLoc() == en_passant_loc;
+}
+
+bool Board::IsCastling(const std::string& from, const std::string& to) {
+	if (toupper(pieces[from]->Name()) != KING || Checked()) return 0;
+	int castle_dest = to[0] - from[0];
+	if (abs(castle_dest) != 2) return 0;
+	std::string rook_loc = to;
+	while (in_bound(rook_loc)) {
+		if (tolower(GetPieceName(rook_loc)) == tolower(ROOK)) {
+			if (!HasItMoved(from) && !HasItMoved(rook_loc)) {
+				return 1;
+			}
+			return 0;
+		}
+		rook_loc[0] += castle_dest / 2;
+	}
+}
+
 bool Board::MakeMove(std::unique_ptr<Move>& move) {
 	return move->MakeMoveOn(this);
+}
+
+bool Board::IsCaptureMove(const std::string& from, const std::string& to) {
+	return player == pieces[from]->Player() && !Empty(to) && player != pieces[to]->Player();
+}
+
+bool Board::CanPromote(const std::string& from) {
+	// if (Empty(from) || toupper(pieces[from]->Name()) != PAWN) return 0;
+	if (player == BLACK) return from[1] == BOT_ROW + 1;
+	return from[1] == TOP_ROW - 1;
 }
 
 bool Board::MovePiece(const std::string& from, const std::string& to) {
@@ -190,6 +222,10 @@ bool Board::MovePiece(const std::string& from, const std::string& to) {
 
 bool Board::Check() {
 	return visibility_counter[player][king_loc[opponent]] > 0;
+}
+
+bool Board::Checked() {
+	return visibility_counter[opponent][king_loc[player]] > 0;
 }
 
 bool Board::CheckMate() {

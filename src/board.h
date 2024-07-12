@@ -33,10 +33,16 @@ class Board : public Subject {
 	public:
 		/* general interface */
 		bool Empty(const std::string& loc) { return pieces[loc] == BLANK; }
-		bool SetPiece(const std::string& loc, char name, char col);
+		bool SetPiece(const std::string& loc, char name, char player);
 		bool RemovePiece(const std::string& loc);
 		virtual char GetPieceName(const std::string& loc); // overwritten in Fog of War
 		char GetPiecePlayer(const std::string& loc);
+		char Player() { return player; }
+
+		void PlayerMovesNext(char next_player) {
+			if (next_player == WHITE) { player = WHITE; opponent = BLACK; }
+			else { player = BLACK; opponent = WHITE; }
+		}
 
 		virtual void Reset(); // overwritten in Horde, 960
 		void Clear();
@@ -56,8 +62,13 @@ class Board : public Subject {
 		bool FirstMove(const std::string& loc) { return pieces[loc] != BLANK && pieces[loc]->FirstMove(); }
 		std::string LastMovedLoc() { return last_moved; }
 
+		virtual bool IsEnPassant(const std::string& from, const std::string& to);
+		virtual bool IsCastling(const std::string& from, const std::string& to);
+		virtual bool CanPromote(const std::string& from);
+
 		/* captured pieces interface */
 		std::vector<char> CapturedBy(char player);
+		bool IsCaptureMove(const std::string& from, const std::string& to);
 		bool Captured() { return captured; }
 		void Capture(const std::string& loc);
 		void Recapture(const std::string& loc);
@@ -69,6 +80,7 @@ class Board : public Subject {
 		// Board() { Reset(); }
 
 		bool Check();
+		bool Checked();
 		bool CheckMate();
 
 		int Distance(const std::string& from, const std::string& to)  {
