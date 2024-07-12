@@ -15,21 +15,20 @@
 class Move;
 
 class Board : public Subject {
-	std::map<std::string, std::unique_ptr<Piece>> pieces;
-	std::stack<std::unique_ptr<Piece>> captured_pieces;
-	std::map<char, std::vector<char>> captured_by;
-	Blank blank;
-	std::map<char, std::map<std::string, int>> visibility_counter;
+	protected:
+		std::map<std::string, std::unique_ptr<Piece>> pieces;
+		std::stack<std::unique_ptr<Piece>> captured_pieces;
+		std::map<char, std::vector<char>> captured_by;
+		Blank blank;
+		std::map<char, std::map<std::string, int>> visibility_counter;
 
-	char player = WHITE, opponent = BLACK;
-	std::map<char, std::string> king_loc;
-	bool game_over = false, captured = false;
-	std::string last_moved;
+		char player = WHITE, opponent = BLACK;
+		std::map<char, std::string> king_loc;
+		bool game_over = false, captured = false;
+		std::string last_moved;
 
-	/* internal state refreshers */
-	void refresh_vision();
-	bool checked();
-	bool check_mated();
+		/* internal state refreshers */
+		void refresh_vision();
 
 	public:
 		/* general interface */
@@ -41,11 +40,15 @@ class Board : public Subject {
 
 		virtual void Reset(); // overwritten in Horde, 960
 		void Clear();
-		void Print() { NotifyObservers(); }
+		void Print() { 
+			refresh_vision();
+			NotifyObservers(); 
+		}
 
 		bool GameOver() { return game_over; }
 
 		/* action interface */
+		bool ValidMove(const std::string& from, const std::string& to);
 		bool MakeMove(std::unique_ptr<Move>& move);
 		bool MovePiece(const std::string& from, const std::string& to);
 		void JustMoved(const std::string& loc) { pieces[loc]->JustMoved(); }
@@ -63,7 +66,10 @@ class Board : public Subject {
 			return LEFT_COL <= loc[0] && loc[0] <= RIGHT_COL && BOT_ROW <= loc[1] && loc[1] <= TOP_ROW;
 		}
 
-		Board() { Reset(); }
+		// Board() { Reset(); }
+
+		bool Check();
+		bool CheckMate();
 
 		int Distance(const std::string& from, const std::string& to)  {
 			return std::abs(from[0] - to[0]) + std::abs(from[1] - to[1]);

@@ -1,4 +1,4 @@
-#include "move.h"
+#include "moves/move.h"
 #include "decisiontree.h"
 
 std::shared_ptr<DecisionTree> DecisionTree::AddDecision(std::unique_ptr<Move> decision) {
@@ -10,7 +10,7 @@ std::shared_ptr<DecisionTree> DecisionTree::AddDecision(std::unique_ptr<Move> de
 	return new_decision;
 }
 
-std::shared_ptr<DecisionTree> DecisionTree::UndoDecision(ChessBoard* chess_board) {
-	// decision->Undo(chess_board);
-	// return last_decision; 
+std::shared_ptr<DecisionTree> DecisionTree::UndoDecision(Board* chess_board) {
+	decision->Undo(chess_board);
+	return last_decision; 
 }

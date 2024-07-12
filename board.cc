@@ -1,5 +1,5 @@
 #include "board.h"
-#include "move.h"
+#include "moves/move.h"
 #include "pieces/blank.h"
 #include "pieces/king.h"
 #include "pieces/queen.h"
@@ -44,17 +44,18 @@ void Board::refresh_vision() {
 	}
 	for (const auto& [loc, piece] : pieces) {
 		if (piece != BLANK) {
-			for (Piece::Iterator visible_block = piece->begin(this, loc); visible_block != piece->end(); ++visible_block) {
-				if (visible_block != piece->begin(this, loc)) {
+			Piece::Iterator visible_block = piece->begin(this, loc);
+			++visible_block;
+			for (; visible_block != piece->end(); ++visible_block) {
+				// if (visible_block != piece->begin(this, loc)) {
 					++visibility_counter[piece->Player()][*visible_block];
-				}
+				// }
 			}
 		}
 	}
 }
 
 char Board::GetPieceName(const std::string& loc) { 
-	// if (visibility_counter[player][loc] == 0 && (empty(loc) || pieces[loc]->Player() != player)) return FOG;
 	if (Empty(loc)) return blank.Print(loc);
 	return pieces[loc]->Name();
 }
@@ -132,23 +133,36 @@ std::vector<char> Board::CapturedBy(char player) {
 	return captured_by[player];
 }
 
-bool Board::MakeMove(std::unique_ptr<Move>& move) {
-	return move->MakeMoveOn(this);
-}
-
-bool Board::MovePiece(const std::string& from, const std::string& to) {
-	if (GetPiecePlayer(from) != player) {
-		std::cout << "You can't move your opponent's pieces! Please make another move." << std::endl;
+bool Board::ValidMove(const std::string& from, const std::string& to) {
+	if (Empty(from)) {
+		std::cout << "You have to move a piece!" << std::endl;
 		return 0;
 	}
-	if (empty(from)) {
-		std::cout << "You have to move a piece!" << std::endl;
+	if (GetPiecePlayer(from) != player) {
+		std::cout << "You can't move your opponent's pieces! Please make another move." << std::endl;
 		return 0;
 	}
 	if (GetPiecePlayer(to) == player) {
 		std::cout << "You can't step over your own pieces!" << std::endl;
 		return 0;
 	}
+	if (from == to) {
+		std::cout << "You can't move to the same square!" << std::endl;
+		return 0;
+	}
+	Piece::Iterator visible_block = pieces[from]->begin(this, from);
+	++visible_block;
+	for (; visible_block != pieces[from]->end(); ++visible_block) {
+		if (*visible_block == to) return 1;
+	}
+	return 0;
+}
+
+bool Board::MakeMove(std::unique_ptr<Move>& move) {
+	return move->MakeMoveOn(this);
+}
+
+bool Board::MovePiece(const std::string& from, const std::string& to) {
 	if (pieces[to] != BLANK) Capture(to);
 	pieces[from]->JustMoved();
 	pieces[to] = std::move(pieces[from]);
@@ -161,11 +175,11 @@ bool Board::MovePiece(const std::string& from, const std::string& to) {
 
 	refresh_vision();
 
-	if (check_mated()) {
+	if (CheckMate()) {
 		std::cout << "Check Mate!" << std::endl;
 		game_over = true;
 	} else 
-	if (checked()) {
+	if (Check()) {
 		std::cout << "Check!" << std::endl;
 	}
 	
@@ -174,11 +188,11 @@ bool Board::MovePiece(const std::string& from, const std::string& to) {
 	return 1;
 }
 
-bool Board::checked() {
+bool Board::Check() {
 	return visibility_counter[player][king_loc[opponent]] > 0;
 }
 
-bool Board::check_mated() {
+bool Board::CheckMate() {
 	for (Piece::Iterator move = pieces[king_loc[opponent]]->begin(this, king_loc[opponent]); move != pieces[king_loc[opponent]]->end(); ++move) {
 		if (visibility_counter[player][*move] == 0) return 0;
 	}

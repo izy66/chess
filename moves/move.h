@@ -11,10 +11,12 @@ class Move {
 		std::string from, to;
 		bool first_move, captured;
 	public:
-		Move(std::string& from, std::string& to, bool first_move = false) : from{from}, to{to}, first_move{first_move}, captured{false} {}
-		virtual ~Move() {}
-		virtual bool MakeMoveOn(Board*) = 0; // return 1 if execution is successful
+		Move(std::string& from, std::string& to);
+		virtual bool MakeMoveOn(Board*); // return 1 if execution is successful
 		virtual void Undo(Board*) {} // any valid execution can be undone
+		virtual ~Move() {}
+		// std::string From() const { return from; }
+		// std::string To() const { return to; }
 };
 
 #endif

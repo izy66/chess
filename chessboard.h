@@ -9,6 +9,7 @@ class Move;
 
 class ChessBoard : public Board {
 	public:
+		char GetPieceName(const std::string& loc) override; // overwritten in Fog of War
 };
 
 #endif

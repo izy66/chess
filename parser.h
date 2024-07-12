@@ -1,7 +1,7 @@
 #ifndef PARSER_H
 #define PARSER_H
 
-#include "move.h"
+#include "moves/move.h"
 #include "chessboard.h"
 #include <memory>
 

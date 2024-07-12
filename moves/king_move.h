@@ -3,7 +3,7 @@
 
 #include "move.h"
 
-class KingMove : public Move {
+class KingMove final : public Move {
 	public:
 		KingMove(std::string& from, std::string& to);
 		bool MakeMoveOn(Board*) override;

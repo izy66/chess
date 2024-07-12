@@ -1,4 +1,4 @@
-#include "pawnmove.h"
+#include "pawn_move.h"
 #include "pieces/pawn.h"
 
 bool PawnMove::MakeMoveOn(Board* chess_board) {

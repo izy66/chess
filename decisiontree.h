@@ -4,7 +4,7 @@
 #include <memory>
 #include <vector>
 
-class ChessBoard;
+class Board;
 class Move;
 
 class DecisionTree {
@@ -16,7 +16,7 @@ class DecisionTree {
 		DecisionTree() : last_decision{nullptr} {}
 		DecisionTree(std::shared_ptr<Move> decision, std::shared_ptr<DecisionTree> last) : decision{std::move(decision)}, last_decision{last} {}
 		std::shared_ptr<DecisionTree> AddDecision(std::unique_ptr<Move> decision);
-		std::shared_ptr<DecisionTree> UndoDecision(ChessBoard*);
+		std::shared_ptr<DecisionTree> UndoDecision(Board*);
 		std::shared_ptr<Move>& GetDecision() { return decision; }
 
 		DecisionTree(const DecisionTree& other) {

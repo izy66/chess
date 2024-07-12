@@ -1,5 +1,4 @@
 #include "controller.h"
-#include "kingmove.h"
 #include "pieces/piece.h"
 #include <iostream>
 #include <sstream>
@@ -88,6 +87,7 @@ bool Controller::RunGame() {
 			}
 		} else {
 			std::cout << "Invalid command!" << std::endl;
+			ss.ignore();
 			continue;
 		}
 		std::swap(player, opponent);
