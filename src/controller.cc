@@ -19,12 +19,6 @@ void Controller::DisplayFinalScores() {
 	std::cout << "Black: " << black_score << std::endl;
 }
 
-void Controller::FetchMove() {
-	// std::unique_ptr<Move> move = parser->ParseCommand();
-	// if (!command->Execute()) return;
-	// recent_decision = recent_decision->AddDecision(std::move(command));
-}
-
 void Controller::StartGame() {
 	std::string command, mode, player1, player2;
 	chess_board->Reset();
@@ -50,7 +44,11 @@ void Controller::StartGame() {
 
 void Controller::GameOver() {
 	if (chess_board->WhoWon() == WHITE) ++white_score;
-	else ++black_score;
+	else if (chess_board->WhoWon() == BLACK) ++black_score;
+	else if (chess_board->WhoWon() == DRAW) {
+		white_score += 0.5;
+		black_score += 0.5;
+	}
 	DisplayScores();
 	chess_board->Reset();
 }

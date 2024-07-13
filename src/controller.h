@@ -16,17 +16,14 @@ class Controller {
 	
 	std::unique_ptr<Parser> parser;
 
-	int white_score, black_score;
+	float white_score, black_score;
 	
 	public:
 		Controller(ChessBoard* board) : chess_board{board}, decisions{std::make_shared<DecisionTree>()}, recent_decision{decisions}, parser{std::make_unique<Parser>()}, white_score{0}, black_score{0} {}
 		~Controller();
 
-		void StartGame(); // plays matches (not in setup mode)
-		bool RunGame(); // run a match
-		
-		void FetchMove(); // input -> command -> execute -> record
-
+		void StartGame(); // start game flow
+		bool RunGame(); // run a match until ctrl + D
 		void Setup(); // setup mode
 
 		void WhiteWon() { 

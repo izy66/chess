@@ -11,6 +11,7 @@
 
 #define BLANK nullptr
 #define FOG '?'
+#define DRAW 'D'
 
 class Move;
 
@@ -67,12 +68,17 @@ class Board : public Subject {
 		virtual bool IsCastling(const std::string& from, const std::string& to); // given some arbitrary move, is it castling?
 		virtual bool CanPromote(const std::string& from);
 
+		bool IsKing(const std::string& loc) { return toupper(pieces[loc]->Name()) == KING; }
+		bool IsKing(const std::unique_ptr<Piece>& piece) { return toupper(piece->Name()) == KING; }
+		bool IsPawn(const std::string& loc) { return toupper(pieces[loc]->Name()) == PAWN; }
+
 		/* captured pieces interface */
 		std::vector<char> CapturedBy(char player);
 		bool IsCaptureMove(const std::string& from, const std::string& to);
 		bool Captured() { return captured; }
 		void Capture(const std::string& loc);
 		void Recapture(const std::string& loc);
+		bool CanBeCapturedBy(char player, const std::string& loc) { return visibility_counter[player][loc] > 0; }
 
 		bool in_bound(const std::string& loc) {
 			return LEFT_COL <= loc[0] && loc[0] <= RIGHT_COL && BOT_ROW <= loc[1] && loc[1] <= TOP_ROW;
@@ -83,6 +89,7 @@ class Board : public Subject {
 		bool Check(); // is my last move a check move
 		bool Checked(); // if the current player is getting checked
 		bool CheckMate(); // is my last move a checkmate?
+		bool StaleMate(); // is my last move a stalemate?
 
 		int Distance(const std::string& from, const std::string& to)  {
 			return std::abs(from[0] - to[0]) + std::abs(from[1] - to[1]);

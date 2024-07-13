@@ -114,6 +114,11 @@ void Board::Reset() {
 
 void Board::Capture(const std::string& loc) {
 	if (pieces[loc] != BLANK) {
+		if (toupper(pieces[loc]->Name() == KING)) {
+			game_over = true;
+			who_won = pieces[loc]->Player() == WHITE ? BLACK : WHITE;
+			return;
+		}
 		if (pieces[loc]->Player() == BLACK) {
 			captured_by[WHITE].emplace_back(pieces[loc]->Name());
 		} else {
@@ -152,10 +157,10 @@ bool Board::ValidMove(const std::string& from, const std::string& to) {
 		std::cout << "You can't move to the same square!" << std::endl;
 		return 0;
 	}
-	Piece::Iterator visible_block = pieces[from]->begin(this, from);
-	++visible_block;
-	for (; visible_block != pieces[from]->end(); ++visible_block) {
-		if (*visible_block == to) return 1;
+	Piece::Iterator move = pieces[from]->begin(this, from);
+	++move;
+	for (; move != pieces[from]->end(); ++move) {
+		if (*move == to && (!IsKing(from) || !CanBeCapturedBy(opponent, to))) return 1;
 	}
 	return 0;
 }
@@ -168,7 +173,7 @@ bool Board::IsEnPassant(const std::string& from, const std::string& to) {
 }
 
 bool Board::IsCastling(const std::string& from, const std::string& to) {
-	if (toupper(pieces[from]->Name()) != KING || Checked()) return 0; // can't castle if not king or king in check
+	if (!IsKing(from) || Checked()) return 0; // can't castle if not king or king in check
 	if (abs(to[0] - from[0]) != 2 || to[1] != from[1]) return 0;
 	int castle_dir = (to[0] - from[0]) / 2;
 	std::string rook_loc = to;
@@ -194,12 +199,17 @@ bool Board::MakeMove(std::unique_ptr<Move>& move) {
 	refresh_vision();
 
 	if (CheckMate()) {
-		std::cout << "Check Mate!" << std::endl;
+		std::cout << "Checkmate!" << std::endl;
 		game_over = true;
 		who_won = player;
 	} else 
 	if (Check()) {
 		std::cout << "Check!" << std::endl;
+	} else
+	if (StaleMate()) {
+		std::cout << "Stalemate!" << std::endl;
+		game_over = true;
+		who_won = DRAW;
 	}
 	
 	std::swap(player, opponent);
@@ -267,6 +277,17 @@ bool Board::CheckMate() {
 			block[0] += cdir;
 			block[1] += rdir;
 		}
+	}
+	return 1;
+}
+
+bool Board::StaleMate() {
+	for (const auto& [loc, piece] : pieces) {
+		if (piece != BLANK && piece->Player() == opponent && !IsKing(piece)) return 0;
+	}
+	std::string opponent_king = king_loc[opponent];
+	for (Piece::Iterator move = pieces[opponent_king]->begin(this, opponent_king); move != pieces[opponent_king]->end(); ++move) {
+		if (*move != opponent_king && visibility_counter[player][*move] == 0) return 0;
 	}
 	return 1;
 }
