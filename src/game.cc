@@ -6,7 +6,6 @@
 void Game::Start(ChessBoard* game_board) {
 	TextUI ui{game_board};
 	Controller controller{game_board};
-	controller.Setup();
 	controller.StartGame();
 }
 

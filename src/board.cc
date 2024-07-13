@@ -107,6 +107,9 @@ void Board::Reset() {
 	king_loc[BLACK] = "e8";
 	captured_by[WHITE].clear();
 	captured_by[BLACK].clear();
+	game_over = false;
+	player = WHITE;
+	opponent = BLACK;
 }
 
 void Board::Capture(const std::string& loc) {
@@ -165,23 +168,43 @@ bool Board::IsEnPassant(const std::string& from, const std::string& to) {
 }
 
 bool Board::IsCastling(const std::string& from, const std::string& to) {
-	if (toupper(pieces[from]->Name()) != KING || Checked()) return 0;
-	int castle_dest = to[0] - from[0];
-	if (abs(castle_dest) != 2) return 0;
+	if (toupper(pieces[from]->Name()) != KING || Checked()) return 0; // can't castle if not king or king in check
+	if (abs(to[0] - from[0]) != 2 || to[1] != from[1]) return 0;
+	int castle_dir = (to[0] - from[0]) / 2;
 	std::string rook_loc = to;
+	std::string rook_dest = from;
+	rook_dest[0] += castle_dir;
+	if (!Empty(rook_dest)) return 0; // can't castle if there are pieces on the way
 	while (in_bound(rook_loc)) {
-		if (tolower(GetPieceName(rook_loc)) == tolower(ROOK)) {
+		if (!Empty(rook_loc) && toupper(GetPieceName(rook_loc)) != toupper(ROOK)) return 0; // can't castle if there are pieces on the way
+		if (toupper(GetPieceName(rook_loc)) == toupper(ROOK)) {
 			if (!HasItMoved(from) && !HasItMoved(rook_loc)) {
 				return 1;
 			}
 			return 0;
 		}
-		rook_loc[0] += castle_dest / 2;
+		rook_loc[0] += castle_dir;
 	}
+	return 0;
 }
 
 bool Board::MakeMove(std::unique_ptr<Move>& move) {
-	return move->MakeMoveOn(this);
+	if (!move->MakeMoveOn(this)) return 0;
+
+	refresh_vision();
+
+	if (CheckMate()) {
+		std::cout << "Check Mate!" << std::endl;
+		game_over = true;
+		who_won = player;
+	} else 
+	if (Check()) {
+		std::cout << "Check!" << std::endl;
+	}
+	
+	std::swap(player, opponent);
+
+	return 1;
 }
 
 bool Board::IsCaptureMove(const std::string& from, const std::string& to) {
@@ -199,24 +222,12 @@ bool Board::MovePiece(const std::string& from, const std::string& to) {
 	pieces[from]->JustMoved();
 	pieces[to] = std::move(pieces[from]);
 
-	if (tolower(GetPieceName(to)) == 'k') {
+	if (toupper(GetPieceName(to)) == KING) {
 		king_loc[player] = to;
 	}
-
-	last_moved = to;
-
-	refresh_vision();
-
-	if (CheckMate()) {
-		std::cout << "Check Mate!" << std::endl;
-		game_over = true;
-	} else 
-	if (Check()) {
-		std::cout << "Check!" << std::endl;
-	}
 	
-	std::swap(player, opponent);
-
+	last_moved = to;
+	
 	return 1;
 }
 
@@ -229,8 +240,33 @@ bool Board::Checked() {
 }
 
 bool Board::CheckMate() {
+	if (!Check()) return 0; // can't be a checkmate if not a check
+	if (visibility_counter[opponent][last_moved] > 0) return 0; // not a checkmate if piece can be captured 
+	// not a checkmate if king can escape
 	for (Piece::Iterator move = pieces[king_loc[opponent]]->begin(this, king_loc[opponent]); move != pieces[king_loc[opponent]]->end(); ++move) {
-		if (visibility_counter[player][*move] == 0) return 0;
+		if (visibility_counter[player][*move] == 0) { // king can escape here?
+			pieces[*move] = std::move(pieces[king_loc[opponent]]);
+			refresh_vision();
+			bool escaped = visibility_counter[player][*move] == 0;
+			pieces[king_loc[opponent]] = std::move(pieces[*move]);
+			refresh_vision();
+			if (escaped) return 0;
+		}
+	}
+	// not a checkmate if friendly pieces can block the attack
+	char name = pieces[last_moved]->Name();
+	if (toupper(name) == ROOK || toupper(name) == QUEEN || toupper(name) == BISHOP) {
+		int cdir = king_loc[opponent][0] - last_moved[0];
+		if (cdir != 0) cdir /= abs(cdir);
+		int rdir = king_loc[opponent][1] - last_moved[1];
+		if (rdir != 0) rdir /= abs(rdir);
+		std::string block = last_moved;
+		while (block != king_loc[opponent]) {
+			if (Distance(block, king_loc[opponent]) > 1 && visibility_counter[opponent][block] > 0) return 0;
+			if (Distance(block, king_loc[opponent]) == 1 && visibility_counter[opponent][block] > 1) return 0;
+			block[0] += cdir;
+			block[1] += rdir;
+		}
 	}
 	return 1;
 }

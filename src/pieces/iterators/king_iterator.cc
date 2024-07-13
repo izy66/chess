@@ -16,22 +16,6 @@ void KingIterator::operator++() {
 		cloc = sloc;
 		cloc[0] += castle_dir[cas_dir][0];
 		cloc[1] += castle_dir[cas_dir][1];
-		// if (board->in_bound(cloc)) {
-		// 	std::string rook_dest = sloc;
-		// 	rook_dest[0] += castle_dir[cas_dir][0] / 2;
-		// 	std::string rook_loc = rook_dest;
-		// 	while (board->in_bound(rook_loc)) {
-		// 		char name = toupper(board->GetPieceName(rook_dest));
-		// 		if (!board->Empty(rook_dest) && name != ROOK) break;
-		// 		if (name == ROOK) {
-		// 			if (!board->HasItMoved(sloc) && !board->HasItMoved(rook_loc)) {
-		// 				found_step = true;
-		// 			}
-		// 			break;
-		// 		}
-		// 		rook_loc[0] += castle_dir[cas_dir][0] / 2;
-		// 	}
-		// }
 		found_step = board->IsCastling(sloc, cloc);
 		++cas_dir;
 	}

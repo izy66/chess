@@ -22,7 +22,7 @@ class Board : public Subject {
 		Blank blank;
 		std::map<char, std::map<std::string, int>> visibility_counter;
 
-		char player = WHITE, opponent = BLACK;
+		char player = WHITE, opponent = BLACK, who_won;
 		std::map<char, std::string> king_loc;
 		bool game_over = false, captured = false;
 		std::string last_moved;
@@ -38,6 +38,7 @@ class Board : public Subject {
 		virtual char GetPieceName(const std::string& loc); // overwritten in Fog of War
 		char GetPiecePlayer(const std::string& loc);
 		char Player() { return player; }
+		char WhoWon() { return who_won; }
 
 		void PlayerMovesNext(char next_player) {
 			if (next_player == WHITE) { player = WHITE; opponent = BLACK; }
@@ -63,7 +64,7 @@ class Board : public Subject {
 		std::string LastMovedLoc() { return last_moved; }
 
 		virtual bool IsEnPassant(const std::string& from, const std::string& to);
-		virtual bool IsCastling(const std::string& from, const std::string& to);
+		virtual bool IsCastling(const std::string& from, const std::string& to); // given some arbitrary move, is it castling?
 		virtual bool CanPromote(const std::string& from);
 
 		/* captured pieces interface */
@@ -79,9 +80,9 @@ class Board : public Subject {
 
 		// Board() { Reset(); }
 
-		bool Check();
-		bool Checked();
-		bool CheckMate();
+		bool Check(); // is my last move a check move
+		bool Checked(); // if the current player is getting checked
+		bool CheckMate(); // is my last move a checkmate?
 
 		int Distance(const std::string& from, const std::string& to)  {
 			return std::abs(from[0] - to[0]) + std::abs(from[1] - to[1]);

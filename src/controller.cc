@@ -26,20 +26,42 @@ void Controller::FetchMove() {
 }
 
 void Controller::StartGame() {
+	std::string command, mode, player1, player2;
+	chess_board->Reset();
 	while (true) {
-		chess_board->Reset();
-		if (!RunGame()) break;
-		DisplayScores();
+		if (!getline(std::cin, command)) {
+			break;
+		}
+		std::stringstream ss{command};
+		ss >> mode;
+		if (mode.compare("setup") == 0) {
+			Setup();
+		} else
+		if (mode.compare("game") == 0) {
+			if (!(ss >> player1)) {}
+			if (!(ss >> player2)) {}
+			while (RunGame());
+		} else
+		if (mode.compare("quit") == 0) {
+			return;
+		}
 	}
 }
 
 void Controller::GameOver() {
+	if (chess_board->WhoWon() == WHITE) ++white_score;
+	else ++black_score;
 	DisplayScores();
+	chess_board->Reset();
 }
 
 bool Controller::RunGame() {
 	std::string read_line, command, from, to, promotion;
 	while (true) {
+		if (chess_board->GameOver()) { // ok, last move is very good
+			GameOver();
+			break;
+		}
 		chess_board->Print();
 		if (chess_board->Player() == WHITE) {
 			std::cout << "White to move." << std::endl;
@@ -58,12 +80,12 @@ bool Controller::RunGame() {
 				WhiteWon();
 			}
 			GameOver();
-			break;
+			return 1;
 		} else
 		if (command.compare("draw") == 0) {
 			Draw();
 			GameOver();
-			break;
+			return 1;
 		} else
 		if (command.compare("undo") == 0) {
 			recent_decision = recent_decision->UndoDecision(chess_board);
@@ -80,10 +102,6 @@ bool Controller::RunGame() {
 				continue;
 			}
 			recent_decision = recent_decision->AddDecision(std::move(move));
-			if (chess_board->GameOver()) { // ok, last move is very good
-				GameOver();
-				break;
-			}
 		} else {
 			std::cout << "Invalid command!" << std::endl;
 			ss.ignore();
@@ -102,7 +120,9 @@ void Controller::Setup() {
 
 	while (true) {
 		chess_board->Print();
-		getline(std::cin, command);
+		if (!getline(std::cin, command)) {
+			break;
+		}
 		std::stringstream ss{command};
 		ss >> option;
 		if (option.compare("done") == 0) {
@@ -155,6 +175,4 @@ void Controller::Setup() {
 	}
 
 	std::cout << "Setup complete." << std::endl;
-
-	RunGame();
 }

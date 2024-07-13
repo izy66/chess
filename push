@@ -3,5 +3,5 @@
 # Check if the correct number of arguments are provided
 remote_destination = "cs246/chess"
 
-scp -r . r473li@linux.student.cs.uwaterloo.ca:~/cs246/chess
+scp -r src r473li@linux.student.cs.uwaterloo.ca:~/cs246/chess
 
