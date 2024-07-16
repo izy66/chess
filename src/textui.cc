@@ -9,13 +9,23 @@ void TextUI::Notify() {
 	for (char r = TOP_ROW; r >= BOT_ROW; --r) {
 		std::cout << r << ' ';
 		for (char c = LEFT_COL; c <= RIGHT_COL; ++c) {
-			std::cout << chess_board->GetPieceName(std::string() + c + r) << ' ';
+			std::string loc = std::string() + c + r;
+			std::string output = "\e[";
+			if (chess_board->GetPiecePlayer(loc) == WHITE) output += WHITE_;
+			else output += BLACK_;
+			output += ";";
+			if ((r + c) % 2 == 0) output += GREEN_;
+			else output += GREY_;
+			output += "m";
+			output += chess_board->GetPieceName(loc);
+			output += "\e[0m";
+			std::cout << output;
 		}
 		std::cout << std::endl;
 	}
 	std::cout << "  ";
 	for (char c = LEFT_COL; c <= RIGHT_COL; ++c) {
-		std::cout << c << ' ';
+		std::cout << c;
 	}
 	std::cout << std::endl;
 	std::cout << "White captured:";

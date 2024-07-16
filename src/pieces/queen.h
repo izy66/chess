@@ -7,7 +7,6 @@
 class Queen : public Piece {
 	public:
 		Queen(char player) : Piece{static_cast<char>(player == WHITE ? toupper(QUEEN) : tolower(QUEEN)), player} {}
-		void Move(const std::string&) override {}
 
 		Iterator begin(Board* board, const std::string& loc) override {
 			return Iterator{std::make_shared<QueenIterator>(board, loc)};

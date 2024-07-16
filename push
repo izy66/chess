@@ -4,4 +4,5 @@
 remote_destination = "cs246/chess"
 
 scp -r src r473li@linux.student.cs.uwaterloo.ca:~/cs246/chess
-
+scp Makefile r473li@linux.student.cs.uwaterloo.ca:~/cs246/chess
+scp *.in r473li@linux.student.cs.uwaterloo.ca:~/cs246/chess

@@ -4,6 +4,9 @@
 #include "pieces/blank.h"
 #include "pieces/piece.h"
 #include "subject.h"
+#include "player/player.h"
+#include "player/human.h"
+#include "player/random_player.h"
 #include <vector>
 #include <memory>
 #include <map>
@@ -25,8 +28,11 @@ class Board : public Subject {
 
 		char player = WHITE, opponent = BLACK, who_won;
 		std::map<char, std::string> king_loc;
-		bool game_over = false, captured = false;
+		bool game_over = false, captured = false, draw = false;
 		std::string last_moved;
+
+		std::vector<std::unique_ptr<Player>> players;
+		size_t cur_player = 0;
 
 		/* internal state refreshers */
 		void refresh_vision();
@@ -38,8 +44,8 @@ class Board : public Subject {
 		bool RemovePiece(const std::string& loc);
 		virtual char GetPieceName(const std::string& loc); // overwritten in Fog of War
 		char GetPiecePlayer(const std::string& loc);
-		char Player() { return player; }
-		char WhoWon() { return who_won; }
+		char CurrentPlayer() const { return player; }
+		char WhoWon() const { return who_won; }
 
 		void PlayerMovesNext(char next_player) {
 			if (next_player == WHITE) { player = WHITE; opponent = BLACK; }
@@ -54,18 +60,56 @@ class Board : public Subject {
 		}
 
 		bool GameOver() { return game_over; }
+		bool Drawed() { return draw; }
+		bool SetUpDone() { 
+			if (king_loc[player] != "" && king_loc[opponent] != "") return 1;
+			if (king_loc[WHITE] == "") {
+				std::cout << "You need a white king on board!" << std::endl;
+			}
+			if (king_loc[BLACK] == "") {
+				std::cout << "You need a black king on board!" << std::endl;
+			}
+			return 0;
+		}
+
+		void AddHumanPlayer(char team);
+		void AddComputerPlayer(char team, int level = 1);
+		bool PlayerMakeMove() { 
+			if (player == WHITE) {
+				std::cout << "White to move." << std::endl;
+			} else {
+				std::cout << "Black to move." << std::endl;
+			}
+			if (!players[cur_player]->MakeMove()) return 0;
+			cur_player = (cur_player + 1) % players.size();
+			return 1;
+		}
+
+		bool PlayerResign() {
+			who_won = opponent;
+			return 1;
+		}
+
+		bool Draw() {
+			draw = true;
+			return 1;
+		}
 
 		/* action interface */
 		bool ValidMove(const std::string& from, const std::string& to);
 		bool MakeMove(std::unique_ptr<Move>& move);
 		bool MovePiece(const std::string& from, const std::string& to);
+		bool CanMove(const std::string&);
+		std::string MakeRandomMove(const std::string&);
 		void JustMoved(const std::string& loc) { pieces[loc]->JustMoved(); }
 		bool HasItMoved(const std::string& loc) { return pieces[loc]->HasMoved(); }
 		bool FirstMove(const std::string& loc) { return pieces[loc] != BLANK && pieces[loc]->FirstMove(); }
 		std::string LastMovedLoc() { return last_moved; }
+		bool Undo() { return players[cur_player]->Undo(); }
 
+		/* game logic interface */
 		virtual bool IsEnPassant(const std::string& from, const std::string& to);
-		virtual bool IsCastling(const std::string& from, const std::string& to); // given some arbitrary move, is it castling?
+		virtual bool IsCastling(const std::string& from, const std::string& to);
 		virtual bool CanPromote(const std::string& from);
 
 		bool IsKing(const std::string& loc) { return toupper(pieces[loc]->Name()) == KING; }
@@ -84,9 +128,7 @@ class Board : public Subject {
 			return LEFT_COL <= loc[0] && loc[0] <= RIGHT_COL && BOT_ROW <= loc[1] && loc[1] <= TOP_ROW;
 		}
 
-		// Board() { Reset(); }
-
-		bool Check(); // is my last move a check move
+		bool Check(); // is my last move a check move?
 		bool Checked(); // if the current player is getting checked
 		bool CheckMate(); // is my last move a checkmate?
 		bool StaleMate(); // is my last move a stalemate?

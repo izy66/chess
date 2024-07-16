@@ -3,6 +3,6 @@
 
 char ChessBoard::GetPieceName(const std::string& loc) {
 	// if (visibility_counter[player][loc] == 0 && (Empty(loc) || pieces[loc]->Player() != player)) return FOG;
-	if (Empty(loc)) return blank.Print(loc);
+	if (Empty(loc)) return ' ';
 	return pieces[loc]->Name();
 }

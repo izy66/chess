@@ -19,5 +19,3 @@ bool KingMove::MakeMoveOn(Board* chess_board) {
 	captured = chess_board->IsCaptureMove(from, to);
 	return chess_board->MovePiece(from, to);
 }
-
-void KingMove::Undo(Board* chess_board) {}

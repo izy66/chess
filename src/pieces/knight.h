@@ -7,7 +7,6 @@
 class Knight : public Piece {
 	public:
 		Knight(char col) : Piece{col == WHITE ? 'N' : 'n', col} {}
-		void Move(const std::string&) override {}
 
 		Iterator begin(Board* board, const std::string& loc) override {
 			return Iterator{std::make_shared<KnightIterator>(board, loc)};

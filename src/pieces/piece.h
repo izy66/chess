@@ -20,7 +20,6 @@ class Board;
 
 class Piece {
 	protected:
-		// std::string loc;
 		char name, player; // default capital = WHITE lowercase = BLACK
 		bool has_moved, first_move;
 	public:
@@ -45,10 +44,8 @@ class Piece {
 			}
 		}
 
-		bool HasMoved() { return has_moved; }
-		bool FirstMove() { return first_move; }
-		
-		virtual void Move(const std::string&) = 0;
+		bool HasMoved() const { return has_moved; }
+		bool FirstMove() const { return first_move; }
 
 		class Iterator {
 			friend class Piece;

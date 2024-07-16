@@ -8,7 +8,6 @@ class PawnMove final : public Move {
 	public:
 		PawnMove(std::string& from, std::string& to, char promo = PAWN) : Move{from, to}, promotion{promo} {}
 		bool MakeMoveOn(Board*) override;
-		void Undo(Board*) override {}
 };
 
 #endif

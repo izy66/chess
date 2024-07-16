@@ -4,9 +4,9 @@
 #include "moves/pawn_move.h"
 #include <iostream>
 
-std::unique_ptr<Move> Parser::ParseCommand(ChessBoard* chess_board, std::string& from, std::string& to, char promotion) {
+std::unique_ptr<Move> Parser::ParseCommand(Board* chess_board, std::string& from, std::string& to, char promotion) {
 	// Move move;
-	switch (char c = tolower(chess_board->GetPieceName(from))) {
+	switch (tolower(chess_board->GetPieceName(from))) {
 	case 'k':
 		return std::make_unique<KingMove>(from, to);
 		break;

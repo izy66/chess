@@ -7,11 +7,16 @@
 #include "pieces/knight.h"
 #include "pieces/pawn.h"
 #include "pieces/rook.h"
+#include <iostream>
 
 bool Board::SetPiece(const std::string& loc, char name, char player) {
 	if (name == GetPieceName(loc)) return 0; // don't need to set again
 	switch(tolower(name)) {
 		case 'k':
+			if (king_loc[player] != "") {
+				std::cout << "You can't have two kings for yourself!" << std::endl;
+				return 0;
+			}
 			pieces[loc] = std::make_unique<King>(player);
 			king_loc[player] = loc;
 			break;
@@ -25,6 +30,10 @@ bool Board::SetPiece(const std::string& loc, char name, char player) {
 			pieces[loc] = std::make_unique<Knight>(player);
 			break;
 		case 'p':
+			if ((isupper(name) && loc[1] == BOT_ROW) || (islower(name) && loc[1] == TOP_ROW)) {
+				std::cout << "You can't put your pawn on first rank!" << std::endl;
+				return 0;
+			}
 			pieces[loc] = std::make_unique<Pawn>(player);
 			break;
 		case 'r':
@@ -55,7 +64,8 @@ void Board::refresh_vision() {
 }
 
 char Board::GetPieceName(const std::string& loc) { 
-	if (Empty(loc)) return blank.Print(loc);
+	// if (Empty(loc)) return blank.Print(loc);
+	if (Empty(loc)) return ' ';
 	return pieces[loc]->Name();
 }
 
@@ -66,6 +76,7 @@ char Board::GetPiecePlayer(const std::string& loc) {
 
 bool Board::RemovePiece(const std::string& loc) {
 	if (pieces[loc] == BLANK) return 0; // nothing to remove
+	if (IsKing(loc)) king_loc[GetPiecePlayer(loc)] = "";
 	pieces[loc] = BLANK;
 	refresh_vision();
 	return 1;
@@ -77,6 +88,7 @@ void Board::Clear() {
 			RemovePiece(std::string() + c + r);
 		}
 	}
+	king_loc[player] = king_loc[opponent] = "";
 }
 
 void Board::Reset() {
@@ -108,8 +120,24 @@ void Board::Reset() {
 	captured_by[WHITE].clear();
 	captured_by[BLACK].clear();
 	game_over = false;
+	captured = false;
+	draw = false;
 	player = WHITE;
 	opponent = BLACK;
+}
+
+void Board::AddHumanPlayer(char team) { 
+	players.emplace_back(std::make_unique<HumanPlayer>(this, team)); 
+}
+
+void Board::AddComputerPlayer(char team, int level) {
+	switch (level) {
+	case 1:
+		players.emplace_back(std::make_unique<RandomPlayer>(this, team));
+		break;
+	default:
+		break;
+	}
 }
 
 void Board::Capture(const std::string& loc) {
@@ -214,6 +242,8 @@ bool Board::MakeMove(std::unique_ptr<Move>& move) {
 	
 	std::swap(player, opponent);
 
+	Print();
+
 	return 1;
 }
 
@@ -222,9 +252,30 @@ bool Board::IsCaptureMove(const std::string& from, const std::string& to) {
 }
 
 bool Board::CanPromote(const std::string& from) {
-	// if (Empty(from) || toupper(pieces[from]->Name()) != PAWN) return 0;
+	if (Empty(from) || !IsPawn(from)) return 0;
 	if (player == BLACK) return from[1] == BOT_ROW + 1;
 	return from[1] == TOP_ROW - 1;
+}
+
+bool Board::CanMove(const std::string& loc) {
+	Piece::Iterator move = pieces[loc]->begin(this, loc);
+	++move;
+	while (move != pieces[loc]->end() && GetPiecePlayer(*move) == GetPiecePlayer(loc)) ++move;
+	return move != pieces[loc]->end();
+}
+
+std::string Board::MakeRandomMove(const std::string& loc) {
+	int count_moves = 0;
+	Piece::Iterator move = pieces[loc]->begin(this, loc);
+	++move;
+	while (move != pieces[loc]->end()) {
+		++count_moves;
+		++move;
+	}
+	int rand_move = rand() % count_moves + 1;
+	move = pieces[loc]->begin(this, loc);
+	while (rand_move--) ++move;
+	return *move;
 }
 
 bool Board::MovePiece(const std::string& from, const std::string& to) {
@@ -250,14 +301,17 @@ bool Board::Checked() {
 }
 
 bool Board::CheckMate() {
-	if (!Check()) return 0; // can't be a checkmate if not a check
-	if (visibility_counter[opponent][last_moved] > 0) return 0; // not a checkmate if piece can be captured 
+	// can't be a checkmate if not a check
+	if (!Check()) return 0; 
+	// not a checkmate if piece can be captured 
+	if (visibility_counter[opponent][last_moved] > 0) return 0; 
 	// not a checkmate if king can escape
 	for (Piece::Iterator move = pieces[king_loc[opponent]]->begin(this, king_loc[opponent]); move != pieces[king_loc[opponent]]->end(); ++move) {
 		if (visibility_counter[player][*move] == 0) { // king can escape here?
+			bool escaped = false;
 			pieces[*move] = std::move(pieces[king_loc[opponent]]);
 			refresh_vision();
-			bool escaped = visibility_counter[player][*move] == 0;
+			escaped = visibility_counter[player][*move] == 0;
 			pieces[king_loc[opponent]] = std::move(pieces[*move]);
 			refresh_vision();
 			if (escaped) return 0;

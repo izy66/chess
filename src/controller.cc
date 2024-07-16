@@ -3,6 +3,9 @@
 #include <iostream>
 #include <sstream>
 
+#define HUMAN_PLAYER "human"
+#define COMPUTER_LEVEL1 "computer1"
+
 Controller::~Controller() { 
 	DisplayFinalScores();
 }
@@ -34,6 +37,18 @@ void Controller::StartGame() {
 		if (mode.compare("game") == 0) {
 			if (!(ss >> player1)) {}
 			if (!(ss >> player2)) {}
+			if (player1.compare(HUMAN_PLAYER) == 0) {
+				chess_board->AddHumanPlayer(WHITE);
+			} else
+			if (player1.compare(COMPUTER_LEVEL1) == 0) {
+				chess_board->AddComputerPlayer(WHITE, 1);
+			}
+			if (player2.compare(HUMAN_PLAYER) == 0) {
+				chess_board->AddHumanPlayer(BLACK);
+			} else
+			if (player2.compare(COMPUTER_LEVEL1) == 0) {
+				chess_board->AddComputerPlayer(BLACK, 1);
+			}
 			while (RunGame());
 		} else
 		if (mode.compare("quit") == 0) {
@@ -54,57 +69,13 @@ void Controller::GameOver() {
 }
 
 bool Controller::RunGame() {
-	std::string read_line, command, from, to, promotion;
+	chess_board->Print();
 	while (true) {
-		if (chess_board->GameOver()) { // ok, last move is very good
+		if (chess_board->GameOver()) { // ok, last move was very good
 			GameOver();
 			break;
 		}
-		chess_board->Print();
-		if (chess_board->Player() == WHITE) {
-			std::cout << "White to move." << std::endl;
-		} else {
-			std::cout << "Black to move." << std::endl;
-		}
-		if (!getline(std::cin, read_line)) {
-			return 0;
-		}
-		std::stringstream ss{read_line};
-		ss >> command;
-		if (command.compare("resign") == 0) {
-			if (chess_board->Player() == WHITE) {
-				BlackWon();
-			} else {
-				WhiteWon();
-			}
-			GameOver();
-			return 1;
-		} else
-		if (command.compare("draw") == 0) {
-			Draw();
-			GameOver();
-			return 1;
-		} else
-		if (command.compare("undo") == 0) {
-			recent_decision = recent_decision->UndoDecision(chess_board);
-		} else 
-		if (command.compare("move") == 0) {
-			if (!(ss >> from)) { }
-			if (!(ss >> to)) { }
-			std::unique_ptr<Move> move;
-			if (!(ss >> promotion)) move = parser->ParseCommand(chess_board, from, to);
-			else move = parser->ParseCommand(chess_board, from, to, promotion[0]);
-			if (move == nullptr) continue;
-			if (!chess_board->MakeMove(move)) { // check rules
-				std::cout << "You can't do that move. Please try another one." << std::endl;
-				continue;
-			}
-			recent_decision = recent_decision->AddDecision(std::move(move));
-		} else {
-			std::cout << "Invalid command!" << std::endl;
-			ss.ignore();
-			continue;
-		}
+		if (!chess_board->PlayerMakeMove()) return 0;
 	}
 	return 1;
 }
@@ -113,7 +84,6 @@ void Controller::Setup() {
 	std::cout << "Entering setup mode." << std::endl;
 	chess_board->Clear();
 
-	bool white_king = false, black_king = false;
 	std::string command, option, param1, param2;
 
 	while (true) {
@@ -124,45 +94,20 @@ void Controller::Setup() {
 		std::stringstream ss{command};
 		ss >> option;
 		if (option.compare("done") == 0) {
-			if (!white_king) {
-				std::cout << "You need a white king on board." << std::endl;
-				continue;
-			}
-			if (!black_king) {
-				std::cout << "You need a black king on board." << std::endl;
-				continue;
-			}
-			break;
+			if (chess_board->SetUpDone()) break;
 		} else 
 		if (option.compare("+") == 0) {
 			if (!(ss >> param1)) { }
 			if (!(ss >> param2)) { }
-			if (toupper(param1[0]) == PAWN && (param2[1] == TOP_ROW || param2[1] == BOT_ROW)) {
-				std::cout << "You can't put pawn on the last line! That's unfair!" << std::endl;
-				continue;
-			}
 			if (isupper(param1[0])) {
-				if (param1[0] == toupper(KING) && white_king) {
-					std::cout << "You can't put two white kings on the board! That's unfair!" << std::endl;
-				} else {
-					chess_board->SetPiece(param2, param1[0], WHITE);
-					if (param1[0] == KING) white_king = true;
-				}
+				chess_board->SetPiece(param2, param1[0], WHITE);
 			} else {
-				if (param1[0] == tolower(KING) && black_king) {
-					std::cout << "You can't put two black kings on the board! That's unfair!" << std::endl;
-				} else {
-					chess_board->SetPiece(param2, param1[0], BLACK);
-					if (param1[0] == tolower(KING)) black_king = true;
-				}
+				chess_board->SetPiece(param2, param1[0], BLACK);
 			}
 		} else 
 		if (option.compare("-") == 0) {
 			if (!(ss >> param1)) { }
-			char cur_piece = chess_board->GetPieceName(param1);
-			chess_board->RemovePiece(param1); // if fails, doesn't affect king's flag
-			if (cur_piece == KING) white_king = false;
-			if (cur_piece == tolower(KING)) black_king = false;
+			chess_board->RemovePiece(param1);
 		} else 
 		if (option.compare("=") == 0) {
 			if (!(ss >> param1)) { }
