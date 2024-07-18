@@ -1,13 +1,12 @@
 #ifndef COMPUTER_LEVEL_1
 #define COMPUTER_LEVEL_1
 
-#include "player.h"
+#include "computer_player.h"
 
-class RandomPlayer : public Player {
+class RandomPlayer : public ComputerPlayer {
 	public:
-		RandomPlayer(Board*, char);
-		bool MakeMove() override;
-		bool Undo() override { return 1; }
+		RandomPlayer(char);
+		bool MakeMove(Board*) override;
 };
 
 #endif

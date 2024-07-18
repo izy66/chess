@@ -5,21 +5,13 @@
 
 #define HUMAN_PLAYER "human"
 #define COMPUTER_LEVEL1 "computer1"
+#define COMPUTER_LEVEL2 "computer2"
+#define COMPUTER_LEVEL3 "computer3"
+#define COMPUTER_LEVEL4 "computer4"
 
 Controller::~Controller() { 
-	DisplayFinalScores();
-}
-
-void Controller::DisplayScores() {
-	std::cout << "Current Score:" << std::endl;
-	std::cout << "White: " << white_score << std::endl;
-	std::cout << "Black: " << black_score << std::endl;
-}
-
-void Controller::DisplayFinalScores() {
 	std::cout << "Final Score:" << std::endl;
-	std::cout << "White: " << white_score << std::endl;
-	std::cout << "Black: " << black_score << std::endl;
+	chess_board->DisplayScores();
 }
 
 void Controller::StartGame() {
@@ -42,29 +34,27 @@ void Controller::StartGame() {
 			} else
 			if (player1.compare(COMPUTER_LEVEL1) == 0) {
 				chess_board->AddComputerPlayer(WHITE, 1);
+			} else
+			if (player1.compare(COMPUTER_LEVEL2) == 0) {
+				chess_board->AddComputerPlayer(WHITE, 2);
 			}
 			if (player2.compare(HUMAN_PLAYER) == 0) {
 				chess_board->AddHumanPlayer(BLACK);
 			} else
 			if (player2.compare(COMPUTER_LEVEL1) == 0) {
 				chess_board->AddComputerPlayer(BLACK, 1);
+			} else
+			if (player2.compare(COMPUTER_LEVEL2) == 0) {
+				chess_board->AddComputerPlayer(BLACK, 2);
 			}
 			while (RunGame());
-		} else
-		if (mode.compare("quit") == 0) {
-			return;
-		}
+		} 
 	}
 }
 
 void Controller::GameOver() {
-	if (chess_board->WhoWon() == WHITE) ++white_score;
-	else if (chess_board->WhoWon() == BLACK) ++black_score;
-	else if (chess_board->WhoWon() == DRAW) {
-		white_score += 0.5;
-		black_score += 0.5;
-	}
-	DisplayScores();
+	std::cout << "Current Score:" << std::endl;
+	chess_board->DisplayScores();
 	chess_board->Reset();
 }
 

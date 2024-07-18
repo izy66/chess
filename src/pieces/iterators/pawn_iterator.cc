@@ -8,7 +8,7 @@ void PawnIterator::operator++() {
 		cloc = sloc;
 		cloc[0] += dir[cur_dir][0];
 		cloc[1] += dir[cur_dir][1] * player_dir; // white pawn moves up, black pawn moves down
-		if (board->in_bound(cloc) && ((dir[cur_dir][0] == 0 && board->Empty(cloc)) || (dir[cur_dir][0] != 0 && (!board->Empty(cloc) || board->IsEnPassant(sloc, cloc))))) {
+		if (board->InBound(cloc) && ((dir[cur_dir][0] == 0 && board->Empty(cloc)) || (dir[cur_dir][0] != 0 && (!board->Empty(cloc) || board->IsEnPassant(sloc, cloc))))) {
 			found_next = true;
 		}
 		++cur_dir;
@@ -19,7 +19,7 @@ void PawnIterator::operator++() {
 		cloc[1] += 2 * player_dir;
 		std::string up_loc = sloc;
 		up_loc[1] += player_dir;
-		if (board->in_bound(cloc) && board->Empty(cloc) && board->Empty(up_loc)) {
+		if (board->InBound(cloc) && board->Empty(cloc) && board->Empty(up_loc)) {
 			found_next = true;
 		}
 		++cur_dir;

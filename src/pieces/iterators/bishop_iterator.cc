@@ -6,7 +6,7 @@ void BishopIterator::operator++() {
 	if (board->Empty(cloc) || cloc == sloc) {
 		next_loc[0] += dir[cur_dir][0];
 		next_loc[1] += dir[cur_dir][1];
-		if (board->in_bound(next_loc)) {
+		if (board->InBound(next_loc)) {
 			cloc = next_loc;
 			return;
 		}
@@ -15,7 +15,7 @@ void BishopIterator::operator++() {
 		next_loc = sloc;
 		next_loc[0] += dir[cur_dir][0];
 		next_loc[1] += dir[cur_dir][1];
-		if (board->in_bound(next_loc)) {
+		if (board->InBound(next_loc)) {
 			cloc = next_loc;
 			return;
 		}

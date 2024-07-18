@@ -8,7 +8,7 @@ void KingIterator::operator++() {
 		cloc[0] += dir[cur_dir][0];
 		cloc[1] += dir[cur_dir][1];
 		++cur_dir;
-		if (board->in_bound(cloc)) {
+		if (board->InBound(cloc)) {
 			found_step = true;
 		}
 	}

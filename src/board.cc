@@ -7,6 +7,10 @@
 #include "pieces/knight.h"
 #include "pieces/pawn.h"
 #include "pieces/rook.h"
+#include "player/player.h"
+#include "player/human_player.h"
+#include "player/random_player.h"
+#include "player/beginner_player.h"
 #include <iostream>
 
 bool Board::SetPiece(const std::string& loc, char name, char player) {
@@ -127,17 +131,29 @@ void Board::Reset() {
 }
 
 void Board::AddHumanPlayer(char team) { 
-	players.emplace_back(std::make_unique<HumanPlayer>(this, team)); 
+	players.emplace_back(std::make_shared<HumanPlayer>(team)); 
 }
 
 void Board::AddComputerPlayer(char team, int level) {
-	switch (level) {
-	case 1:
-		players.emplace_back(std::make_unique<RandomPlayer>(this, team));
-		break;
-	default:
-		break;
+	players.emplace_back(std::make_shared<RandomPlayer>(team));
+	if (level >= 2) players.back() = std::make_shared<BeginnerPlayer>(players.back(), team);
+}
+
+bool Board::PlayerMakeMove() {
+	if (player == WHITE) {
+		std::cout << "White to move." << std::endl;
+	} else {
+		std::cout << "Black to move." << std::endl;
 	}
+	if (players[cur_player]->IsHuman() && !players[cur_player]->TakeAction(this)) return 0;
+	if (!players[cur_player]->IsHuman() && !players[cur_player]->TakeAction(this)) return 0;
+	cur_player = (cur_player + 1) % players.size();
+	return 1;
+}
+
+void Board::DisplayScores() {
+	std::cout << "White score: " << scores[WHITE] << std::endl;
+	std::cout << "Black score: " << scores[BLACK] << std::endl;
 }
 
 void Board::Capture(const std::string& loc) {
@@ -164,6 +180,20 @@ void Board::Recapture(const std::string& loc) {
 	captured_pieces.pop();
 }
 
+std::string Board::BestCaptureMove(const std::string& loc) {
+	int highest_rank = -1;
+	std::string best_move = "";
+	Piece::Iterator move = pieces[loc]->begin(this, loc);
+	for (; move != pieces[loc]->end(); ++move) {
+		int captured_rank = get_rank(toupper(GetPieceName(*move)));
+		if (!Empty(*move) && GetPiecePlayer(*move) != GetPiecePlayer(loc) && captured_rank > highest_rank) {
+			highest_rank = captured_rank;
+			best_move = *move;
+		}
+	}
+	return best_move;
+}
+
 std::vector<char> Board::CapturedBy(char player) {
 	return captured_by[player];
 }
@@ -178,6 +208,7 @@ bool Board::ValidMove(const std::string& from, const std::string& to) {
 		return 0;
 	}
 	if (GetPiecePlayer(to) == player) {
+		std::cout << from << ' ' << to << std::endl;
 		std::cout << "You can't step over your own pieces!" << std::endl;
 		return 0;
 	}
@@ -208,7 +239,7 @@ bool Board::IsCastling(const std::string& from, const std::string& to) {
 	std::string rook_dest = from;
 	rook_dest[0] += castle_dir;
 	if (!Empty(rook_dest)) return 0; // can't castle if there are pieces on the way
-	while (in_bound(rook_loc)) {
+	while (InBound(rook_loc)) {
 		if (!Empty(rook_loc) && toupper(GetPieceName(rook_loc)) != toupper(ROOK)) return 0; // can't castle if there are pieces on the way
 		if (toupper(GetPieceName(rook_loc)) == toupper(ROOK)) {
 			if (!HasItMoved(from) && !HasItMoved(rook_loc)) {
@@ -267,15 +298,37 @@ bool Board::CanMove(const std::string& loc) {
 std::string Board::MakeRandomMove(const std::string& loc) {
 	int count_moves = 0;
 	Piece::Iterator move = pieces[loc]->begin(this, loc);
-	++move;
 	while (move != pieces[loc]->end()) {
-		++count_moves;
 		++move;
+		if (GetPiecePlayer(*move) != GetPiecePlayer(loc)) ++count_moves;
 	}
+	// srand(time(NULL));
 	int rand_move = rand() % count_moves + 1;
 	move = pieces[loc]->begin(this, loc);
-	while (rand_move--) ++move;
+	while (rand_move) {
+		++move;
+		if (GetPiecePlayer(*move) != GetPiecePlayer(loc)) --rand_move;
+	}
 	return *move;
+}
+
+bool Board::IsCheckMove(const std::string& from, const std::string& to) {
+	if (GetPiecePlayer(from) == GetPiecePlayer(to)) return 0;
+	Piece::Iterator move = pieces[from]->begin(this, to);
+	while (move != pieces[from]->end()) {
+		++move;
+		if (*move == king_loc[opponent]) return 1;
+	}
+	return 0;
+}
+
+std::string Board::TryCheckMove(const std::string& loc) {
+	Piece::Iterator move = pieces[loc]->begin(this, loc);
+	while (move != pieces[loc]->end()) {
+		++move;
+		if (IsCheckMove(loc, *move)) return *move;
+	}
+	return "";
 }
 
 bool Board::MovePiece(const std::string& from, const std::string& to) {

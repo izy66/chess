@@ -10,7 +10,7 @@ bool KingMove::MakeMoveOn(Board* chess_board) {
 		std::string rook_dest = from;
 		rook_dest[0] += (to[0] - from[0]) / 2;
 		std::string rook_loc = rook_dest;
-		while (chess_board->in_bound(rook_loc)) {
+		while (chess_board->InBound(rook_loc)) {
 			if (toupper(chess_board->GetPieceName(rook_loc)) == ROOK) break;
 			rook_loc[0] += (to[0] - from[0]) / 2;
 		}

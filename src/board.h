@@ -4,24 +4,23 @@
 #include "pieces/blank.h"
 #include "pieces/piece.h"
 #include "subject.h"
-#include "player/player.h"
-#include "player/human.h"
-#include "player/random_player.h"
 #include <vector>
 #include <memory>
 #include <map>
 #include <stack>
+#include <sstream>
 
 #define BLANK nullptr
 #define FOG '?'
 #define DRAW 'D'
 
 class Move;
+class Player;
 
 class Board : public Subject {
 	protected:
-		std::map<std::string, std::unique_ptr<Piece>> pieces;
-		std::stack<std::unique_ptr<Piece>> captured_pieces;
+		std::map<std::string, std::shared_ptr<Piece>> pieces;
+		std::stack<std::shared_ptr<Piece>> captured_pieces;
 		std::map<char, std::vector<char>> captured_by;
 		Blank blank;
 		std::map<char, std::map<std::string, int>> visibility_counter;
@@ -31,11 +30,20 @@ class Board : public Subject {
 		bool game_over = false, captured = false, draw = false;
 		std::string last_moved;
 
-		std::vector<std::unique_ptr<Player>> players;
+		std::vector<std::shared_ptr<Player>> players;
 		size_t cur_player = 0;
+
+		std::map<char, float> scores;
 
 		/* internal state refreshers */
 		void refresh_vision();
+
+		static const int NUM_PIECE = 6;
+		const char piece_rank[NUM_PIECE] = {PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING};
+		int get_rank(char c) const { 
+			for (int i = 0; i < 6; ++i) if (piece_rank[i] == c) return i; 
+			return -1;
+		}
 
 	public:
 		/* general interface */
@@ -59,8 +67,9 @@ class Board : public Subject {
 			NotifyObservers(); 
 		}
 
+		/* game control interface */
+
 		bool GameOver() { return game_over; }
-		bool Drawed() { return draw; }
 		bool SetUpDone() { 
 			if (king_loc[player] != "" && king_loc[opponent] != "") return 1;
 			if (king_loc[WHITE] == "") {
@@ -71,29 +80,28 @@ class Board : public Subject {
 			}
 			return 0;
 		}
+		void PlayerExit() { game_over = 1; }
 
-		void AddHumanPlayer(char team);
-		void AddComputerPlayer(char team, int level = 1);
-		bool PlayerMakeMove() { 
-			if (player == WHITE) {
-				std::cout << "White to move." << std::endl;
-			} else {
-				std::cout << "Black to move." << std::endl;
-			}
-			if (!players[cur_player]->MakeMove()) return 0;
-			cur_player = (cur_player + 1) % players.size();
-			return 1;
-		}
+		void AddHumanPlayer(char);
+		void AddComputerPlayer(char, int level = 1);
+		bool PlayerMakeMove();
 
 		bool PlayerResign() {
 			who_won = opponent;
+			++scores[opponent];
+			game_over = true;
 			return 1;
 		}
 
 		bool Draw() {
+			scores[player] += 0.5;
+			scores[opponent] += 0.5;
 			draw = true;
+			game_over = true;
 			return 1;
 		}
+
+		void DisplayScores();
 
 		/* action interface */
 		bool ValidMove(const std::string& from, const std::string& to);
@@ -101,11 +109,13 @@ class Board : public Subject {
 		bool MovePiece(const std::string& from, const std::string& to);
 		bool CanMove(const std::string&);
 		std::string MakeRandomMove(const std::string&);
+		bool IsCheckMove(const std::string&, const std::string&);
+		std::string TryCheckMove(const std::string&);
 		void JustMoved(const std::string& loc) { pieces[loc]->JustMoved(); }
 		bool HasItMoved(const std::string& loc) { return pieces[loc]->HasMoved(); }
 		bool FirstMove(const std::string& loc) { return pieces[loc] != BLANK && pieces[loc]->FirstMove(); }
 		std::string LastMovedLoc() { return last_moved; }
-		bool Undo() { return players[cur_player]->Undo(); }
+		bool Undo() { return 1; }
 
 		/* game logic interface */
 		virtual bool IsEnPassant(const std::string& from, const std::string& to);
@@ -113,7 +123,7 @@ class Board : public Subject {
 		virtual bool CanPromote(const std::string& from);
 
 		bool IsKing(const std::string& loc) { return toupper(pieces[loc]->Name()) == KING; }
-		bool IsKing(const std::unique_ptr<Piece>& piece) { return toupper(piece->Name()) == KING; }
+		bool IsKing(const std::shared_ptr<Piece>& piece) { return toupper(piece->Name()) == KING; }
 		bool IsPawn(const std::string& loc) { return toupper(pieces[loc]->Name()) == PAWN; }
 
 		/* captured pieces interface */
@@ -123,8 +133,9 @@ class Board : public Subject {
 		void Capture(const std::string& loc);
 		void Recapture(const std::string& loc);
 		bool CanBeCapturedBy(char player, const std::string& loc) { return visibility_counter[player][loc] > 0; }
+		std::string BestCaptureMove(const std::string&);
 
-		bool in_bound(const std::string& loc) {
+		bool InBound(const std::string& loc) {
 			return LEFT_COL <= loc[0] && loc[0] <= RIGHT_COL && BOT_ROW <= loc[1] && loc[1] <= TOP_ROW;
 		}
 
