@@ -8,7 +8,7 @@ class Move;
 
 class Parser {
 	public:
-		std::unique_ptr<Move> ParseCommand(Board*, std::string&, std::string&, char promotion = PAWN);
+		std::unique_ptr<Move> ParseCommand(Board*, const std::string&, const std::string&, char promotion = PAWN) noexcept;
 };
 
 #endif

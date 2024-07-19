@@ -6,8 +6,8 @@
 class PawnMove final : public Move {
 	char promotion;
 	public:
-		PawnMove(std::string& from, std::string& to, char promo = PAWN) : Move{from, to}, promotion{promo} {}
-		bool MakeMoveOn(Board*) override;
+		PawnMove(const std::string& from, const std::string& to, char promo = PAWN) : Move{from, to}, promotion{promo} {}
+		void MakeMoveOn(Board*) override;
 };
 
 #endif

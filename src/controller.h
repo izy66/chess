@@ -15,7 +15,7 @@ class Controller {
 		~Controller();
 
 		void StartGame(); // start game flow
-		bool RunGame(); // run a match until ctrl + D
+		void RunGame(); // run a match until ctrl + D
 		void Setup(); // setup mode
 
 		void GameOver();

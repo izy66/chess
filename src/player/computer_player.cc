@@ -1,12 +1,12 @@
 #include "computer_player.h"
 #include "board.h"
+#include "vision.h"
 
-bool ComputerPlayer::take_action(Board* chess_board) {
+void ComputerPlayer::TakeAction() {
 	std::string readline, command;
-	if (!getline(std::cin, readline)) return 0;
+	if (!getline(std::cin, readline)) throw _end_of_line_{};
 	std::stringstream ss{readline};
 	ss >> command;
-	make_move = 0;
 	if (command.compare("resign") == 0) {
 		chess_board->PlayerResign();
 	} else
@@ -17,10 +17,13 @@ bool ComputerPlayer::take_action(Board* chess_board) {
 		chess_board->Undo();
 	} else 
 	if (command.compare("move") == 0) {
-		make_move = 1;
+		try {
+			MakeMove();
+			vision->Refresh();
+		} catch (...) {
+			throw;
+		}
 	} else {
-		std::cout << "Invalid player action!" << std::endl;
-		ss.ignore();
+		throw _parsing_error_{"Player action is invalid."};
 	}
-	return 1;
 }

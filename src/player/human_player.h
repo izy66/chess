@@ -3,14 +3,14 @@
 
 #include "player.h"
 
-class HumanPlayer : public Player {
+class HumanPlayer final : public Player {
 	std::string from, to, promotion;
-	bool take_action(Board*) override;
 	public:
-		HumanPlayer(char);
-		HumanPlayer(HumanPlayer&);
-		bool MakeMove(Board*) override;
-		~HumanPlayer();
+		HumanPlayer(Board*, char);
+		~HumanPlayer() {}
+		
+		void TakeAction() override;
+		void MakeMove() override;
 };
 
 #endif

@@ -6,13 +6,20 @@
 
 class King : public Piece {
 	public:
-		King(char col) : Piece{col == WHITE ? 'K' : 'k', col} {}
+		King(Board* chess_board, const std::string& loc, char player) : Piece{chess_board, loc, KING, player} {}
 
-		Iterator begin(Board* board, const std::string& loc) override {
-			return Iterator{std::make_shared<KingIterator>(board, loc)};
+		bool ValidMove(const std::string&) override;
+
+		bool IsKing() override { return true; }
+		
+		Iterator begin() override {
+			return Iterator{std::make_shared<KingIterator>(chess_board, loc)};
+		}
+		Iterator begin(const std::string& loc) override {
+			return Iterator{std::make_shared<KingIterator>(chess_board, loc)};
 		}
 		Iterator end() override {
-			return Iterator{std::make_shared<KingIterator>(nullptr, "x")};
+			return Iterator{std::make_shared<KingIterator>(chess_board, "  ")};
 		}
 };
 

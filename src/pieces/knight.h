@@ -6,13 +6,16 @@
 
 class Knight : public Piece {
 	public:
-		Knight(char col) : Piece{col == WHITE ? 'N' : 'n', col} {}
+		Knight(Board* chess_board, const std::string& loc, char player) : Piece{chess_board, loc, KNIGHT, player} {}
 
-		Iterator begin(Board* board, const std::string& loc) override {
-			return Iterator{std::make_shared<KnightIterator>(board, loc)};
+		Iterator begin() override {
+			return Iterator{std::make_shared<KnightIterator>(chess_board, loc)};
+		}
+		Iterator begin(const std::string& loc) override {
+			return Iterator{std::make_shared<KnightIterator>(chess_board, loc)};
 		}
 		Iterator end() override {
-			return Iterator{std::make_shared<KnightIterator>(nullptr, "x")};
+			return Iterator{std::make_shared<KnightIterator>(chess_board, "  ")};
 		}
 };
 

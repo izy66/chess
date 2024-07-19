@@ -6,13 +6,16 @@
 
 class Rook : public Piece {
 	public:
-	Rook(char col) : Piece{col == WHITE ? 'R' : 'r', col} {}
+	Rook(Board* chess_board, const std::string& loc, char player) : Piece{chess_board, loc, ROOK, player} {}
 
-	Iterator begin(Board* board, const std::string& loc) override {
-		return Iterator{std::make_shared<RookIterator>(board, loc)};
+	Iterator begin() override {
+		return Iterator{std::make_shared<RookIterator>(chess_board, loc)};
+	}
+	Iterator begin(const std::string& loc) override {
+		return Iterator{std::make_shared<RookIterator>(chess_board, loc)};
 	}
 	Iterator end() override {
-		return Iterator{std::make_shared<RookIterator>(nullptr, "x")};
+		return Iterator{std::make_shared<RookIterator>(chess_board, "  ")};
 	}
 };
 

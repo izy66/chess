@@ -2,19 +2,24 @@
 #include "parser.h"
 #include "board.h"
 #include "moves/move.h"
+#include "vision.h"
 
-Player::Player(char player) : player{player}, parser{std::make_unique<Parser>()} {}
+Player::Player(Board* chess_board, char player) : chess_board{chess_board}, player{player}, parser{std::make_unique<Parser>()}, vision{std::make_unique<Vision>(chess_board, this)} {}
 
 Player::~Player() {}
 
-bool Player::TakeAction(Board* chess_board) {
-	if (!take_action(chess_board)) return 0;
-	if (!make_move) return 1;
-	return MakeMove(chess_board);
+void Player::AddPiece(const std::shared_ptr<Piece>& piece) {
+	hand.push_back(piece);
 }
 
-bool Player::Undo(Board* chess_board) { 
-	if (!moves.top()->Undo(chess_board)) return 0;
-	moves.pop(); 
-	return 1;
+void Player::DiscardHand() {
+	hand.clear();
+}
+
+void Player::RefreshVision() {
+	vision->Refresh();
+}
+
+int Player::CanSee(const std::string& loc) const {
+	return vision->CanSee(loc);
 }

@@ -2,6 +2,7 @@
 #include "board.h"
 
 void BishopIterator::operator++() {
+	// search for next move on current path
 	std::string next_loc = cloc;
 	if (board->Empty(cloc) || cloc == sloc) {
 		next_loc[0] += dir[cur_dir][0];
@@ -11,6 +12,7 @@ void BishopIterator::operator++() {
 			return;
 		}
 	}
+	// switch path direction
 	while (++cur_dir < NUM_DIR) {
 		next_loc = sloc;
 		next_loc[0] += dir[cur_dir][0];
@@ -20,5 +22,6 @@ void BishopIterator::operator++() {
 			return;
 		}
 	}
+	// no moves left
 	board = nullptr;
 }

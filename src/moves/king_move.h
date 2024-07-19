@@ -5,8 +5,8 @@
 
 class KingMove final : public Move {
 	public:
-		KingMove(std::string& from, std::string& to);
-		bool MakeMoveOn(Board*) override;
+		KingMove(const std::string& from, const std::string& to);
+		void MakeMoveOn(Board*) override;
 };
 
 #endif

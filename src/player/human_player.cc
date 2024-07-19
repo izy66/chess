@@ -1,18 +1,15 @@
 #include "human_player.h"
 #include "parser.h"
 #include "moves/move.h"
+#include "vision.h"
 #include <iostream>
 #include <sstream>
 
-HumanPlayer::HumanPlayer(char player) : Player{player} { is_human = true; }
-HumanPlayer::HumanPlayer(HumanPlayer& other) : Player{player} {
-	parser = std::make_unique<Parser>();
-}
-HumanPlayer::~HumanPlayer() {}
+HumanPlayer::HumanPlayer(Board* chess_board, char player) : Player{chess_board, player} { is_human = true; }
 
-bool HumanPlayer::take_action(Board* chess_board) {
+void HumanPlayer::TakeAction() {
 	std::string readline, command;
-	if (!getline(std::cin, readline)) return 0;
+	if (!getline(std::cin, readline)) throw _end_of_line_{};
 	std::stringstream ss{readline};
 	ss >> command;
 	if (command.compare("resign") == 0) {
@@ -26,26 +23,48 @@ bool HumanPlayer::take_action(Board* chess_board) {
 	} else 
 	if (command.compare("move") == 0) {
 		from = to = promotion = "";
-		if (!(ss >> from)) {}
-		if (!(ss >> to)) {}
-		if (!(ss >> promotion)) {}
-		make_move = 1;
+		if (!(ss >> from)) { 
+			throw _parsing_error_{"Missing first coordinate."}; 
+		}
+		if (!(ss >> to)) { 
+			throw _parsing_error_{"Missing second coordinate."}; 
+		}
+		if (chess_board->Empty(from)) { 
+			throw _invalid_move_{"You should move a piece!"}; 
+		}
+		if (chess_board->GetPiecePlayer(from) != player) { 
+			throw _invalid_move_{"You should move one of your pieces!"}; 
+		}
+		if (from == to) { 
+			throw _invalid_move_{"You should move to a different square!"}; 
+		}
+		if (chess_board->GetPiecePlayer(to) == player) { 
+			throw _invalid_move_{"You can't step over your own pieces!"}; 
+		}
+		if (chess_board->CanPromote(from) && !(ss >> promotion)) {
+			throw _parsing_error_{"Missing pawn promotion."}; 
+		}
+		try {
+			MakeMove();
+			vision->Refresh();
+		} catch (...) {
+			throw;
+		}
 	} else {
-		std::cout << "Invalid player action!" << std::endl;
-		ss.ignore();
+		throw _parsing_error_{"Player action is unknown. Please try again."};
 	}
-	return 1;
 }
 
-bool HumanPlayer::MakeMove(Board* chess_board) {
+void HumanPlayer::MakeMove() {
 	std::unique_ptr<Move> move;
-	if (promotion.empty()) move = parser->ParseCommand(chess_board, from, to);
-	else move = parser->ParseCommand(chess_board, from, to, promotion[0]);
-	if (move != nullptr && !chess_board->MakeMove(move)) {
-		std::cout << "You can't do that move. Please try another one." << std::endl;
-		return 0;
+	if (promotion.empty()) {
+		move = parser->ParseCommand(chess_board, from, to);
 	} else {
-		moves.emplace(std::move(move));
+		move = parser->ParseCommand(chess_board, from, to, promotion[0]);
 	}
-	return 1;
+	try {
+		chess_board->MakeMove(std::move(move));
+	} catch (...) {
+		throw;
+	}
 }

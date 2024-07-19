@@ -47,7 +47,15 @@ void Controller::StartGame() {
 			if (player2.compare(COMPUTER_LEVEL2) == 0) {
 				chess_board->AddComputerPlayer(BLACK, 2);
 			}
-			while (RunGame());
+			while (true) {
+				try {
+					RunGame();
+				} catch (_end_of_line_& eol) {
+					break;
+				} catch (...) {
+					continue;
+				}
+			}
 		} 
 	}
 }
@@ -58,16 +66,21 @@ void Controller::GameOver() {
 	chess_board->Reset();
 }
 
-bool Controller::RunGame() {
+void Controller::RunGame() {
 	chess_board->Print();
 	while (true) {
 		if (chess_board->GameOver()) { // ok, last move was very good
 			GameOver();
-			break;
+			return;
 		}
-		if (!chess_board->PlayerMakeMove()) return 0;
+		try {
+			chess_board->PlayerMakeMove();
+		} catch (_end_of_line_& eol) {
+			throw;
+		} catch (...) {
+			continue;
+		}
 	}
-	return 1;
 }
 
 void Controller::Setup() {
@@ -84,15 +97,24 @@ void Controller::Setup() {
 		std::stringstream ss{command};
 		ss >> option;
 		if (option.compare("done") == 0) {
-			if (chess_board->SetUpDone()) break;
+			try {
+				chess_board->SetUpDone();
+				break;
+			} catch (...) {
+				continue;;
+			}
 		} else 
 		if (option.compare("+") == 0) {
 			if (!(ss >> param1)) { }
 			if (!(ss >> param2)) { }
-			if (isupper(param1[0])) {
-				chess_board->SetPiece(param2, param1[0], WHITE);
-			} else {
-				chess_board->SetPiece(param2, param1[0], BLACK);
+			try {
+				if (isupper(param1[0])) {
+					chess_board->SetPiece(param2, param1[0], WHITE);
+				} else {
+					chess_board->SetPiece(param2, param1[0], BLACK);
+				}
+			} catch(...) {
+				continue;
 			}
 		} else 
 		if (option.compare("-") == 0) {
@@ -103,7 +125,7 @@ void Controller::Setup() {
 			if (!(ss >> param1)) { }
 			chess_board->PlayerMovesNext(param1[0]);
 		} else {
-			std::cout << "invalid command." << std::endl;
+			_parsing_error_{"Setup command unknown."};
 		}
 	}
 

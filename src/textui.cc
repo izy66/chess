@@ -17,7 +17,7 @@ void TextUI::Notify() {
 			if ((r + c) % 2 == 0) output += GREEN_;
 			else output += GREY_;
 			output += "m";
-			output += chess_board->GetPieceName(loc);
+			output += chess_board->PrintPieceName(loc);
 			output += "\e[0m";
 			std::cout << output;
 		}

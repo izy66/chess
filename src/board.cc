@@ -13,77 +13,66 @@
 #include "player/beginner_player.h"
 #include <iostream>
 
-bool Board::SetPiece(const std::string& loc, char name, char player) {
-	if (name == GetPieceName(loc)) return 0; // don't need to set again
+void Board::SetPiece(const std::string& loc, char name, char player) {
+	if (name == GetPieceName(loc)) return; // don't need to set again
 	switch(tolower(name)) {
 		case 'k':
 			if (king_loc[player] != "") {
-				std::cout << "You can't have two kings for yourself!" << std::endl;
-				return 0;
+				throw _two_kings_{};
 			}
-			pieces[loc] = std::make_unique<King>(player);
+			pieces[loc] = std::make_shared<King>(this, loc, player);
 			king_loc[player] = loc;
 			break;
 		case 'q':
-			pieces[loc] = std::make_unique<Queen>(player);
+			pieces[loc] = std::make_shared<Queen>(this, loc, player);
 			break;
 		case 'b':
-			pieces[loc] = std::make_unique<Bishop>(player);
+			pieces[loc] = std::make_shared<Bishop>(this, loc, player);
 			break;
 		case 'n':
-			pieces[loc] = std::make_unique<Knight>(player);
+			pieces[loc] = std::make_shared<Knight>(this, loc, player);
 			break;
 		case 'p':
-			if ((isupper(name) && loc[1] == BOT_ROW) || (islower(name) && loc[1] == TOP_ROW)) {
-				std::cout << "You can't put your pawn on first rank!" << std::endl;
-				return 0;
+			if (loc[1] == BOT_ROW || loc[1] == TOP_ROW) {
+				throw _pawn_first_rank_{};
 			}
-			pieces[loc] = std::make_unique<Pawn>(player);
+			pieces[loc] = std::make_shared<Pawn>(this, loc, player);
 			break;
 		case 'r':
-			pieces[loc] = std::make_unique<Rook>(player);
+			pieces[loc] = std::make_shared<Rook>(this, loc, player);
 			break;
 	}
-	refresh_vision();
- 	return 1;
 }
 
 void Board::refresh_vision() {
-	for (char c = LEFT_COL; c <= RIGHT_COL; ++c) {
-		for (char r = BOT_ROW; r <= TOP_ROW; ++r) {
-			std::string loc = std::string() + c + r;
-			visibility_counter[player][loc] = 0;
-			visibility_counter[opponent][loc] = 0;
-		}
-	}
-	for (const auto& [loc, piece] : pieces) {
-		if (piece != BLANK) {
-			Piece::Iterator visible_block = piece->begin(this, loc);
-			++visible_block;
-			for (; visible_block != piece->end(); ++visible_block) {
-				++visibility_counter[piece->Player()][*visible_block];
-			}
-		}
+	for (const auto& [team, player] : players) {
+		player->RefreshVision();
 	}
 }
 
 char Board::GetPieceName(const std::string& loc) { 
-	// if (Empty(loc)) return blank.Print(loc);
 	if (Empty(loc)) return ' ';
 	return pieces[loc]->Name();
 }
 
 char Board::GetPiecePlayer(const std::string& loc) {
-	if (Empty(loc)) return blank.Print(loc);
+	if (Empty(loc)) return ' ';
 	return pieces[loc]->Player();
 }
 
-bool Board::RemovePiece(const std::string& loc) {
-	if (pieces[loc] == BLANK) return 0; // nothing to remove
-	if (IsKing(loc)) king_loc[GetPiecePlayer(loc)] = "";
+char Board::PrintPieceName(const std::string& loc) {
+	if (Empty(loc)) return ' ';
+	return pieces[loc]->Print();
+}
+
+void Board::RemovePiece(const std::string& loc) {
+	if (pieces[loc] != BLANK && pieces[loc]->IsKing()) king_loc[GetPiecePlayer(loc)] = "";
 	pieces[loc] = BLANK;
-	refresh_vision();
-	return 1;
+}
+
+void Board::PlayerMovesNext(char next_player) {
+	if (next_player == WHITE) { player = WHITE; opponent = BLACK; }
+	if (next_player == BLACK) { player = BLACK; opponent = WHITE; }
 }
 
 void Board::Clear() {
@@ -93,6 +82,23 @@ void Board::Clear() {
 		}
 	}
 	king_loc[player] = king_loc[opponent] = "";
+	for (const auto& [team, player] : players) {
+		player->DiscardHand();
+	}
+}
+
+void Board::Print() { 
+	refresh_vision();
+	NotifyObservers(); 
+}
+
+void Board::SetUpDone() { 
+	if (king_loc[WHITE] == "") {
+		throw _missing_white_king_{};
+	}
+	if (king_loc[BLACK] == "") {
+		throw _missing_black_king_{};
+	}
 }
 
 void Board::Reset() {
@@ -130,25 +136,34 @@ void Board::Reset() {
 	opponent = BLACK;
 }
 
-void Board::AddHumanPlayer(char team) { 
-	players.emplace_back(std::make_shared<HumanPlayer>(team)); 
+void Board::AddHumanPlayer(char player) { 
+	players[player] = std::make_shared<HumanPlayer>(this, player); 
+	for (const auto& [loc, piece] : pieces) {
+		if (piece != BLANK && piece->Player() == player) players[player]->AddPiece(piece);
+	}
 }
 
-void Board::AddComputerPlayer(char team, int level) {
-	players.emplace_back(std::make_shared<RandomPlayer>(team));
-	if (level >= 2) players.back() = std::make_shared<BeginnerPlayer>(players.back(), team);
+void Board::AddComputerPlayer(char player, int level) {
+	players[player] = std::make_shared<RandomPlayer>(this, player);
+	if (level >= 2) players[player] = std::make_shared<BeginnerPlayer>(players[player], this, player);
+
+	for (const auto& [loc, piece] : pieces) {
+		if (piece != BLANK && piece->Player() == player) players[player]->AddPiece(piece);
+	}
 }
 
-bool Board::PlayerMakeMove() {
+void Board::PlayerMakeMove() {
 	if (player == WHITE) {
 		std::cout << "White to move." << std::endl;
 	} else {
 		std::cout << "Black to move." << std::endl;
 	}
-	if (players[cur_player]->IsHuman() && !players[cur_player]->TakeAction(this)) return 0;
-	if (!players[cur_player]->IsHuman() && !players[cur_player]->TakeAction(this)) return 0;
-	cur_player = (cur_player + 1) % players.size();
-	return 1;
+	try {
+		players[player]->TakeAction();
+	} catch (...) {
+		throw;
+	}
+	std::swap(player, opponent);
 }
 
 void Board::DisplayScores() {
@@ -158,19 +173,23 @@ void Board::DisplayScores() {
 
 void Board::Capture(const std::string& loc) {
 	if (pieces[loc] != BLANK) {
-		if (toupper(pieces[loc]->Name() == KING)) {
+		if (pieces[loc]->Name() == KING) {
 			game_over = true;
-			who_won = pieces[loc]->Player() == WHITE ? BLACK : WHITE;
+			++scores[player];
 			return;
 		}
-		if (pieces[loc]->Player() == BLACK) {
-			captured_by[WHITE].emplace_back(pieces[loc]->Name());
-		} else {
-			captured_by[BLACK].emplace_back(pieces[loc]->Name());
-		}
+		captured_by[player].emplace_back(PrintPieceName(loc));
+		pieces[loc]->Captured();
 		captured_pieces.push(std::move(pieces[loc]));
 		pieces[loc] = BLANK;
 	}
+}
+
+void Board::Promote(const std::string& loc, char promotion) {
+	pieces[loc]->Promoted();
+	promoted.emplace(std::move(pieces[loc]));
+	SetPiece(loc, promotion, player);
+	players[player]->AddPiece(pieces[loc]);
 }
 
 void Board::Recapture(const std::string& loc) {
@@ -180,13 +199,17 @@ void Board::Recapture(const std::string& loc) {
 	captured_pieces.pop();
 }
 
-std::string Board::BestCaptureMove(const std::string& loc) {
+bool Board::CanBeCaptured(const std::string& loc) {
+	return players[opponent]->CanSee(loc);
+}
+
+std::string Board::BestCaptureMove(const std::shared_ptr<Piece>& piece) {
 	int highest_rank = -1;
 	std::string best_move = "";
-	Piece::Iterator move = pieces[loc]->begin(this, loc);
-	for (; move != pieces[loc]->end(); ++move) {
+	Piece::Iterator move = piece->begin();
+	for (; move != piece->end(); ++move) {
 		int captured_rank = get_rank(toupper(GetPieceName(*move)));
-		if (!Empty(*move) && GetPiecePlayer(*move) != GetPiecePlayer(loc) && captured_rank > highest_rank) {
+		if (!Empty(*move) && GetPiecePlayer(*move) != piece->Player() && captured_rank > highest_rank) {
 			highest_rank = captured_rank;
 			best_move = *move;
 		}
@@ -198,41 +221,20 @@ std::vector<char> Board::CapturedBy(char player) {
 	return captured_by[player];
 }
 
-bool Board::ValidMove(const std::string& from, const std::string& to) {
-	if (Empty(from)) {
-		std::cout << "You have to move a piece!" << std::endl;
-		return 0;
-	}
-	if (GetPiecePlayer(from) != player) {
-		std::cout << "You can't move your opponent's pieces! Please make another move." << std::endl;
-		return 0;
-	}
-	if (GetPiecePlayer(to) == player) {
-		std::cout << from << ' ' << to << std::endl;
-		std::cout << "You can't step over your own pieces!" << std::endl;
-		return 0;
-	}
-	if (from == to) {
-		std::cout << "You can't move to the same square!" << std::endl;
-		return 0;
-	}
-	Piece::Iterator move = pieces[from]->begin(this, from);
-	++move;
-	for (; move != pieces[from]->end(); ++move) {
-		if (*move == to && (!IsKing(from) || !CanBeCapturedBy(opponent, to))) return 1;
-	}
-	return 0;
+bool Board::ValidMove(const std::string& from, const std::string& to) noexcept {
+	return pieces[from]->ValidMove(to);
 }
 
 bool Board::IsEnPassant(const std::string& from, const std::string& to) {
-	if (toupper(pieces[from]->Name()) != PAWN || from[0] == to[0] || abs(from[1] - to[1]) > 1) return 0;
+	if (!pieces[from]->IsPawn() || from[0] == to[0] || abs(from[1] - to[1]) > 1) return 0;
 	std::string en_passant_loc = std::string() + to[0] + from[1];
-	return !Empty(en_passant_loc) && toupper(pieces[en_passant_loc]->Name()) == PAWN &&
-			FirstMove(en_passant_loc) && LastMovedLoc() == en_passant_loc;
+	return !Empty(en_passant_loc) && pieces[en_passant_loc]->IsPawn() &&
+			pieces[en_passant_loc]->FirstMove() && last_moved == en_passant_loc;
 }
 
 bool Board::IsCastling(const std::string& from, const std::string& to) {
-	if (!IsKing(from) || Checked()) return 0; // can't castle if not king or king in check
+	if (!pieces[from]->IsKing() || Checked()) return 0; // can't castle if not king or king in check
+	if (HasItMoved(from)) return 0; // can't castle if king has moved
 	if (abs(to[0] - from[0]) != 2 || to[1] != from[1]) return 0;
 	int castle_dir = (to[0] - from[0]) / 2;
 	std::string rook_loc = to;
@@ -242,7 +244,7 @@ bool Board::IsCastling(const std::string& from, const std::string& to) {
 	while (InBound(rook_loc)) {
 		if (!Empty(rook_loc) && toupper(GetPieceName(rook_loc)) != toupper(ROOK)) return 0; // can't castle if there are pieces on the way
 		if (toupper(GetPieceName(rook_loc)) == toupper(ROOK)) {
-			if (!HasItMoved(from) && !HasItMoved(rook_loc)) {
+			if (!HasItMoved(rook_loc)) {
 				return 1;
 			}
 			return 0;
@@ -252,30 +254,33 @@ bool Board::IsCastling(const std::string& from, const std::string& to) {
 	return 0;
 }
 
-bool Board::MakeMove(std::unique_ptr<Move>& move) {
-	if (!move->MakeMoveOn(this)) return 0;
+void Board::MakeMove(std::unique_ptr<Move> move) {
+	
+	try {
+		move->MakeMoveOn(this);
+	} catch (...) {
+		throw;
+	}
 
-	refresh_vision();
+	moves.emplace(std::move(move));
+	Print();
 
+	if (game_over) return;
+	
 	if (CheckMate()) {
 		std::cout << "Checkmate!" << std::endl;
+		++scores[player];
 		game_over = true;
-		who_won = player;
 	} else 
 	if (Check()) {
 		std::cout << "Check!" << std::endl;
 	} else
 	if (StaleMate()) {
 		std::cout << "Stalemate!" << std::endl;
+		scores[player] += 0.5;
+		scores[opponent] += 0.5;
 		game_over = true;
-		who_won = DRAW;
 	}
-	
-	std::swap(player, opponent);
-
-	Print();
-
-	return 1;
 }
 
 bool Board::IsCaptureMove(const std::string& from, const std::string& to) {
@@ -283,90 +288,130 @@ bool Board::IsCaptureMove(const std::string& from, const std::string& to) {
 }
 
 bool Board::CanPromote(const std::string& from) {
-	if (Empty(from) || !IsPawn(from)) return 0;
+	if (Empty(from) || !pieces[from]->IsPawn()) return 0;
 	if (player == BLACK) return from[1] == BOT_ROW + 1;
 	return from[1] == TOP_ROW - 1;
 }
 
 bool Board::CanMove(const std::string& loc) {
-	Piece::Iterator move = pieces[loc]->begin(this, loc);
+	Piece::Iterator move = pieces[loc]->begin(loc);
 	++move;
 	while (move != pieces[loc]->end() && GetPiecePlayer(*move) == GetPiecePlayer(loc)) ++move;
 	return move != pieces[loc]->end();
 }
 
-std::string Board::MakeRandomMove(const std::string& loc) {
+std::string Board::MakeRandomMove(const std::shared_ptr<Piece>& piece) {
 	int count_moves = 0;
-	Piece::Iterator move = pieces[loc]->begin(this, loc);
-	while (move != pieces[loc]->end()) {
+	Piece::Iterator move = piece->begin();
+	while (move != piece->end()) {
 		++move;
-		if (GetPiecePlayer(*move) != GetPiecePlayer(loc)) ++count_moves;
+		if (piece->ValidMove(*move)) ++count_moves;
 	}
 	// srand(time(NULL));
 	int rand_move = rand() % count_moves + 1;
-	move = pieces[loc]->begin(this, loc);
+	move = piece->begin();
 	while (rand_move) {
 		++move;
-		if (GetPiecePlayer(*move) != GetPiecePlayer(loc)) --rand_move;
+		if (piece->ValidMove(*move)) --rand_move;
 	}
 	return *move;
 }
 
-bool Board::IsCheckMove(const std::string& from, const std::string& to) {
-	if (GetPiecePlayer(from) == GetPiecePlayer(to)) return 0;
-	Piece::Iterator move = pieces[from]->begin(this, to);
-	while (move != pieces[from]->end()) {
-		++move;
-		if (*move == king_loc[opponent]) return 1;
-	}
-	return 0;
+bool Board::IsProtectingKing(const std::string& loc) {
+	auto temp = std::move(pieces[loc]);
+	players[opponent]->RefreshVision();
+	bool king_under_attack = players[opponent]->CanSee(king_loc[player]);
+	pieces[loc] = std::move(temp);
+	return king_under_attack;
 }
 
-std::string Board::TryCheckMove(const std::string& loc) {
-	Piece::Iterator move = pieces[loc]->begin(this, loc);
-	while (move != pieces[loc]->end()) {
+void Board::Undo() {
+	moves.pop();
+}
+
+bool Board::IsCheckMove(const std::shared_ptr<Piece>& piece, const std::string& to) {
+	if (piece->Player() == GetPiecePlayer(to) || !piece->ValidMove(to)) return 0;
+	auto tmp = pieces[to];
+	auto loc_mem = piece->Location();
+	piece->TakeMove(to);
+	pieces[to] = piece;
+	refresh_vision();
+	auto check = Check();
+	piece->TakeMove(loc_mem);
+	refresh_vision();
+	return check;
+}
+
+std::string Board::TryCheckMove(const std::shared_ptr<Piece>& piece) {
+	Piece::Iterator move = piece->begin();
+	while (move != piece->end()) {
 		++move;
-		if (IsCheckMove(loc, *move)) return *move;
+		if (IsCheckMove(piece, *move)) return *move;
 	}
 	return "";
 }
 
-bool Board::MovePiece(const std::string& from, const std::string& to) {
+bool Board::IsCheckMate(const std::shared_ptr<Piece>& piece, const std::string& to) {
+	auto tmp = std::move(pieces[to]);
+	auto loc_mem = piece->Location();
+	piece->TakeMove(to);
+	pieces[to] = piece;
+	refresh_vision();
+	bool check_mate = CheckMate();
+	piece->TakeMove(loc_mem);
+	pieces[to] = tmp;
+	refresh_vision();
+	return check_mate;
+}
+
+std::string Board::TryCheckMate(const std::shared_ptr<Piece>& piece) {
+	Piece::Iterator move = piece->begin();
+	while (move != piece->end()) {
+		if (IsCheckMate(piece, *move)) return *move;
+		++move;
+	}
+	return "";
+}
+
+void Board::MovePiece(const std::string& from, const std::string& to) noexcept {
 	if (pieces[to] != BLANK) Capture(to);
-	pieces[from]->JustMoved();
+
+	pieces[from]->TakeMove(to);
 	pieces[to] = std::move(pieces[from]);
 
-	if (toupper(GetPieceName(to)) == KING) {
+	if (pieces[to]->IsKing()) {
 		king_loc[player] = to;
 	}
 	
 	last_moved = to;
-	
-	return 1;
 }
 
 bool Board::Check() {
-	return visibility_counter[player][king_loc[opponent]] > 0;
+	return players[player]->CanSee(king_loc[opponent]);
 }
 
 bool Board::Checked() {
-	return visibility_counter[opponent][king_loc[player]] > 0;
+	return players[opponent]->CanSee(king_loc[player]);
 }
 
 bool Board::CheckMate() {
 	// can't be a checkmate if not a check
 	if (!Check()) return 0; 
 	// not a checkmate if piece can be captured 
-	if (visibility_counter[opponent][last_moved] > 0) return 0; 
+	if (players[opponent]->CanSee(last_moved)) return 0;
 	// not a checkmate if king can escape
-	for (Piece::Iterator move = pieces[king_loc[opponent]]->begin(this, king_loc[opponent]); move != pieces[king_loc[opponent]]->end(); ++move) {
-		if (visibility_counter[player][*move] == 0) { // king can escape here?
+	auto opponent_king = pieces[king_loc[opponent]];
+	for (Piece::Iterator move = opponent_king->begin(); move != opponent_king->end(); ++move) {
+		if (!players[player]->CanSee(*move)) { // king can escape here?
 			bool escaped = false;
 			pieces[*move] = std::move(pieces[king_loc[opponent]]);
-			refresh_vision();
-			escaped = visibility_counter[player][*move] == 0;
+			pieces[*move]->TakeMove(*move);
+			players[player]->RefreshVision();
+			escaped = players[player]->CanSee(*move) == 0;
 			pieces[king_loc[opponent]] = std::move(pieces[*move]);
-			refresh_vision();
+			pieces[king_loc[opponent]]->TakeMove(king_loc[opponent]);
+			pieces[king_loc[opponent]]->UndoMoved();
+			players[player]->RefreshVision();
 			if (escaped) return 0;
 		}
 	}
@@ -379,8 +424,8 @@ bool Board::CheckMate() {
 		if (rdir != 0) rdir /= abs(rdir);
 		std::string block = last_moved;
 		while (block != king_loc[opponent]) {
-			if (Distance(block, king_loc[opponent]) > 1 && visibility_counter[opponent][block] > 0) return 0;
-			if (Distance(block, king_loc[opponent]) == 1 && visibility_counter[opponent][block] > 1) return 0;
+			if (Distance(block, king_loc[opponent]) > 1 && players[opponent]->CanSee(block) > 0) return 0;
+			if (Distance(block, king_loc[opponent]) == 1 && players[opponent]->CanSee(block) > 1) return 0;
 			block[0] += cdir;
 			block[1] += rdir;
 		}
@@ -390,11 +435,11 @@ bool Board::CheckMate() {
 
 bool Board::StaleMate() {
 	for (const auto& [loc, piece] : pieces) {
-		if (piece != BLANK && piece->Player() == opponent && !IsKing(piece)) return 0;
+		if (piece != BLANK && piece->Player() == opponent && !pieces[loc]->IsKing()) return 0;
 	}
-	std::string opponent_king = king_loc[opponent];
-	for (Piece::Iterator move = pieces[opponent_king]->begin(this, opponent_king); move != pieces[opponent_king]->end(); ++move) {
-		if (*move != opponent_king && visibility_counter[player][*move] == 0) return 0;
+	auto opponent_king = pieces[king_loc[opponent]];
+	for (Piece::Iterator move = opponent_king->begin(); move != opponent_king->end(); ++move) {
+		if (*move != king_loc[opponent] && !players[player]->CanSee(*move)) return 0;
 	}
 	return 1;
 }

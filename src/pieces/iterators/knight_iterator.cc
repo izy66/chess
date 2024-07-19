@@ -2,6 +2,7 @@
 #include "board.h"
 
 void KnightIterator::operator++() {
+	// search for next valid move
 	while (cur_dir < NUM_DIR) {
 		cloc = sloc;
 		cloc[0] += dir[cur_dir][0];
@@ -11,5 +12,6 @@ void KnightIterator::operator++() {
 			return;
 		}
 	}
+	// no moves left
 	board = nullptr;
 }

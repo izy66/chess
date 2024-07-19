@@ -11,25 +11,41 @@ class Board;
 class Move;
 class Parser;
 class Piece;
+class Vision;
 
 class Player {
 	protected:	
+		Board* chess_board;
 		char player;
 		std::unique_ptr<Parser> parser;
-		std::stack<std::unique_ptr<Move>> moves;
-		std::vector<std::shared_ptr<Piece>> pieces;
+		std::vector<std::shared_ptr<Piece>> hand;
+		std::unique_ptr<Vision> vision;
 
-		bool is_human, make_move;
-
-		virtual bool take_action(Board*) = 0;
+		bool is_human;
 
 	public:
-		Player(char);
+		Player(Board*, char);
 		virtual ~Player();
-		virtual bool MakeMove(Board*) = 0;
-		virtual bool TakeAction(Board*);
-		virtual bool Undo(Board*);
-		bool IsHuman() { return is_human; }
+		void AddPiece(const std::shared_ptr<Piece>&);
+		void DiscardHand();
+		virtual void TakeAction() = 0;
+		virtual void MakeMove() = 0;
+
+		void RefreshVision();
+		int CanSee(const std::string&) const;
+
+		class Iterator {
+			friend class Player;
+			std::vector<std::shared_ptr<Piece>>::const_iterator iter;
+			public:
+				Iterator(auto iter) : iter{iter} {}
+				auto operator*() const { return *iter; }
+				auto operator++() { ++iter; }
+				auto operator!=(const Iterator& other) const { return iter != other.iter; }
+		};
+
+		Iterator begin() const { return Iterator{hand.begin()}; }
+		Iterator end() const { return Iterator{hand.end()}; }
 };
 
 #endif

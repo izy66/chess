@@ -3,10 +3,11 @@
 
 #include "computer_player.h"
 
-class RandomPlayer : public ComputerPlayer {
+class RandomPlayer final : public ComputerPlayer {
 	public:
-		RandomPlayer(char);
-		bool MakeMove(Board*) override;
+		RandomPlayer(Board*, char);
+		
+		void MakeMove() override;
 };
 
 #endif

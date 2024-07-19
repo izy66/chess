@@ -6,13 +6,16 @@
 
 class Bishop : public Piece {
 	public:
-		Bishop(char player) : Piece{static_cast<char>(player == WHITE ? toupper(BISHOP) : tolower(BISHOP)), player} {}
+		Bishop(Board* chess_board, const std::string& loc, char player) : Piece{chess_board, loc, BISHOP, player} {}
 
-		Iterator begin(Board* board, const std::string& loc) override {
-			return Iterator{std::make_shared<BishopIterator>(board, loc)};
+		Iterator begin() override {
+			return Iterator{std::make_shared<BishopIterator>(chess_board, loc)};
+		}
+		Iterator begin(const std::string& loc) override {
+			return Iterator{std::make_shared<BishopIterator>(chess_board, loc)};
 		}
 		Iterator end() override {
-			return Iterator{std::make_shared<BishopIterator>(nullptr, "x")};
+			return Iterator{std::make_shared<BishopIterator>(chess_board, "  ")};
 		}
 };
 

@@ -1,8 +1,9 @@
 #include "chessboard.h"
+#include "player/player.h"
 #include <iostream>
 
-char ChessBoard::GetPieceName(const std::string& loc) {
-	// if (visibility_counter[player][loc] == 0 && (Empty(loc) || pieces[loc]->Player() != player)) return FOG;
+char ChessBoard::PrintPieceName(const std::string& loc) {
+	// if (players[player] != nullptr && !players[player]->CanSee(loc) && GetPiecePlayer(loc) != player) return FOG;
 	if (Empty(loc)) return ' ';
-	return pieces[loc]->Name();
+	return pieces[loc]->Print();
 }

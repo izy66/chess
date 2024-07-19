@@ -2,6 +2,7 @@
 #include "board.h"
 
 void PawnIterator::operator++() {
+	// search for regular moves, including capturing
 	int player_dir = board->GetPiecePlayer(sloc) == WHITE ? 1 : -1;
 	bool found_next = false;
 	while (cur_dir < NUM_DIR && !found_next) {
@@ -24,5 +25,6 @@ void PawnIterator::operator++() {
 		}
 		++cur_dir;
 	}
+	// no moves left
 	if (!found_next) board = nullptr;
 }

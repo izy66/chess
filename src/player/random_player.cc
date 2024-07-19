@@ -6,26 +6,19 @@
 #include <time.h>
 #include <sstream>
 
-RandomPlayer::RandomPlayer(char player) : ComputerPlayer{player} {}
+RandomPlayer::RandomPlayer(Board* chess_board, char player) : ComputerPlayer{chess_board, player} {}
 
-bool RandomPlayer::MakeMove(Board* chess_board) {
-	std::vector<std::string> my_pieces;
-	for (char c = LEFT_COL; c <= RIGHT_COL; ++c) {
-		for (char r = BOT_ROW; r <= TOP_ROW; ++r) {
-			std::string loc = std::string() + c + r;
-			if (chess_board->GetPiecePlayer(loc) == player && chess_board->CanMove(loc)) {
-				my_pieces.push_back(loc);				
-			}
-		}
-	}
+void RandomPlayer::MakeMove() {
 	while (true) {
 		srand(time(NULL));
-		std::string from = my_pieces[rand() % my_pieces.size()];
-		std::string to = chess_board->MakeRandomMove(from);
-		std::unique_ptr<Move> random_move = parser->ParseCommand(chess_board, from, to);
-		chess_board->MakeMove(random_move);
-		moves.emplace(std::move(random_move));
-		return 1;
+		auto rand_piece = hand[rand() % hand.size()];
+		std::string to = chess_board->MakeRandomMove(rand_piece);
+		if (to.empty()) continue;
+		auto move = parser->ParseCommand(chess_board, rand_piece->Location(), to);
+		try {
+			chess_board->MakeMove(std::move(move));
+		} catch (...) {
+			throw;
+		}
 	}
-	return 0;
 }
