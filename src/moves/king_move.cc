@@ -20,14 +20,14 @@ void KingMove::MakeMoveOn(Board* chess_board) {
 		rook = (*board)[rook_loc];
 		rook->TakeMove(rook_dest);
 	}
-	board->Capture(to);
+	captured = board->Capture(to);
 	(*board)[from]->TakeMove(to);
 	board->KingIsHere(to);
 }
 
-void KingMove::Undo() {
+void KingMove::Undo() noexcept {
 	if (rook != nullptr) rook->UndoMove(rook_loc);
 	(*board)[to]->UndoMove(from);
 	board->KingIsHere(from);
-	board->Release(std::move(captured));
+	board->Release(captured);
 }

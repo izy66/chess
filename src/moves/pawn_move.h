@@ -18,7 +18,7 @@ class PawnMove final : public AbstractMove {
 		PawnMove(const std::string&, const std::string&, char promo = PAWN);
 		
 		void MakeMoveOn(Board*) override;
-		void Undo() override;
+		void Undo() noexcept override;
 };
 
 #endif

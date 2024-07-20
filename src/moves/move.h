@@ -30,7 +30,7 @@ class Move final : public AbstractMove {
 		}
 
 		virtual void MakeMoveOn(Board*) override; // return 1 if execution is successful
-		virtual void Undo() override; // any valid execution can be undone
+		virtual void Undo() noexcept override; // any valid execution can be undone
 		// bool IsPromotion() { return promotion; }
 };
 

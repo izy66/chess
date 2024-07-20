@@ -123,7 +123,7 @@ void Controller::Setup() {
 		} else 
 		if (option.compare("=") == 0) {
 			if (!(ss >> param1)) { }
-			chess_board->PlayerMovesNext(param1[0]);
+			chess_board->PlayerMovesNext(toupper(param1[0]));
 		} else {
 			_parsing_error_{"Setup command unknown."};
 		}

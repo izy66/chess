@@ -2,6 +2,7 @@
 #define ABSTRACT_MOVE_H
 
 #include <string>
+#include <memory>
 
 class Board;
 class Piece;
@@ -13,7 +14,7 @@ class AbstractMove {
 	public:
 	
 		virtual void MakeMoveOn(Board*) = 0; // return 1 if execution is successful
-		virtual void Undo() = 0; // any valid execution can be undone
+		virtual void Undo() noexcept = 0; // any valid execution can be undone
 	
 		virtual ~AbstractMove() = default;
 };

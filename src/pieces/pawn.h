@@ -8,8 +8,8 @@ class Pawn : public Piece {
 	public:
 		Pawn(Board* chess_board, const std::string& loc, char player) : Piece{chess_board, loc, PAWN, player} {}
 
-		bool IsPawn() override { return true; }
-		bool IsEnPassant(const std::string&) override; 
+		bool IsPawn() const override { return true; }
+		bool IsEnPassant(const std::string&) const override; 
 
 		Iterator begin() override {
 			return Iterator{std::make_shared<PawnIterator>(chess_board, loc)};

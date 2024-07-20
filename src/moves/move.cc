@@ -10,7 +10,7 @@ void Move::MakeMoveOn(Board* chess_board) {
 	(*board)[from]->TakeMove(to);
 }
 
-void Move::Undo() {
+void Move::Undo() noexcept {
 	(*board)[to]->UndoMove(from);
-	board->Release(std::move(captured));
+	board->Release(captured);
 }

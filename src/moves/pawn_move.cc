@@ -16,30 +16,13 @@ void PawnMove::MakeMoveOn(Board* chess_board) {
 	}
 	// handle promotion
 	if (board->CanPromote(from)) {
-		promoted = std::move((*board)[from]);
-		switch (toupper(promotion)) {
-				case QUEEN:
-					(*board)[from] = std::make_shared<Queen>(*promoted);
-					break;
-				case BISHOP:
-					(*board)[from] = std::make_shared<Bishop>(*promoted);
-					break;
-				case KNIGHT:
-					(*board)[from] = std::make_shared<Knight>(*promoted);
-					break;
-				case ROOK:
-					(*board)[from] = std::make_shared<Rook>(*promoted);
-					break;
-				default:
-					(*board)[from] = std::make_shared<Queen>(*promoted);
-					break;
-		}
+		promoted = board->Promote(from, promotion);
 	}
 	(*board)[from]->TakeMove(to); // then move pawn / promoted piece 
 }
 
-void PawnMove::Undo() {
+void PawnMove::Undo() noexcept {
 	(*board)[to]->UndoMove(from);
-	board->Release(std::move(captured));
-	board->Release(std::move(promoted));
+	board->Release(captured);
+	board->Demote(promoted);
 }

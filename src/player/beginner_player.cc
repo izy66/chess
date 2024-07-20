@@ -24,20 +24,20 @@ void BeginnerPlayer::MakeMove(ComputerPlayer* player) {
 			checkmate_move_from = from;
 			checkmate_move_to = chess_board->TryCheckMate(piece);
 		}
-		// if (check_move_to.empty()) {
-		// 	check_move_from = from;
-		// 	check_move_to = chess_board->TryCheckMove(piece);
-		// }
+		if (check_move_to.empty()) {
+			check_move_from = from;
+			check_move_to = chess_board->TryCheckMove(piece);
+		}
 	}
 	std::unique_ptr<AbstractMove> move = nullptr;
 	if (!checkmate_move_to.empty()) {
 		move = player->parser->ParseCommand(chess_board, checkmate_move_from, checkmate_move_to);
 	} else 
-	if (!capture_move_to.empty()) {
-		move = player->parser->ParseCommand(chess_board, capture_move_from, capture_move_to);
-	} else 
 	if (!check_move_to.empty()) {
 		move = player->parser->ParseCommand(chess_board, check_move_from, check_move_to);
+	} else 
+	if (!capture_move_to.empty()) {
+		move = player->parser->ParseCommand(chess_board, capture_move_from, capture_move_to);
 	}
 	if (move != nullptr) {
 		try {

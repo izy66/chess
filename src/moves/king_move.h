@@ -18,7 +18,7 @@ class KingMove final : public AbstractMove {
 
 		KingMove(const std::string&, const std::string&);
 		void MakeMoveOn(Board*) override;
-		void Undo() override;
+		void Undo() noexcept override;
 };
 
 #endif

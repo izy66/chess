@@ -26,34 +26,38 @@ class AbstractMove;
 class Player;
 
 class Board : public Subject {
+	
+	Blank blank;
+	
+	std::map<char, std::vector<char>> captured_by;
+	
+	std::stack<std::string> move_path;
+
+	std::map<char, std::string> king_loc;
+	std::stack<std::unique_ptr<AbstractMove>> moves;
+
+	std::stack<std::shared_ptr<Piece>> promoted;
+
+	char player = WHITE, opponent = BLACK;
+	bool game_over = false, draw = false;
+
+	std::map<char, std::shared_ptr<Player>> players;
+	std::map<char, float> scores;
+
+
+	static const int NUM_PIECE = 6;
+	const char piece_rank[NUM_PIECE] = {PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING};
+	int get_rank(char c) const { 
+		for (int i = 0; i < 6; ++i) if (piece_rank[i] == c) return i; 
+		return -1;
+	}
+
 	protected:
+	
 		std::map<std::string, std::shared_ptr<Piece>> pieces;
-		std::map<char, std::vector<char>> captured_by;
-		
-		std::stack<std::string> move_path;
-
-		Blank blank;
-
-		std::map<char, std::string> king_loc;
-		std::stack<std::unique_ptr<AbstractMove>> moves;
-
-		std::stack<std::shared_ptr<Piece>> promoted;
-
-		char player = WHITE, opponent = BLACK;
-		bool game_over = false, draw = false;
-
-		std::map<char, std::shared_ptr<Player>> players;
-		std::map<char, float> scores;
-
+	
 		/* internal state refresher */
 		void refresh_vision();
-
-		static const int NUM_PIECE = 6;
-		const char piece_rank[NUM_PIECE] = {PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING};
-		int get_rank(char c) const { 
-			for (int i = 0; i < 6; ++i) if (piece_rank[i] == c) return i; 
-			return -1;
-		}
 
 	public:
 		/* general interface */
@@ -116,11 +120,13 @@ class Board : public Subject {
 		/* game logic interface */
 		std::string LastMove() { return move_path.top(); }
 		virtual bool CanPromote(const std::string&);
+		std::shared_ptr<Piece> Promote(const std::string&, char);
+		void Demote(std::shared_ptr<Piece>&);
 
 		/* captured pieces interface */
 		std::vector<char> CapturedBy(char);
 		std::shared_ptr<Piece> Capture(const std::string&);
-		void Release(std::shared_ptr<Piece>);
+		void Release(std::shared_ptr<Piece>&);
 		bool CanBeCaptured(const std::string&, char);
 		bool CanBeSeen(const std::string&, char);
 		std::string BestCaptureMove(const std::shared_ptr<Piece>&);

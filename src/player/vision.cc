@@ -12,7 +12,6 @@ void Vision::Refresh(std::vector<std::shared_ptr<Piece>> hand) {
 		}
 	}
 	for (const auto& piece : hand) {
-		// if (piece->IsCaptured() || piece->IsPromoted()) continue;
 		Piece::Iterator visible_block = piece->begin();
 		++visible_block;
 		for (; visible_block != piece->end(); ++visible_block) {

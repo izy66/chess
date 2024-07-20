@@ -12,7 +12,7 @@ class Rook : public Piece {
 		name = ROOK;
 	}
 
-	bool IsRook() override { return true; }
+	bool IsRook() const override { return true; }
 
 	Iterator begin() override {
 		return Iterator{std::make_shared<RookIterator>(chess_board, loc)};

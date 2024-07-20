@@ -52,12 +52,12 @@ class Piece {
 		virtual bool CanCover(const std::string&);
 		virtual bool CanMove(const std::string&);
 		
-		virtual bool IsKing() { return false; }
-		virtual bool IsPawn() { return false; }
-		virtual bool IsRook() { return false; }
+		virtual bool IsKing() const { return false; }
+		virtual bool IsPawn() const { return false; }
+		virtual bool IsRook() const { return false; }
 
-		virtual bool IsEnPassant(const std::string& to) { return false; };
-		virtual bool IsCastling(const std::string& to) { return false; };
+		virtual bool IsEnPassant(const std::string& to) const { return false; };
+		virtual bool IsCastling(const std::string& to) const { return false; };
 
 		class Iterator {
 			friend class Piece;

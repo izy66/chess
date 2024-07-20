@@ -165,6 +165,22 @@ void Board::KingIsHere(const std::string& loc) {
 	if (pieces[loc] != nullptr) king_loc[pieces[loc]->Player()] = loc;
 }
 
+std::shared_ptr<Piece> Board::Promote(const std::string& loc, char name) {
+	if (pieces[loc] != BLANK) {
+		auto promoted = std::move(pieces[loc]);
+		pieces[loc] = BLANK;
+		SetPiece(loc, name, promoted->Player());
+		return promoted;
+	}
+	return nullptr;
+}
+
+void Board::Demote(std::shared_ptr<Piece>& piece) {
+	if (piece != nullptr) {
+		pieces[piece->Location()] = piece;
+	}
+}
+
 std::shared_ptr<Piece> Board::Capture(const std::string& loc) {
 	if (pieces[loc] != BLANK) {
 		if (pieces[loc]->Name() == KING) {
@@ -172,7 +188,7 @@ std::shared_ptr<Piece> Board::Capture(const std::string& loc) {
 			++scores[player];
 			return nullptr;
 		}
-		captured_by[player].emplace_back(pieces[loc]->Print());
+		captured_by[player].push_back(pieces[loc]->Print());
 		auto capture = std::move(pieces[loc]);
 		pieces[loc] = BLANK;
 		return capture;
@@ -180,7 +196,7 @@ std::shared_ptr<Piece> Board::Capture(const std::string& loc) {
 	return nullptr;
 }
 
-void Board::Release(std::shared_ptr<Piece> piece) {
+void Board::Release(std::shared_ptr<Piece>& piece) {
 	if (piece != nullptr) {
 		pieces[piece->Location()] = piece;
 		if (piece->Player() == WHITE) captured_by[BLACK].pop_back();
@@ -282,10 +298,12 @@ bool Board::IsRevealingKing(Piece* piece, const std::string& to) {
 bool Board::IsCheckMove(const std::shared_ptr<Piece>& piece, const std::string& to) {
 	if (piece->Player() == GetPiecePlayer(to) || !piece->CanCover(to)) return 0;
 	auto from = piece->Location();
+	auto capture = pieces[to];
 	piece->TakeMove(to);
 	players[player]->RefreshVision();
 	bool check = Check();
 	piece->UndoMove(from);
+	pieces[to] = capture;
 	players[player]->RefreshVision();
 	return check;
 }
@@ -300,12 +318,14 @@ std::string Board::TryCheckMove(const std::shared_ptr<Piece>& piece) {
 }
 
 bool Board::IsCheckMate(const std::shared_ptr<Piece>& piece, const std::string& to) {
-	if (piece->Player() == GetPiecePlayer(to) || !piece->CanCover(to)) return 0;
+	if (piece->Player() == GetPiecePlayer(to) || IsRevealingKing(&*piece, to)) return 0;
 	auto from = piece->Location();
+	auto capture = pieces[to];
 	piece->TakeMove(to);
 	refresh_vision();
 	bool check_mate = CheckMate();
 	piece->UndoMove(from);
+	pieces[to] = capture;
 	refresh_vision();
 	return check_mate;
 }

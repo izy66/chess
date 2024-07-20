@@ -11,7 +11,17 @@ bool King::CanMove(const std::string& to) {
 	return 0;
 }
 
-bool King::IsCastling(const std::string& to) {
+bool King::CanCover(const std::string& to) {
+	if (chess_board->CanBeSeen(to, player)) return 0;
+	Piece::Iterator move = begin(loc);
+	++move;
+	for (; move != end(); ++move) {
+		if (*move == to) return 1;
+	}
+	return 0;
+}
+
+bool King::IsCastling(const std::string& to) const {
 	if (chess_board->Checked()) return 0; // can't castle if not king or king in check
 	if (HasMoved()) return 0; // can't castle if king has moved
 	if (abs(to[0] - loc[0]) != 2 || to[1] != loc[1]) return 0;
@@ -32,5 +42,4 @@ bool King::IsCastling(const std::string& to) {
 		rook_loc[0] += castle_dir;
 	}
 	return 0;
-
 }

@@ -45,10 +45,14 @@ void HumanPlayer::TakeAction() {
 		if (chess_board->GetPiecePlayer(to) == player) { 
 			throw _invalid_move_{"You can't step over your own pieces!"}; 
 		}
-		if (chess_board->CanPromote(from) && !(ss >> promotion)) {
-			throw _parsing_error_{"Missing pawn promotion."}; 
+		if (chess_board->CanPromote(from)) {
+			if (!(ss >> promotion)) {
+				throw _parsing_error_{"Missing pawn promotion."}; 
+			}
+			if (toupper(promotion[0]) == KING || toupper(promotion[0]) == PAWN) {
+				throw _invalid_move_{"You should promote your pawn to a Queen, Bishop, Rook, or Knight only."};
+			}
 		}
-		// if (!(*chess_board)[from]->ValidMove(to)) throw _invalid_move_{"move " + from + " " + to + " is not following the rules!"};
 		try {
 			MakeMove();
 			vision->Refresh(get_hand());
