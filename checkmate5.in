@@ -4,5 +4,5 @@ setup
 + B h1
 + Q g2
 done
-game computer2 human
-move
+game human human
+move g2 b7

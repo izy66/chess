@@ -8,6 +8,12 @@ class Rook : public Piece {
 	public:
 	Rook(Board* chess_board, const std::string& loc, char player) : Piece{chess_board, loc, ROOK, player} {}
 
+	Rook(const Piece& other) : Piece{other} {
+		name = ROOK;
+	}
+
+	bool IsRook() override { return true; }
+
 	Iterator begin() override {
 		return Iterator{std::make_shared<RookIterator>(chess_board, loc)};
 	}

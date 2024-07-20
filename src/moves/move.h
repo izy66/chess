@@ -1,30 +1,37 @@
 #ifndef MOVE_H
 #define MOVE_H
 
-#include "board.h"
-#include <string>
+#include "abstract_move.h"
 
 class Board;
+class Piece;
 
-class Move {
-	protected:
-		Board *chess_board;
-		std::string from, to;
-		bool first_move, captured, promotion;
+class Move final : public AbstractMove {
+
+	Board *board;
+	std::string from, to;
+
+	size_t capture_count;
+	std::shared_ptr<Piece> captured;
+
 	public:
+
 		Move(const std::string& from, const std::string& to);
-		virtual void MakeMoveOn(Board*); // return 1 if execution is successful
-		virtual void Undo(Board*) {} // any valid execution can be undone
-		virtual ~Move() { Undo(chess_board); }
-		bool IsPromotion() { return promotion; }
 
 		Move(Move& other) {
-			chess_board = other.chess_board;
 			from = other.from;
 			to = other.to;
-			first_move = other.first_move;
+			capture_count = other.capture_count;
+			// piece = other.piece;
+			// promoted = other.promoted;
 			captured = other.captured;
+			// first_move = other.first_move;
+			// captured = other.captured;
 		}
+
+		virtual void MakeMoveOn(Board*) override; // return 1 if execution is successful
+		virtual void Undo() override; // any valid execution can be undone
+		// bool IsPromotion() { return promotion; }
 };
 
 #endif

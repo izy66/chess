@@ -10,10 +10,10 @@ class PawnIterator : public PieceIterator {
 		{0, 1},
 		{-1, 1},
 	};
-	int cur_dir, pawn_dir;
+	int cur_dir;
 
 	public:
-		PawnIterator(Board* board, const std::string& loc) : PieceIterator{board, loc}, cur_dir{0}, pawn_dir{0} {}
+		PawnIterator(Board* board, const std::string& loc) : PieceIterator{board, loc}, cur_dir{0} {}
 		virtual void operator++() override;
 };
 

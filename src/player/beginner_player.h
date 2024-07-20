@@ -1,13 +1,16 @@
 #ifndef COMPUTER_LEVEL_2
 #define COMPUTER_LEVEL_2
 
-#include "advanced_computer.h"
+class Board;
+class ComputerPlayer;
 
-class BeginnerPlayer final: public AdvancedComputer {
+class BeginnerPlayer {
+	Board* chess_board;
+	char player;
 	public:
-		BeginnerPlayer(std::shared_ptr<Player> base_player, Board* chess_board, char player) : AdvancedComputer{base_player, chess_board, player} {}
+		BeginnerPlayer(Board* chess_board, char player) : chess_board{chess_board}, player{player} {}
 	
-		void MakeMove() override;
+		void MakeMove(ComputerPlayer* player);
 };
 
 #endif

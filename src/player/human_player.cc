@@ -19,7 +19,11 @@ void HumanPlayer::TakeAction() {
 		chess_board->Draw();
 	} else
 	if (command.compare("undo") == 0) {
-		chess_board->Undo();
+		try {
+			chess_board->Undo();
+		} catch (...) {
+			throw;
+		}
 	} else 
 	if (command.compare("move") == 0) {
 		from = to = promotion = "";
@@ -44,9 +48,10 @@ void HumanPlayer::TakeAction() {
 		if (chess_board->CanPromote(from) && !(ss >> promotion)) {
 			throw _parsing_error_{"Missing pawn promotion."}; 
 		}
+		// if (!(*chess_board)[from]->ValidMove(to)) throw _invalid_move_{"move " + from + " " + to + " is not following the rules!"};
 		try {
 			MakeMove();
-			vision->Refresh();
+			vision->Refresh(get_hand());
 		} catch (...) {
 			throw;
 		}
@@ -56,7 +61,7 @@ void HumanPlayer::TakeAction() {
 }
 
 void HumanPlayer::MakeMove() {
-	std::unique_ptr<Move> move;
+	std::unique_ptr<AbstractMove> move;
 	if (promotion.empty()) {
 		move = parser->ParseCommand(chess_board, from, to);
 	} else {

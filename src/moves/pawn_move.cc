@@ -1,18 +1,45 @@
 #include "pawn_move.h"
 #include "pieces/pawn.h"
+#include "board.h"
+
+PawnMove::PawnMove(const std::string& from, const std::string& to, char promo) : from{from}, to{to}, captured{nullptr}, promoted{nullptr}, promotion{promo} {}
 
 void PawnMove::MakeMoveOn(Board* chess_board) {
-	if (!chess_board->ValidMove(from, to)) throw _invalid_move_{"This move is not following the rules!"};
-	captured = chess_board->IsCaptureMove(from, to);
-	if (chess_board->IsEnPassant(from, to)) {
-		std::string enpas_loc = std::string() + to[0] + from[1];
-		captured = 1;
-		chess_board->Capture(enpas_loc);
+	if (!(*chess_board)[from]->CanMove(to) && !(*chess_board)[from]->IsEnPassant(to)) throw _invalid_move_{"Can't move from " + from + " to " + to};
+	board = chess_board;
+	if (from[0] != to[0] && from[1] != to[1]) {
+		captured = board->Capture(to);
+	}
+	if ((*board)[from]->IsEnPassant(to)) {
+		auto enpas_loc = std::string() + to[0] + from[1];
+		captured = board->Capture(enpas_loc);
 	}
 	// handle promotion
-	if (chess_board->CanPromote(from)) {
-		chess_board->Promote(from, promotion); // first remove the pawn from chess board
-		promotion = true;
+	if (board->CanPromote(from)) {
+		promoted = std::move((*board)[from]);
+		switch (toupper(promotion)) {
+				case QUEEN:
+					(*board)[from] = std::make_shared<Queen>(*promoted);
+					break;
+				case BISHOP:
+					(*board)[from] = std::make_shared<Bishop>(*promoted);
+					break;
+				case KNIGHT:
+					(*board)[from] = std::make_shared<Knight>(*promoted);
+					break;
+				case ROOK:
+					(*board)[from] = std::make_shared<Rook>(*promoted);
+					break;
+				default:
+					(*board)[from] = std::make_shared<Queen>(*promoted);
+					break;
+		}
 	}
-	chess_board->MovePiece(from, to); // move pawn/promoted piece 
+	(*board)[from]->TakeMove(to); // then move pawn / promoted piece 
+}
+
+void PawnMove::Undo() {
+	(*board)[to]->UndoMove(from);
+	board->Release(std::move(captured));
+	board->Release(std::move(promoted));
 }

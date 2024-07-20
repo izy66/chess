@@ -9,12 +9,13 @@ class Pawn : public Piece {
 		Pawn(Board* chess_board, const std::string& loc, char player) : Piece{chess_board, loc, PAWN, player} {}
 
 		bool IsPawn() override { return true; }
+		bool IsEnPassant(const std::string&) override; 
 
 		Iterator begin() override {
 			return Iterator{std::make_shared<PawnIterator>(chess_board, loc)};
 		}
-		Iterator begin(const std::string& loc) override {
-			return Iterator{std::make_shared<PawnIterator>(chess_board, loc)};
+		Iterator begin(const std::string& sloc) override {
+			return Iterator{std::make_shared<PawnIterator>(chess_board, sloc)};
 		}
 		Iterator end() override {
 			return Iterator{std::make_shared<PawnIterator>(chess_board, "xx")};

@@ -5,6 +5,12 @@
 #include "moves/move.h"
 #include "pieces/blank.h"
 #include "pieces/piece.h"
+#include "pieces/king.h"
+#include "pieces/queen.h"
+#include "pieces/bishop.h"
+#include "pieces/knight.h"
+#include "pieces/pawn.h"
+#include "pieces/rook.h"
 #include "subject.h"
 #include <vector>
 #include <memory>
@@ -16,27 +22,27 @@
 #define FOG '?'
 #define DRAW 'D'
 
-class Move;
+class AbstractMove;
 class Player;
 
 class Board : public Subject {
 	protected:
 		std::map<std::string, std::shared_ptr<Piece>> pieces;
-		std::stack<std::shared_ptr<Piece>> captured_pieces;
 		std::map<char, std::vector<char>> captured_by;
+		
+		std::stack<std::string> move_path;
+
 		Blank blank;
 
-		std::stack<std::unique_ptr<Move>> moves;
+		std::map<char, std::string> king_loc;
+		std::stack<std::unique_ptr<AbstractMove>> moves;
 
 		std::stack<std::shared_ptr<Piece>> promoted;
 
 		char player = WHITE, opponent = BLACK;
-		std::map<char, std::string> king_loc;
-		bool game_over = false, captured = false, draw = false;
-		std::string last_moved;
+		bool game_over = false, draw = false;
 
 		std::map<char, std::shared_ptr<Player>> players;
-
 		std::map<char, float> scores;
 
 		/* internal state refresher */
@@ -64,6 +70,8 @@ class Board : public Subject {
 		void Clear();
 		void Print();
 
+		std::shared_ptr<Piece>& operator[](const std::string& loc) { return pieces[loc]; }
+
 		/* game control interface */
 		bool GameOver() const { return game_over; }
 		void SetUpDone();
@@ -89,36 +97,32 @@ class Board : public Subject {
 		void DisplayScores();
 
 		/* action interface */
-		bool ValidMove(const std::string& , const std::string&) noexcept;
-		void MakeMove(std::unique_ptr<Move> move);
+		void MakeMove(std::unique_ptr<AbstractMove> move);
 		void MovePiece(const std::string& , const std::string&) noexcept;
+		void UndoMove(const std::string& , const std::string&) noexcept;
 		bool CanMove(const std::string&);
-		std::string MakeRandomMove(const std::shared_ptr<Piece>&);
 		std::string TryCheckMove(const std::shared_ptr<Piece>&);
 		std::string TryCheckMate(const std::shared_ptr<Piece>&);
 		std::string TryStaleMate(const std::shared_ptr<Piece>&);
 		bool IsCheckMove(const std::shared_ptr<Piece>&, const std::string&);
 		bool IsCheckMate(const std::shared_ptr<Piece>&, const std::string&);
 		bool IsStaleMate(const std::shared_ptr<Piece>&, const std::string&);
-		bool IsProtectingKing(const std::string&);
-		bool HasItMoved(const std::string& loc) { return pieces[loc]->HasMoved(); }
-		bool FirstMove(const std::string& loc) { return pieces[loc] != BLANK && pieces[loc]->FirstMove(); }
+		bool IsRevealingKing(Piece*, const std::string&);
 
 		void Undo();
 
+		void KingIsHere(const std::string&);
+
 		/* game logic interface */
-		virtual bool IsEnPassant(const std::string&, const std::string&);
-		virtual bool IsCastling(const std::string&, const std::string&);
+		std::string LastMove() { return move_path.top(); }
 		virtual bool CanPromote(const std::string&);
 
 		/* captured pieces interface */
 		std::vector<char> CapturedBy(char);
-		bool IsCaptureMove(const std::string&, const std::string&);
-		bool Captured() { return captured; }
-		void Capture(const std::string&);
-		void Promote(const std::string&, char);
-		void Recapture(const std::string&);
-		bool CanBeCaptured(const std::string&);
+		std::shared_ptr<Piece> Capture(const std::string&);
+		void Release(std::shared_ptr<Piece>);
+		bool CanBeCaptured(const std::string&, char);
+		bool CanBeSeen(const std::string&, char);
 		std::string BestCaptureMove(const std::shared_ptr<Piece>&);
 
 		bool InBound(const std::string& loc) {

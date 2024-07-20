@@ -6,6 +6,7 @@
 #include <string>
 #include <memory>
 #include <iostream>
+#include <stack>
 
 #define BLACK 'B'
 #define WHITE 'W'
@@ -17,16 +18,23 @@
 #define PAWN 'P'
 
 class Board;
+class Move;
 
 class Piece {
+	
 	protected:
+		
 		Board* chess_board;
 		std::string loc;
 		char name, player; // default capital = WHITE lowercase = BLACK
 		size_t move_count;
-		bool captured, promoted;
+	
 	public:
-		Piece(Board* chess_board, const std::string& loc, char n, char p) : chess_board{chess_board}, loc{loc}, name{n}, player{p}, move_count{0}, captured{false}, promoted{false} {}
+	
+		Piece(Board* chess_board, const std::string& loc, char n, char p) : chess_board{chess_board}, loc{loc}, name{n}, player{p}, move_count{0} {}
+
+		Piece(const Piece& other) : chess_board{other.chess_board}, loc{other.loc}, name{other.name}, player{other.player}, move_count{other.move_count} {}
+		
 		virtual ~Piece();
 		
 		char Print() const;
@@ -36,19 +44,20 @@ class Piece {
 		char Player() const { return player; }
 		std::string Location() const { return loc; }
 
-		void UndoMoved() { --move_count; }
-		bool HasMoved() const { return move_count > 0; }
+		bool HasMoved() const { return move_count != 0; }
 		bool FirstMove() const { return move_count == 1; }
 
 		void TakeMove(const std::string&);
-		virtual bool ValidMove(const std::string&);
-		void Captured() { captured = true; }
-		bool IsCaptured() const { return captured; }
-		void Promoted() { promoted = true; }
-		bool IsPromoted() const { return promoted; }
-
+		void UndoMove(const std::string&);
+		virtual bool CanCover(const std::string&);
+		virtual bool CanMove(const std::string&);
+		
 		virtual bool IsKing() { return false; }
 		virtual bool IsPawn() { return false; }
+		virtual bool IsRook() { return false; }
+
+		virtual bool IsEnPassant(const std::string& to) { return false; };
+		virtual bool IsCastling(const std::string& to) { return false; };
 
 		class Iterator {
 			friend class Piece;

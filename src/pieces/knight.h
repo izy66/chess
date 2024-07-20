@@ -8,6 +8,10 @@ class Knight : public Piece {
 	public:
 		Knight(Board* chess_board, const std::string& loc, char player) : Piece{chess_board, loc, KNIGHT, player} {}
 
+		Knight(const Piece& other) : Piece{other} {
+			name = KNIGHT;
+		}
+
 		Iterator begin() override {
 			return Iterator{std::make_shared<KnightIterator>(chess_board, loc)};
 		}

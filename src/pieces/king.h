@@ -8,9 +8,9 @@ class King : public Piece {
 	public:
 		King(Board* chess_board, const std::string& loc, char player) : Piece{chess_board, loc, KING, player} {}
 
-		bool ValidMove(const std::string&) override;
-
+		bool CanMove(const std::string&) override;
 		bool IsKing() override { return true; }
+		bool IsCastling(const std::string&) override;
 		
 		Iterator begin() override {
 			return Iterator{std::make_shared<KingIterator>(chess_board, loc)};

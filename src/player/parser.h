@@ -4,11 +4,11 @@
 #include "board.h"
 #include <memory>
 
-class Move;
+class AbstractMove;
 
 class Parser {
 	public:
-		std::unique_ptr<Move> ParseCommand(Board*, const std::string&, const std::string&, char promotion = PAWN) noexcept;
+		std::unique_ptr<AbstractMove> ParseCommand(Board*, const std::string&, const std::string&, char promotion = PAWN) noexcept;
 };
 
 #endif

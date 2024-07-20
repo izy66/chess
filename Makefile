@@ -13,7 +13,7 @@ MAKEFILE_NAME = ${Makefile ${MAKEFILE_LIST}}  # makefile name
 SORCE_DIR = src
 BUILD_DIR = build
 BUILD_DIRS = ${BUILD_DIR} ${BUILD_DIR}/pieces ${BUILD_DIR}/pieces/iterators ${BUILD_DIR}/moves ${BUILD_DIR}/player
-FILE_LIST = moves/move.cc moves/king_move.cc moves/pawn_move.cc player/parser.cc player/vision.cc player/player.cc player/human_player.cc player/computer_player.cc player/random_player.cc player/beginner_player.cc pieces/blank.cc pieces/piece.cc pieces/king.cc subject.cc pieces/iterators/king_iterator.cc pieces/iterators/queen_iterator.cc pieces/iterators/bishop_iterator.cc pieces/iterators/knight_iterator.cc pieces/iterators/rook_iterator.cc pieces/iterators/pawn_iterator.cc textui.cc controller.cc board.cc chessboard.cc game.cc window.cc main.cc
+FILE_LIST = moves/move.cc moves/king_move.cc moves/pawn_move.cc player/parser.cc player/vision.cc player/player.cc player/human_player.cc player/computer_player.cc player/random_player.cc player/beginner_player.cc pieces/blank.cc pieces/piece.cc pieces/king.cc pieces/pawn.cc subject.cc pieces/iterators/king_iterator.cc pieces/iterators/queen_iterator.cc pieces/iterators/bishop_iterator.cc pieces/iterators/knight_iterator.cc pieces/iterators/rook_iterator.cc pieces/iterators/pawn_iterator.cc textui.cc controller.cc board.cc chessboard.cc game.cc window.cc main.cc
 SOURCES = ${addprefix ${SORCE_DIR}/, ${FILE_LIST}}     # source files (*.cc)
 OBJECTS = ${addprefix ${BUILD_DIR}/, ${FILE_LIST:.cc=.o}}     # object files forming executable
 DEPENDS = ${OBJECTS:.o=.d}      # substitute ".o" with ".d"

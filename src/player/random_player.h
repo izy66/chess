@@ -1,13 +1,17 @@
 #ifndef COMPUTER_LEVEL_1
 #define COMPUTER_LEVEL_1
 
-#include "computer_player.h"
+class Board;
+class ComputerPlayer;
 
-class RandomPlayer final : public ComputerPlayer {
+class RandomPlayer {
+	Board* chess_board;
+	char player;
+
 	public:
 		RandomPlayer(Board*, char);
 		
-		void MakeMove() override;
+		void MakeMove(ComputerPlayer* player);
 };
 
 #endif

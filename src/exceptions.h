@@ -24,6 +24,7 @@ struct _two_kings_ {
 };
 
 struct _end_of_line_ {};
+struct _no_moves_found_ {};
 
 struct _unknown_error_ {
 	_unknown_error_(const std::string& message = "") { std::cerr << "Something is wrong. " << message << std::endl; }

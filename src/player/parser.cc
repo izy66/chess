@@ -4,7 +4,7 @@
 #include "moves/pawn_move.h"
 #include <iostream>
 
-std::unique_ptr<Move> Parser::ParseCommand(Board* chess_board, const std::string& from, const std::string& to, char promotion) noexcept {
+std::unique_ptr<AbstractMove> Parser::ParseCommand(Board* chess_board, const std::string& from, const std::string& to, char promotion) noexcept {
 	// Move move;
 	switch (char c = toupper(chess_board->GetPieceName(from))) {
 	case KING:
