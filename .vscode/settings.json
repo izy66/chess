@@ -53,7 +53,8 @@
 		"iostream": "cpp",
 		"stack": "cpp",
 		"deque": "cpp",
-		"iterator": "cpp"
+		"iterator": "cpp",
+		"memory_resource": "cpp"
 	},
 	"C_Cpp.default.configurationProvider": "ms-vscode.makefile-tools",
 	"C_Cpp.default.compilerPath": "/usr/bin/g++"

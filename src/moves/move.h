@@ -11,7 +11,7 @@ class Move final : public AbstractMove {
 	Board *board;
 	std::string from, to;
 
-	size_t capture_count;
+	int capture_count;
 	std::shared_ptr<Piece> captured;
 
 	public:
@@ -29,7 +29,7 @@ class Move final : public AbstractMove {
 			// captured = other.captured;
 		}
 
-		virtual void MakeMoveOn(Board*) override; // return 1 if execution is successful
+		virtual void MakeMoveOn(Board*) override; // return true if execution is successful
 		virtual void Undo() noexcept override; // any valid execution can be undone
 		// bool IsPromotion() { return promotion; }
 };

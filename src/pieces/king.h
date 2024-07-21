@@ -13,12 +13,18 @@ class King : public Piece {
 		bool IsKing() const override { return true; }
 		bool IsCastling(const std::string&) const override;
 		
+		int Priority() const override { return Piece::KING_RANK; }
+
 		Iterator begin() override {
-			return Iterator{std::make_shared<KingIterator>(chess_board, loc)};
+			auto iter = Iterator{std::make_shared<KingIterator>(chess_board, loc)};
+			++iter;
+			return iter;
 		}
-		Iterator begin(const std::string& loc) override {
-			return Iterator{std::make_shared<KingIterator>(chess_board, loc)};
-		}
+		// Iterator begin(const std::string& loc) override {
+		// 	auto iter = Iterator{std::make_shared<KingIterator>(chess_board, loc)};
+		// 	++iter;
+		// 	return iter;
+		// }
 		Iterator end() override {
 			return Iterator{std::make_shared<KingIterator>(chess_board, "  ")};
 		}

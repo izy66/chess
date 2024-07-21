@@ -8,7 +8,7 @@ class AbstractMove;
 
 class Parser {
 	public:
-		std::unique_ptr<AbstractMove> ParseCommand(Board*, const std::string&, const std::string&, char promotion = PAWN) noexcept;
+		std::unique_ptr<AbstractMove> ParseCommand(Board*, const std::string&, const std::string&, char promotion = QUEEN) noexcept;
 };
 
 #endif

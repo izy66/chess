@@ -27,7 +27,7 @@ class Piece {
 		Board* chess_board;
 		std::string loc;
 		char name, player; // default capital = WHITE lowercase = BLACK
-		size_t move_count;
+		int move_count;
 	
 	public:
 	
@@ -38,7 +38,17 @@ class Piece {
 		virtual ~Piece();
 		
 		char Print() const;
-		bool Empty() const { return 0; }
+		bool Empty() const { return false; }
+
+		static const int HIGHEST_RANK = 100;
+		static const int PAWN_RANK = 2;
+		static const int KNIGHT_RANK = 9;
+		static const int BISHOP_RANK = 10;
+		static const int ROOK_RANK = 20;
+		static const int QUEEN_RANK = 50;
+		static const int KING_RANK = 100;
+
+		virtual int Priority() const { return false; }
 
 		char Name() const { return name; }
 		char Player() const { return player; }
@@ -49,8 +59,16 @@ class Piece {
 
 		void TakeMove(const std::string&);
 		void UndoMove(const std::string&);
+		void MakeMove(const std::string&);
+		void UndoMove();
+
+		// if an opponent piece is on this square, can I capture?
 		virtual bool CanCover(const std::string&);
+		// can I move to this square?
 		virtual bool CanMove(const std::string&);
+		
+		bool CanGetCaptured(const std::string&);
+		virtual int CapturedRank(const std::string&);
 		
 		virtual bool IsKing() const { return false; }
 		virtual bool IsPawn() const { return false; }
@@ -59,6 +77,7 @@ class Piece {
 		virtual bool IsEnPassant(const std::string& to) const { return false; };
 		virtual bool IsCastling(const std::string& to) const { return false; };
 
+		/* iterate through all squares that can either move to or attack */
 		class Iterator {
 			friend class Piece;
 			
@@ -73,7 +92,7 @@ class Piece {
 				virtual std::string operator*() { return **iterator; }
 		};
 
-		virtual Iterator begin(const std::string& loc) = 0;
+		// virtual Iterator begin(const std::string& loc) = 0;
 		virtual Iterator begin() = 0;
 		virtual Iterator end() = 0;
 };

@@ -37,6 +37,12 @@ void Controller::StartGame() {
 			} else
 			if (player1.compare(COMPUTER_LEVEL2) == 0) {
 				chess_board->AddComputerPlayer(WHITE, 2);
+			} else
+			if (player1.compare(COMPUTER_LEVEL3) == 0) {
+				chess_board->AddComputerPlayer(WHITE, 3);
+			} else
+			if (player1.compare(COMPUTER_LEVEL4) == 0) {
+				chess_board->AddComputerPlayer(WHITE, 4);
 			}
 			if (player2.compare(HUMAN_PLAYER) == 0) {
 				chess_board->AddHumanPlayer(BLACK);
@@ -46,6 +52,12 @@ void Controller::StartGame() {
 			} else
 			if (player2.compare(COMPUTER_LEVEL2) == 0) {
 				chess_board->AddComputerPlayer(BLACK, 2);
+			} else
+			if (player2.compare(COMPUTER_LEVEL3) == 0) {
+				chess_board->AddComputerPlayer(BLACK, 3);
+			} else
+			if (player2.compare(COMPUTER_LEVEL4) == 0) {
+				chess_board->AddComputerPlayer(BLACK, 4);
 			}
 			while (true) {
 				try {
@@ -67,8 +79,8 @@ void Controller::GameOver() {
 }
 
 void Controller::RunGame() {
-	chess_board->Print();
 	while (true) {
+		chess_board->Print();
 		if (chess_board->GameOver()) { // ok, last move was very good
 			GameOver();
 			return;

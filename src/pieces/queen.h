@@ -12,12 +12,19 @@ class Queen : public Piece {
 			name = QUEEN;
 		}
 
+		int Priority() const override { return Piece::QUEEN_RANK; }
+
 		Iterator begin() override {
-			return Iterator{std::make_shared<QueenIterator>(chess_board, loc)};
+			auto iter = Iterator{std::make_shared<QueenIterator>(chess_board, loc)};
+			++iter;
+			return iter;
 		}
-		Iterator begin(const std::string& loc) override {
-			return Iterator{std::make_shared<QueenIterator>(chess_board, loc)};
-		}
+		// Iterator begin(const std::string& loc) override {
+		// 	auto iter = Iterator{std::make_shared<QueenIterator>(chess_board, loc)};
+		// 	++iter;
+		// 	return iter;
+		// }
+
 		Iterator end() override {
 			return Iterator{std::make_shared<QueenIterator>(chess_board, "  ")};
 		}

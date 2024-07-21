@@ -3,6 +3,7 @@
 #include "player/player.h"
 #include "player/human_player.h"
 #include "player/computer_player.h"
+#include "player/parser.h"
 #include <iostream>
 
 void Board::SetPiece(const std::string& loc, char name, char player) {
@@ -132,6 +133,17 @@ void Board::AddComputerPlayer(char player, int level) {
 	players[player] = std::make_shared<ComputerPlayer>(this, player, level);
 }
 
+std::vector<std::shared_ptr<Piece>> Board::GetHand(char player) {
+	std::vector<std::shared_ptr<Piece>> hand;
+	for (const auto& [loc, piece] : pieces) {
+		if (piece != nullptr && piece->Player() == player) {
+			hand.push_back(piece);
+		}
+	}
+	std::shuffle(hand.begin(), hand.end(), gen);
+	return hand;
+}
+
 void Board::PlayerMakeMove() {
 	if (player == WHITE) {
 		std::cout << "White to move." << std::endl;
@@ -153,12 +165,19 @@ void Board::DisplayScores() {
 
 void Board::MovePiece(const std::string& from, const std::string& to) noexcept {
 	pieces[to] = std::move(pieces[from]);
+	move_origin.push(from);
 	move_path.push(to);
 }
 
 void Board::UndoMove(const std::string& from, const std::string& to) noexcept {
 	pieces[from] = std::move(pieces[to]);
+	move_origin.pop();
 	move_path.pop();
+}
+
+bool Board::LastMoved(const std::string& loc) {
+	if (move_origin.empty()) return false;
+	return loc == move_origin.top() || loc == move_path.top();
 }
 
 void Board::KingIsHere(const std::string& loc) {
@@ -214,34 +233,29 @@ bool Board::CanBeSeen(const std::string& loc, char player) {
 	if (player == BLACK) return players[WHITE]->CanSee(loc);
 }
 
-std::string Board::BestCaptureMove(const std::shared_ptr<Piece>& piece) {
-	int highest_rank = -1;
-	std::string best_move = "";
-	Piece::Iterator move = piece->begin();
-	for (; move != piece->end(); ++move) {
-		int captured_rank = get_rank(toupper(GetPieceName(*move)));
-		if (!Empty(*move) && GetPiecePlayer(*move) != piece->Player() && captured_rank > highest_rank) {
-			highest_rank = captured_rank;
-			best_move = *move;
-		}
-	}
-	return best_move;
-}
-
 std::vector<char> Board::CapturedBy(char player) {
 	return captured_by[player];
+}
+
+void Board::ApplyMove(std::unique_ptr<AbstractMove> move) {
+	
+	try {
+		move->MakeMoveOn(this);
+		moves.emplace(std::move(move));
+		refresh_vision();
+	} catch (...) {
+		throw;
+	}
+
 }
 
 void Board::MakeMove(std::unique_ptr<AbstractMove> move) {
 
 	try {
-		move->MakeMoveOn(this);
-		moves.emplace(std::move(move));
+		ApplyMove(std::move(move));
 	} catch (...) {
 		throw;
 	}
-
-	Print();
 
 	if (game_over) return;
 	
@@ -267,77 +281,43 @@ void Board::Undo() {
 	}
 	moves.top()->Undo();
 	moves.pop();
-	Print();
+	refresh_vision();
 }
 
 bool Board::CanPromote(const std::string& from) {
-	if (Empty(from) || !pieces[from]->IsPawn()) return 0;
+	if (Empty(from) || !pieces[from]->IsPawn()) return false;
 	if (player == BLACK) return from[1] == BOT_ROW + 1;
 	return from[1] == TOP_ROW - 1;
 }
 
-bool Board::CanMove(const std::string& loc) {
-	Piece::Iterator move = pieces[loc]->begin(loc);
-	++move;
-	while (move != pieces[loc]->end() && GetPiecePlayer(*move) == GetPiecePlayer(loc)) ++move;
-	return move != pieces[loc]->end();
-}
-
 bool Board::IsRevealingKing(Piece* piece, const std::string& to) {
+	auto opponent = piece->Player() == WHITE ? BLACK : WHITE;
 	auto tmp = piece->Location();
 	auto capture = pieces[to];
 	piece->TakeMove(to);
 	players[opponent]->RefreshVision();
-	bool king_under_attack = players[opponent]->CanSee(king_loc[player]);
+	bool king_under_attack = players[opponent]->CanSee(king_loc[piece->Player()]);
 	piece->UndoMove(tmp);
 	pieces[to] = capture;
 	players[opponent]->RefreshVision();
 	return king_under_attack;
 }
 
-bool Board::IsCheckMove(const std::shared_ptr<Piece>& piece, const std::string& to) {
-	if (piece->Player() == GetPiecePlayer(to) || !piece->CanCover(to)) return 0;
-	auto from = piece->Location();
-	auto capture = pieces[to];
-	piece->TakeMove(to);
-	players[player]->RefreshVision();
-	bool check = Check();
-	piece->UndoMove(from);
-	pieces[to] = capture;
-	players[player]->RefreshVision();
-	return check;
-}
-
-std::string Board::TryCheckMove(const std::shared_ptr<Piece>& piece) {
-	Piece::Iterator move = piece->begin();
-	while (move != piece->end()) {
-		++move;
-		if (IsCheckMove(piece, *move)) return *move;
+std::string Board::FindSafePlace(const std::shared_ptr<Piece>& piece) {
+	std::string escape_move = "";
+	int max_diff = -1;
+	for (const auto& to : *piece) {
+		if (!piece->CanMove(to)) continue;
+		auto move = players[player]->ParseCommand(piece->Location(), to);
+		ApplyMove(std::move(move));
+		int vision_diff = players[player]->CanSee(to) - players[opponent]->CanSee(to);
+		if (vision_diff > max_diff) {
+			max_diff = vision_diff;
+			escape_move = to;
+		}
+		Undo();
 	}
-	return "";
-}
-
-bool Board::IsCheckMate(const std::shared_ptr<Piece>& piece, const std::string& to) {
-	if (piece->Player() == GetPiecePlayer(to) || IsRevealingKing(&*piece, to)) return 0;
-	auto from = piece->Location();
-	auto capture = pieces[to];
-	piece->TakeMove(to);
-	refresh_vision();
-	bool check_mate = CheckMate();
-	piece->UndoMove(from);
-	pieces[to] = capture;
-	refresh_vision();
-	return check_mate;
-}
-
-std::string Board::TryCheckMate(const std::shared_ptr<Piece>& piece) {
-	Piece::Iterator move = piece->begin();
-	++move;
-	while (move != piece->end()) {
-		if (IsCheckMate(piece, *move)) return *move;
-		++move;
-	}
-	return "";
+	return escape_move;
 }
 
 bool Board::Check() {
@@ -351,30 +331,24 @@ bool Board::Checked() {
 bool Board::CheckMate() {
 	
 	// can't be a checkmate if not a check
-	if (!Check()) return 0; 
+	if (!Check()) return false; 
 	
 	// not a checkmate if piece can be captured 
 	auto last_moved = move_path.top();
-	if (CanBeCaptured(last_moved, player)) return 0;
+	if (CanBeCaptured(last_moved, player)) return false;
 	
 	// not a checkmate if king can escape
-	std::string opponent_king_loc = king_loc[opponent];
-	auto opponent_king = pieces[opponent_king_loc];
-
-	for (Piece::Iterator move = opponent_king->begin(); move != opponent_king->end(); ++move) {
-		if (!players[player]->CanSee(*move)) { // king can escape here?
+	auto oppo_king = pieces[king_loc[opponent]];
+	for (const auto& move : *oppo_king) {
+		if (!players[player]->CanSee(move) && oppo_king->CanMove(move)) { // king can escape here?
 			
-			bool escaped = false;
+			ApplyMove(players[opponent]->ParseCommand(king_loc[opponent], move));
 			
-			opponent_king->TakeMove(*move);
-			players[player]->RefreshVision();
+			bool escaped = !players[player]->CanSee(move);
 			
-			escaped = !players[player]->CanSee(*move);
+			Undo();
 			
-			opponent_king->UndoMove(opponent_king_loc);
-			players[player]->RefreshVision();
-			
-			if (escaped) return 0;
+			if (escaped) return false;
 		}
 	}
 	// not a checkmate if friendly pieces can block the attack
@@ -386,22 +360,41 @@ bool Board::CheckMate() {
 		if (rdir != 0) rdir /= abs(rdir);
 		std::string block = last_moved;
 		while (block != king_loc[opponent]) {
-			if (Distance(block, king_loc[opponent]) > 1 && players[opponent]->CanSee(block) > 0) return 0;
-			if (Distance(block, king_loc[opponent]) == 1 && players[opponent]->CanSee(block) > 1) return 0;
+			if (Distance(block, king_loc[opponent]) > 1 && players[opponent]->CanSee(block) > 0) return false;
+			if (Distance(block, king_loc[opponent]) == 1 && players[opponent]->CanSee(block) > 1) return false;
 			block[0] += cdir;
 			block[1] += rdir;
 		}
 	}
-	return 1;
+	return true;
 }
 
 bool Board::StaleMate() {
 	for (const auto& [loc, piece] : pieces) {
-		if (piece != BLANK && piece->Player() == opponent && !pieces[loc]->IsKing()) return 0;
+		if (piece != BLANK && piece->Player() == opponent && !pieces[loc]->IsKing()) return false;
 	}
 	auto opponent_king = pieces[king_loc[opponent]];
 	for (Piece::Iterator move = opponent_king->begin(); move != opponent_king->end(); ++move) {
-		if (*move != king_loc[opponent] && !players[player]->CanSee(*move)) return 0;
+		if (*move != king_loc[opponent] && !players[player]->CanSee(*move)) return false;
 	}
-	return 1;
+	return true;
+}
+
+int Board::BoardScore() {
+	int score = 0;
+	for (char r = TOP_ROW; r >= BOT_ROW; --r) {
+		for (char c = LEFT_COL; c <= RIGHT_COL; ++c) {
+			std::string loc = std::string() + c + r;
+			if (pieces[loc] != nullptr) {
+				score += pieces[loc]->Priority();
+				score += (players[player]->CanSee(loc) - players[opponent]->CanSee(loc)) * pieces[loc]->Priority();
+			} else {
+				score += players[player]->CanSee(loc) - players[opponent]->CanSee(loc);
+			}
+		}
+	}
+	if (Check()) score += CHECK_SCORE;
+	if (StaleMate()) score += STALE_SCORE;
+	if (CheckMate()) score = MAX_SCORE;
+	return score;
 }

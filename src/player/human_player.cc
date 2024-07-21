@@ -5,8 +5,6 @@
 #include <iostream>
 #include <sstream>
 
-HumanPlayer::HumanPlayer(Board* chess_board, char player) : Player{chess_board, player} { is_human = true; }
-
 void HumanPlayer::TakeAction() {
 	std::string readline, command;
 	if (!getline(std::cin, readline)) throw _end_of_line_{};
@@ -55,7 +53,7 @@ void HumanPlayer::TakeAction() {
 		}
 		try {
 			MakeMove();
-			vision->Refresh(get_hand());
+			vision->Refresh(chess_board->GetHand(player));
 		} catch (...) {
 			throw;
 		}

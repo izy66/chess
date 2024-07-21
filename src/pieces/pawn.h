@@ -11,12 +11,23 @@ class Pawn : public Piece {
 		bool IsPawn() const override { return true; }
 		bool IsEnPassant(const std::string&) const override; 
 
+		bool CanCover(const std::string&) override;
+		bool CanMove(const std::string&) override;
+
+		int Priority() const override { return Piece::PAWN_RANK; }
+
+		int CapturedRank(const std::string&) override;
+
 		Iterator begin() override {
-			return Iterator{std::make_shared<PawnIterator>(chess_board, loc)};
+			auto iter = Iterator{std::make_shared<PawnIterator>(chess_board, loc)};
+			++iter;
+			return iter;
 		}
-		Iterator begin(const std::string& sloc) override {
-			return Iterator{std::make_shared<PawnIterator>(chess_board, sloc)};
-		}
+		// Iterator begin(const std::string& sloc) override {
+		// 	auto iter = Iterator{std::make_shared<PawnIterator>(chess_board, loc)};
+		// 	++iter;
+		// 	return iter;
+		// }
 		Iterator end() override {
 			return Iterator{std::make_shared<PawnIterator>(chess_board, "xx")};
 		}

@@ -11,10 +11,9 @@ class Player;
 class Piece;
 
 class Vision {
-	Board* chess_board;
 	std::map<std::string, int> vision;
 	public:
-		Vision(Board*);
+		// Vision::Vision(Board* chess_board) : chess_board{chess_board} {}
 		void Refresh(std::vector<std::shared_ptr<Piece>>);
 		int CanSee(const std::string&);
 };

@@ -3,5 +3,5 @@ setup
 + Q h1
 + k e8
 done
-game computer2 human
+game computer2 computer2
 move

@@ -10,7 +10,7 @@ class Blank {
 	public: 
 		~Blank() {}
 		char Print(const std::string& loc) const;
-		bool Empty() const { return 1; }
+		bool Empty() const { return true; }
 };
 
 #endif

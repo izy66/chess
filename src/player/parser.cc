@@ -11,15 +11,7 @@ std::unique_ptr<AbstractMove> Parser::ParseCommand(Board* chess_board, const std
 		return std::make_unique<KingMove>(from, to);
 	case PAWN:
 		return std::make_unique<PawnMove>(from, to, promotion);
-	case QUEEN:
-		return std::make_unique<Move>(from, to);
-	case BISHOP:
-		return std::make_unique<Move>(from, to);
-	case KNIGHT:
-		return std::make_unique<Move>(from, to);
-	case ROOK:
-		return std::make_unique<Move>(from, to);
 	default:
-		return nullptr;
+		return std::make_unique<Move>(from, to);
 	}
 }

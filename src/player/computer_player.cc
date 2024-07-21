@@ -1,7 +1,8 @@
 #include "computer_player.h"
-#include "beginner_player.h"
 #include "board.h"
 #include "vision.h"
+
+ComputerPlayer::ComputerPlayer(Board* chess_board, char player, int level) : Player{chess_board, player}, level{level}, level_4{chess_board} {}
 
 void ComputerPlayer::TakeAction() {
 	std::string readline, command;
@@ -24,7 +25,7 @@ void ComputerPlayer::TakeAction() {
 	if (command.compare("move") == 0) {
 		try {
 			MakeMove();
-			vision->Refresh(get_hand());
+			vision->Refresh(chess_board->GetHand(player));
 		} catch (...) {
 			throw;
 		}
@@ -34,22 +35,29 @@ void ComputerPlayer::TakeAction() {
 }
 
 void ComputerPlayer::MakeMove() {
-	if (level == 2) {
-		BeginnerMakeMove();
+	if (level >= 4) {
+		try {
+			level_4.MakeMove(this);
+			return;
+		} catch (...) {}
 	}
-	if (level == 1) {
-		RandMakeMove();
+	if (level >= 3) {
+		try {
+			level_3.MakeMove(this);
+			return;
+		} catch (...) {}
 	}
-}
-
-void ComputerPlayer::RandMakeMove() {
-	rand_player.MakeMove(this);
-}
-
-void ComputerPlayer::BeginnerMakeMove() {
-	try {
-		begin_player.MakeMove(this);
-	} catch (...) {
-		rand_player.MakeMove(this);
+	if (level >= 2) {
+		try {
+			level_2.MakeMove(this);
+			return;
+		} catch (...) {}
+	}
+	if (level >= 1) {
+		try {
+			level_1.MakeMove(this);
+		} catch (...) {
+			chess_board->PlayerResign();
+		}
 	}
 }

@@ -4,7 +4,7 @@
 #include "iterator.h"
 
 class KingIterator : public PieceIterator {
-	static const int NUM_DIR = 10;
+	static const int NUM_DIR = 8;
 	static const int CAS_DIR = 2;
 	int dir[NUM_DIR][2] = {
 		{1, 0},

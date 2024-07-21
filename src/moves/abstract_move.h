@@ -13,7 +13,7 @@ class AbstractMove {
 
 	public:
 	
-		virtual void MakeMoveOn(Board*) = 0; // return 1 if execution is successful
+		virtual void MakeMoveOn(Board*) = 0; // return true if execution is successful
 		virtual void Undo() noexcept = 0; // any valid execution can be undone
 	
 		virtual ~AbstractMove() = default;

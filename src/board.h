@@ -17,6 +17,8 @@
 #include <map>
 #include <stack>
 #include <sstream>
+#include <algorithm>
+#include <random>
 
 #define BLANK nullptr
 #define FOG '?'
@@ -32,6 +34,7 @@ class Board : public Subject {
 	std::map<char, std::vector<char>> captured_by;
 	
 	std::stack<std::string> move_path;
+	std::stack<std::string> move_origin;
 
 	std::map<char, std::string> king_loc;
 	std::stack<std::unique_ptr<AbstractMove>> moves;
@@ -44,13 +47,8 @@ class Board : public Subject {
 	std::map<char, std::shared_ptr<Player>> players;
 	std::map<char, float> scores;
 
-
-	static const int NUM_PIECE = 6;
-	const char piece_rank[NUM_PIECE] = {PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING};
-	int get_rank(char c) const { 
-		for (int i = 0; i < 6; ++i) if (piece_rank[i] == c) return i; 
-		return -1;
-	}
+	std::random_device rd;
+	std::default_random_engine gen;
 
 	protected:
 	
@@ -60,6 +58,9 @@ class Board : public Subject {
 		void refresh_vision();
 
 	public:
+
+		Board() { gen = std::default_random_engine(rd()); }
+
 		/* general interface */
 		bool Empty(const std::string& loc) { return pieces[loc] == BLANK; }
 		void SetPiece(const std::string&, char name, char player);
@@ -73,6 +74,10 @@ class Board : public Subject {
 		virtual void Reset(); // overwritten in Horde, 960
 		void Clear();
 		void Print();
+
+		bool LastMoved(const std::string&);
+
+		std::vector<std::shared_ptr<Piece>> GetHand(char player);
 
 		std::shared_ptr<Piece>& operator[](const std::string& loc) { return pieces[loc]; }
 
@@ -101,17 +106,14 @@ class Board : public Subject {
 		void DisplayScores();
 
 		/* action interface */
-		void MakeMove(std::unique_ptr<AbstractMove> move);
-		void MovePiece(const std::string& , const std::string&) noexcept;
-		void UndoMove(const std::string& , const std::string&) noexcept;
-		bool CanMove(const std::string&);
-		std::string TryCheckMove(const std::shared_ptr<Piece>&);
-		std::string TryCheckMate(const std::shared_ptr<Piece>&);
-		std::string TryStaleMate(const std::shared_ptr<Piece>&);
-		bool IsCheckMove(const std::shared_ptr<Piece>&, const std::string&);
-		bool IsCheckMate(const std::shared_ptr<Piece>&, const std::string&);
-		bool IsStaleMate(const std::shared_ptr<Piece>&, const std::string&);
+		void MakeMove(std::unique_ptr<AbstractMove>);
+		void ApplyMove(std::unique_ptr<AbstractMove>);
+		void MovePiece(const std::string&, const std::string&) noexcept;
+		void UndoMove(const std::string&, const std::string&) noexcept;
+
 		bool IsRevealingKing(Piece*, const std::string&);
+
+		std::string FindSafePlace(const std::shared_ptr<Piece>&);
 
 		void Undo();
 
@@ -129,7 +131,6 @@ class Board : public Subject {
 		void Release(std::shared_ptr<Piece>&);
 		bool CanBeCaptured(const std::string&, char);
 		bool CanBeSeen(const std::string&, char);
-		std::string BestCaptureMove(const std::shared_ptr<Piece>&);
 
 		bool InBound(const std::string& loc) {
 			return LEFT_COL <= loc[0] && loc[0] <= RIGHT_COL && BOT_ROW <= loc[1] && loc[1] <= TOP_ROW;
@@ -143,6 +144,12 @@ class Board : public Subject {
 		int Distance(const std::string& from, const std::string& to)  {
 			return std::abs(from[0] - to[0]) + std::abs(from[1] - to[1]);
 		}
+
+		/* for advanced ai */
+		static const int STALE_SCORE = 10;
+		static const int CHECK_SCORE = 20;
+		static const int MAX_SCORE = 100000;
+		int BoardScore();
 };
 
 #endif

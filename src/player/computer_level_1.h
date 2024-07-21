@@ -4,13 +4,8 @@
 class Board;
 class ComputerPlayer;
 
-class RandomPlayer {
-	Board* chess_board;
-	char player;
-
+class ComputerLevel1 {
 	public:
-		RandomPlayer(Board*, char);
-		
 		void MakeMove(ComputerPlayer* player);
 };
 
