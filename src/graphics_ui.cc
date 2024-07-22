@@ -72,7 +72,7 @@ const char *pawn_piece[] = {
 	"P     "
 };
 
-GraphicsUI::GraphicsUI(Board* board) : chess_board{board}, display{nullptr}, window{0}, gc{0} {
+GraphicsUI::GraphicsUI(Board* board) : chess_board{board}, display{nullptr}, window{0}, gc{0}, board_is_drawn{false} {
   chess_board->Attach(this);
   display = XOpenDisplay(nullptr);
   if (display == nullptr) {
@@ -89,7 +89,9 @@ GraphicsUI::GraphicsUI(Board* board) : chess_board{board}, display{nullptr}, win
   XMapWindow(display, window);
   gc = DefaultGC(display, screen);
 
-  Notify();
+  XClearWindow(display, window);
+  DrawBoard();
+  XFlush(display);
 }
 
 GraphicsUI::~GraphicsUI() {
@@ -97,63 +99,56 @@ GraphicsUI::~GraphicsUI() {
 }
 
 void GraphicsUI::Notify() {
-  XClearWindow(display, window);
   DrawBoard();
+  board_is_drawn = true;
   DrawPieces();
   XFlush(display);
 }
 
-void GraphicsUI::Init() {
-  Notify();
-  XEvent event;
-  while (true) {
-    XNextEvent(display, &event);
-    if (event.type == Expose) {
-      Notify();
-    }
-    if (event.type == KeyPress) {
-      break;
-    }
-  }
-}
-
 void GraphicsUI::DrawBoard() {
-  for (int row = 0; row < BOARD_SIZE; row++) {
-    for (int col = 0; col < BOARD_SIZE; col++) {
+  for (char r = TOP_ROW; r >= BOT_ROW; --r) {
+    for (char c = LEFT_COL; c <= RIGHT_COL; ++c) {
+      std::string loc = std::string() + c + r;
+      int col = c - LEFT_COL;
+      int row = TOP_ROW - r;
       int x = col * SQUARE_SIZE;
       int y = row * SQUARE_SIZE;
 
-      // Alternate colors for the squares
-      if ((row + col) % 2 == 0) {
-        XSetForeground(display, gc, LIGHT_COLOR);
-      } else {
-        XSetForeground(display, gc, DARK_COLOR);
+      if (!board_is_drawn || (!was_empty[loc] && chess_board->Empty(loc)) || board_image[loc] != chess_board->GetPiecePlayer(loc)) {
+        // Alternate colors for the squares
+        if ((row + col) % 2 == 0) {
+          XSetForeground(display, gc, LIGHT_COLOR);
+        } else {
+          XSetForeground(display, gc, DARK_COLOR);
+        }
+
+        XFillRectangle(display, window, gc, x, y, SQUARE_SIZE, SQUARE_SIZE);
       }
 
-      XFillRectangle(display, window, gc, x, y, SQUARE_SIZE, SQUARE_SIZE);
+      was_empty[loc] = chess_board->Empty(loc);
     }
   }
+
 }
 
 void GraphicsUI::DrawPieces() {
-  for (char r = '8'; r >= '1'; --r) {
-    for (char c = 'a'; c <= 'h'; ++c) {
+  for (char r = TOP_ROW; r >= BOT_ROW; --r) {
+    for (char c = LEFT_COL; c <= RIGHT_COL; ++c) {
       std::string loc = std::string() + c + r;
       char piece = chess_board->GetPieceName(loc);
       char player = chess_board->GetPiecePlayer(loc);
-      if (piece != ' ') {
-        DrawPiece(piece, player, c - 'a', '8' - r);
+
+      if (piece != ' ' && (board_image[loc] != chess_board->GetPiecePlayer(loc) || capture_status[loc] != chess_board->CanBeCaptured(loc, player))) {
+        DrawPiece(piece, player, c - LEFT_COL, TOP_ROW - r);
       }
+
+      board_image[loc] = chess_board->GetPiecePlayer(loc);
+      capture_status[loc] = chess_board->CanBeCaptured(loc, player);
     }
   }
 }
 
 void GraphicsUI::DrawPiece(char piece, char player, int x, int y) {
-  // int x_pos = x * cell_size;
-  // int y_pos = y * cell_size;
-  // unsigned long color = (player == WHITE) ? WhitePixel(display, screen) : BlackPixel(display, screen);
-  // XSetForeground(display, gc, color);
-  // XDrawString(display, window, gc, x_pos + cell_size / 2, y_pos + cell_size / 2, &piece, 1);
 
   int piece_height = PIECE_SIZE;
   int piece_width = PIECE_SIZE;
