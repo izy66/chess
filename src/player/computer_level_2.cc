@@ -27,7 +27,7 @@ void ComputerLevel2::MakeMove(ComputerPlayer* player) {
 
 				player->chess_board->ApplyMove(player->ParseCommand(from, to));
 
-				if ((captured_rank >= piece->Priority() || !piece->CanGetCaptured(to)) &&
+				if ((captured_rank >= piece->Priority() || !player->chess_board->CanBeCaptured(to, player->player)) &&
 					(captured_rank > highest_captured_rank || (captured_rank == highest_captured_rank && piece->Priority() < lowest_used_rank))) {
 
 					highest_captured_rank = captured_rank;
@@ -36,7 +36,7 @@ void ComputerLevel2::MakeMove(ComputerPlayer* player) {
 					capture_move_to = to;
 				}
 
-				if (!piece->CanGetCaptured(to) && player->chess_board->Check()) {
+				if (!player->chess_board->CanBeCaptured(to, player->player) && player->chess_board->Check()) {
 					
 					check_move_from = from;
 					check_move_to = to;

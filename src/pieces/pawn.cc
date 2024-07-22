@@ -24,13 +24,14 @@ bool Pawn::CanMove(const std::string& to) {
 		if (abs(to[1] - loc[1]) == 1) return chess_board->Empty(to);
 		if (abs(to[1] - loc[1]) == 2) return move_count == 0;
 	} else 
-	if (abs(to[0] - loc[0]) == 1 && abs(to[0] - loc[0]) == 1) {
+	if (abs(to[0] - loc[0]) == 1 && abs(to[1] - loc[1]) == 1) {
 		return IsEnPassant(to) || !chess_board->Empty(to);
 	}
 	return false;
 }
 
 bool Pawn::CanCover(const std::string& to) {
+	if (chess_board->IsRevealingKing(this, to)) return false;
 	for (const auto& move : *this) {
 		if (move == to && abs(to[0] - loc[0]) == 1 && abs(to[1] - loc[1]) == 1) return true;
 	}

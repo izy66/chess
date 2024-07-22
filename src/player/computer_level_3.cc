@@ -10,7 +10,7 @@ void ComputerLevel3::MakeMove(ComputerPlayer* player) {
 
 	for (const auto& piece : player->chess_board->GetHand(player->player)) {
 
-		if (piece->CanGetCaptured(piece->Location()) && piece->Priority() >= highest_rank) {
+		if (player->chess_board->CanBeSeen(piece->Location(), player->player) && piece->Priority() >= highest_rank) {
 
 			auto from = piece->Location();
 
@@ -30,6 +30,28 @@ void ComputerLevel3::MakeMove(ComputerPlayer* player) {
 				player->chess_board->Undo();
 			}
 
+			if (!escape_to.empty()) break;
+
+			for (const auto& savior : player->chess_board->GetHand(player->player)) {
+				if (savior == piece) continue;
+
+				for (const auto& savior_move : *savior) {
+					if (!escape_to.empty()) break;
+					if (!savior->CanMove(savior_move)) continue;
+
+					auto savior_from = savior->Location();
+					player->chess_board->ApplyMove(player->ParseCommand(savior_from, savior_move));
+
+					if (!piece->CanGetCaptured(piece->Location()) && (!savior->CanGetCaptured(savior->Location()) || savior->Priority() < piece->Priority())) {
+
+						highest_rank = piece->Priority();
+						escape_from = savior_from;
+						escape_to = savior_move;
+					}
+
+					player->chess_board->Undo();
+				}
+			}
 		}
 	}
 

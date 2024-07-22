@@ -22,16 +22,11 @@ class Move final : public AbstractMove {
 			from = other.from;
 			to = other.to;
 			capture_count = other.capture_count;
-			// piece = other.piece;
-			// promoted = other.promoted;
 			captured = other.captured;
-			// first_move = other.first_move;
-			// captured = other.captured;
 		}
 
 		virtual void MakeMoveOn(Board*) override; // return true if execution is successful
 		virtual void Undo() noexcept override; // any valid execution can be undone
-		// bool IsPromotion() { return promotion; }
 };
 
 #endif

@@ -1,7 +1,6 @@
 #include "computer_player.h"
 #include "parser.h"
 #include "board.h"
-// #include "moves/move.h"
 #include <stdlib.h>
 #include <time.h>
 #include <sstream>
@@ -20,7 +19,9 @@ void ComputerLevel1::MakeMove(ComputerPlayer* player) {
 
 		for (const auto& to : *piece) {
 
-			if (piece->CanMove(to) && (!piece->CanGetCaptured(to) || piece->CapturedRank(to) >= piece->Priority())) ++count_moves;
+			if (piece->CanMove(to) && !player->chess_board->CanBeCaptured(to, player->player)) {
+				++count_moves;
+			}
 		}
 
 		if (count_moves == 0) continue; // no valid moves
@@ -29,13 +30,14 @@ void ComputerLevel1::MakeMove(ComputerPlayer* player) {
 
 		for (const auto& to: *piece) {
 
-			if (piece->CanMove(to) && (!piece->CanGetCaptured(to) || piece->CapturedRank(to) >= piece->Priority())) --rand_move;
-			if (rand_move == 0) {
+			if (piece->CanMove(to) && !player->chess_board->CanBeCaptured(to, player->player)) {
+				--rand_move;
+			}
 
-				auto next_move = player->ParseCommand(piece->Location(), to);
+			if (rand_move == 0) {
 				
 				try {
-					player->chess_board->MakeMove(std::move(next_move));
+					player->chess_board->MakeMove(player->ParseCommand(piece->Location(), to));
 					return;
 				} catch (...) {
 					throw;

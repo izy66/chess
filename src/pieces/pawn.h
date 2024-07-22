@@ -23,11 +23,7 @@ class Pawn : public Piece {
 			++iter;
 			return iter;
 		}
-		// Iterator begin(const std::string& sloc) override {
-		// 	auto iter = Iterator{std::make_shared<PawnIterator>(chess_board, loc)};
-		// 	++iter;
-		// 	return iter;
-		// }
+
 		Iterator end() override {
 			return Iterator{std::make_shared<PawnIterator>(chess_board, "xx")};
 		}

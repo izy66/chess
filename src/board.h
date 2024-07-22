@@ -51,7 +51,7 @@ class Board : public Subject {
 	std::default_random_engine gen;
 
 	protected:
-	
+
 		std::map<std::string, std::shared_ptr<Piece>> pieces;
 	
 		/* internal state refresher */
@@ -112,6 +112,7 @@ class Board : public Subject {
 		void UndoMove(const std::string&, const std::string&) noexcept;
 
 		bool IsRevealingKing(Piece*, const std::string&);
+		bool HaveAdvantage(const std::string&, char);
 
 		std::string FindSafePlace(const std::shared_ptr<Piece>&);
 

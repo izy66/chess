@@ -11,10 +11,6 @@ void Vision::Refresh(std::vector<std::shared_ptr<Piece>> hand) {
 	}
 	for (const auto& piece : hand) {
 		for (const auto& move : *piece) {
-			if (move == piece->Location()) {
-				std::cout << "???\n";
-				continue;
-			}
 			++vision[move];
 		}
 	}

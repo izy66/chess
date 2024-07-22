@@ -19,11 +19,7 @@ class Knight : public Piece {
 			++iter;
 			return iter;
 		}
-		// Iterator begin(const std::string& loc) override {
-		// 	auto iter = Iterator{std::make_shared<KnightIterator>(chess_board, loc)};
-		// 	++iter;
-		// 	return iter;
-		// }
+
 		Iterator end() override {
 			return Iterator{std::make_shared<KnightIterator>(chess_board, "  ")};
 		}

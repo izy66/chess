@@ -1,5 +1,5 @@
 #include <iostream>
-#include "textui.h"
+#include "text_ui.h"
 
 TextUI::TextUI(Board* board) : chess_board{board} {
 	chess_board->Attach(this);

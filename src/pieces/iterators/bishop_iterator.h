@@ -12,9 +12,8 @@ class BishopIterator : public PieceIterator {
 		{1, -1}
 	};
 	int cur_dir;
-
 	public:
-		BishopIterator(Board* board, const std::string& loc) : PieceIterator{board, loc}, cur_dir{0} {}
+		BishopIterator(Board* board, const std::string& loc) : PieceIterator{board, loc}, cur_dir{0} {}		
 		virtual void operator++() override;
 };
 

@@ -224,8 +224,8 @@ void Board::Release(std::shared_ptr<Piece>& piece) {
 }
 
 bool Board::CanBeCaptured(const std::string& loc, char player) {
-	if (player == WHITE) return players[BLACK]->CanCapture(loc);
-	if (player == BLACK) return players[WHITE]->CanCapture(loc);
+	if (player == WHITE) return players[BLACK] != nullptr ? players[BLACK]->CanCapture(loc) : false;
+	if (player == BLACK) return players[WHITE] != nullptr ? players[WHITE]->CanCapture(loc) : false;
 }
 
 bool Board::CanBeSeen(const std::string& loc, char player) {
@@ -238,6 +238,8 @@ std::vector<char> Board::CapturedBy(char player) {
 }
 
 void Board::ApplyMove(std::unique_ptr<AbstractMove> move) {
+
+	if (move == nullptr) throw _invalid_move_{"Can't pass a null move."};
 	
 	try {
 		move->MakeMoveOn(this);
@@ -301,6 +303,11 @@ bool Board::IsRevealingKing(Piece* piece, const std::string& to) {
 	pieces[to] = capture;
 	players[opponent]->RefreshVision();
 	return king_under_attack;
+}
+
+bool Board::HaveAdvantage(const std::string& loc, char player) {
+	if (player == WHITE) return players[WHITE]->CanSee(loc) >= players[BLACK]->CanSee(loc);
+	if (player == BLACK) return players[BLACK]->CanSee(loc) >= players[WHITE]->CanSee(loc);
 }
 
 std::string Board::FindSafePlace(const std::shared_ptr<Piece>& piece) {

@@ -12,13 +12,15 @@ class ComputerLevel4 {
 	Board *board;
 	std::string best_from, best_move;
 	char player, opponent;
-	
+
 	int alpha_beta_max(ComputerPlayer* comp_player, int level, int alpha, int beta);
 	int alpha_beta_min(ComputerPlayer* comp_player, int level, int alpha, int beta);
 
+	int move_count;
+
 	public:
 
-		ComputerLevel4(Board* board) : board{board} {}
+		ComputerLevel4(Board* board) : board{board}, move_count{0} {}
 	
 		void MakeMove(ComputerPlayer* player);
 };

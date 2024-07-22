@@ -3,15 +3,20 @@
 
 #include <string>
 #include <iostream>
+#include <algorithm>
 
 class Board;
 
 class PieceIterator {
+	
 	protected:
+		
 		Board* board;
 		std::string sloc, cloc;
 		int cur_dir;
+	
 	public:
+	
 		PieceIterator(Board* board, const std::string& loc) : board{board}, sloc{loc}, cloc{loc}, cur_dir{0} {}
 		virtual ~PieceIterator() {}
 		virtual bool operator!=(PieceIterator& other) {

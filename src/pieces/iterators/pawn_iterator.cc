@@ -9,7 +9,6 @@ void PawnIterator::operator++() {
 		auto next_loc = sloc;
 		next_loc[0] += dir[cur_dir][0];
 		next_loc[1] += dir[cur_dir][1] * player_dir; // white pawn moves up, black pawn moves down
-		// if (board->InBound(next_loc) && ((dir[cur_dir][0] == 0 && board->Empty(next_loc)) || (dir[cur_dir][0] != 0 && (!board->Empty(next_loc) || (*board)[sloc]->IsEnPassant(next_loc))))) {
 		if (board->InBound(next_loc)) {
 			cloc = next_loc;
 			found_next = true;
