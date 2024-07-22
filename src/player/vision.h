@@ -7,14 +7,11 @@
 #include <vector>
 
 class Board;
-class Player;
-class Piece;
 
 class Vision {
 	std::map<std::string, int> vision;
 	public:
-		// Vision::Vision(Board* chess_board) : chess_board{chess_board} {}
-		void Refresh(std::vector<std::shared_ptr<Piece>>);
+		void Refresh(Board*, char);
 		int CanSee(const std::string&);
 };
 

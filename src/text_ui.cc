@@ -36,13 +36,13 @@ void TextUI::Notify() {
 	std::cout << "White captured:";
 	std::vector<char> captured = chess_board->CapturedBy(WHITE);
 	for (const auto& cap : captured) {
-		std::cout << ' ' << cap;
+		std::cout << ' ' << std::string() + "\e[" + BLACK_ + ";" + GREEN_ + "m" + cap + "\e[0m";
 	}
 	std::cout << std::endl;
 	std::cout << "Black captured:";
 	captured = chess_board->CapturedBy(BLACK);
 	for (const auto& cap : captured) {
-		std::cout << ' ' << cap;
+		std::cout << ' ' << std::string() + "\e[" + WHITE_ + ";" + GREY_ + "m" + cap + "\e[0m";
 	}
 	std::cout << std::endl;
 }

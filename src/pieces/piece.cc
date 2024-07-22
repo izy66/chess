@@ -4,14 +4,6 @@
 
 Piece::~Piece() {}
 
-char Piece::Print() const {
-	if (player == BLACK) {
-		return tolower(name);
-	} else {
-		return toupper(name);
-	}
-}
-
 bool Piece::CanCover(const std::string& to) {
 	// can't move away if current piece is protecting the king
 	if (chess_board->IsRevealingKing(this, to)) {
@@ -27,7 +19,7 @@ bool Piece::CanCover(const std::string& to) {
 
 bool Piece::CanMove(const std::string& to) {
 	// can't move away if current piece is protecting the king
-	return chess_board->GetPiecePlayer(to) != player && !chess_board->IsRevealingKing(this, to);
+	return chess_board->GetPiecePlayer(to) != player && CanCover(to);
 }
 
 bool Piece::CanPromote() {
@@ -35,7 +27,7 @@ bool Piece::CanPromote() {
 }
 
 int Piece::CapturedRank(const std::string& loc) {
-	auto capture = (*chess_board)[loc];
+	std::unique_ptr<Piece>& capture = (*chess_board)[loc];
 	if (capture != nullptr) return capture->Priority();
 	return -1;
 }
@@ -55,7 +47,3 @@ void Piece::UndoMove(const std::string& from) {
 	loc = from;
 	--move_count;
 }
-
-// void Piece::MakeMove(const std::string& loc) {
-	
-// }

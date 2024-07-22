@@ -12,18 +12,11 @@ class Move final : public AbstractMove {
 	std::string from, to;
 
 	int capture_count;
-	std::shared_ptr<Piece> captured;
+	std::unique_ptr<Piece> captured;
 
 	public:
 
 		Move(const std::string& from, const std::string& to);
-
-		Move(Move& other) {
-			from = other.from;
-			to = other.to;
-			capture_count = other.capture_count;
-			captured = other.captured;
-		}
 
 		virtual void MakeMoveOn(Board*) override; // return true if execution is successful
 		virtual void Undo() noexcept override; // any valid execution can be undone

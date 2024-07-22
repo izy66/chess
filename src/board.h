@@ -50,7 +50,7 @@ class Board : public Subject {
 
 	protected:
 
-		std::map<std::string, std::shared_ptr<Piece>> pieces;
+		std::map<std::string, std::unique_ptr<Piece>> pieces;
 	
 		/* internal state refresher */
 		void refresh_vision();
@@ -75,9 +75,11 @@ class Board : public Subject {
 
 		bool LastMoved(const std::string&);
 
-		std::vector<std::shared_ptr<Piece>> GetHand(char player);
+		std::vector<Piece*> GetHand(char player);
+		void Place(std::unique_ptr<Piece>);
+		std::unique_ptr<Piece> Retrieve(const std::string&);
 
-		std::shared_ptr<Piece>& operator[](const std::string& loc) { return pieces[loc]; }
+		std::unique_ptr<Piece>& operator[](const std::string& loc) { return pieces[loc]; }
 
 		/* game control interface */
 		bool GameOver() const { return game_over; }
@@ -102,6 +104,7 @@ class Board : public Subject {
 		}
 
 		void DisplayScores();
+		
 
 		/* action interface */
 		void MakeMove(std::unique_ptr<AbstractMove>);
@@ -112,7 +115,7 @@ class Board : public Subject {
 		bool IsRevealingKing(Piece*, const std::string&);
 		bool HaveAdvantage(const std::string&, char);
 
-		std::string FindSafePlace(const std::shared_ptr<Piece>&);
+		std::string FindSafePlace(const std::unique_ptr<Piece>&);
 
 		void Undo();
 
@@ -121,15 +124,14 @@ class Board : public Subject {
 		/* game logic interface */
 		std::string LastMove() { return move_path.top(); }
 		
-		std::shared_ptr<Piece> Promote(const std::string&, char);
-		void Demote(std::shared_ptr<Piece>&);
 
 		/* captured pieces interface */
 		std::vector<char> CapturedBy(char);
-		std::shared_ptr<Piece> Capture(const std::string&);
-		void Release(std::shared_ptr<Piece>&);
 		bool CanBeCaptured(const std::string&, char);
 		bool CanBeSeen(const std::string&, char);
+
+		void Capture(char, char);
+		void Release(char);
 
 		bool InBound(const std::string& loc) {
 			return LEFT_COL <= loc[0] && loc[0] <= RIGHT_COL && BOT_ROW <= loc[1] && loc[1] <= TOP_ROW;

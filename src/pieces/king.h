@@ -8,8 +8,6 @@ class King : public Piece {
 	public:
 		King(Board* chess_board, const std::string& loc, char player) : Piece{chess_board, loc, KING, player} {}
 
-		bool CanMove(const std::string&) override;
-		bool CanCover(const std::string&) override;
 		bool IsKing() const override { return true; }
 		bool IsCastling(const std::string&) const override;
 		

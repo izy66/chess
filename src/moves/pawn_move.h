@@ -9,8 +9,8 @@ class PawnMove final : public AbstractMove {
 	Board *board;
 	std::string from, to;
 
-	std::shared_ptr<Piece> captured;
-	std::shared_ptr<Piece> promoted;
+	std::unique_ptr<Piece> captured;
+	std::unique_ptr<Piece> promoted;
 	char promotion;
 	
 	public:

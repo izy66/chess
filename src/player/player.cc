@@ -9,7 +9,7 @@ Player::Player(Board* chess_board, char player) : chess_board{chess_board}, play
 Player::~Player() {}
 
 void Player::RefreshVision() {
-	vision->Refresh(chess_board->GetHand(player));
+	vision->Refresh(chess_board, player);
 }
 
 int Player::CanSee(const std::string& loc) const {

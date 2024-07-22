@@ -114,7 +114,7 @@ void GraphicsUI::DrawBoard() {
       int x = col * SQUARE_SIZE;
       int y = row * SQUARE_SIZE;
 
-      if (!board_is_drawn || (!was_empty[loc] && chess_board->Empty(loc)) || board_image[loc] != chess_board->GetPiecePlayer(loc)) {
+      if (!board_is_drawn || (!was_empty[loc] && chess_board->Empty(loc)) || board_player[loc] != chess_board->GetPiecePlayer(loc) || board_name[loc] != chess_board->GetPieceName(loc)) {
         // Alternate colors for the squares
         if ((row + col) % 2 == 0) {
           XSetForeground(display, gc, LIGHT_COLOR);
@@ -138,11 +138,12 @@ void GraphicsUI::DrawPieces() {
       char piece = chess_board->GetPieceName(loc);
       char player = chess_board->GetPiecePlayer(loc);
 
-      if (piece != ' ' && (board_image[loc] != chess_board->GetPiecePlayer(loc) || capture_status[loc] != chess_board->CanBeCaptured(loc, player))) {
+      if (piece != ' ' && (board_player[loc] != chess_board->GetPiecePlayer(loc) || capture_status[loc] != chess_board->CanBeCaptured(loc, player) || board_name[loc] != chess_board->GetPieceName(loc))) {
         DrawPiece(piece, player, c - LEFT_COL, TOP_ROW - r);
       }
 
-      board_image[loc] = chess_board->GetPiecePlayer(loc);
+      board_player[loc] = chess_board->GetPiecePlayer(loc);
+      board_player[loc] = chess_board->GetPieceName(loc);
       capture_status[loc] = chess_board->CanBeCaptured(loc, player);
     }
   }

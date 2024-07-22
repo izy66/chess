@@ -9,11 +9,11 @@ bool Pawn::IsEnPassant(const std::string& to) const {
 }
 
 int Pawn::CapturedRank(const std::string& to) {
-	auto capture = (*chess_board)[to];
+	auto capture_loc = to;
 	if (IsEnPassant(to)) {
-		std::string en_passant_loc = std::string() + to[0] + loc[1];
-		capture = (*chess_board)[en_passant_loc];
+		capture_loc = std::string() + to[0] + loc[1];
 	}
+	std::unique_ptr<Piece>& capture = (*chess_board)[capture_loc];
 	if (capture != nullptr) return capture->Priority();
 	return -1;
 }
@@ -31,9 +31,8 @@ bool Pawn::CanMove(const std::string& to) {
 }
 
 bool Pawn::CanCover(const std::string& to) {
-	if (chess_board->IsRevealingKing(this, to)) return false;
 	for (const auto& move : *this) {
-		if (move == to && abs(to[0] - loc[0]) == 1 && abs(to[1] - loc[1]) == 1) return true;
+		if (move == to && abs(to[0] - loc[0]) == 1 && abs(to[1] - loc[1]) == 1) return !chess_board->IsRevealingKing(this, to);
 	}
 	return false;
 }

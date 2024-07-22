@@ -25,7 +25,7 @@ void ComputerPlayer::TakeAction() {
 	if (command.compare("move") == 0) {
 		try {
 			MakeMove();
-			vision->Refresh(chess_board->GetHand(player));
+			vision->Refresh(chess_board, player);
 		} catch (...) {
 			throw;
 		}

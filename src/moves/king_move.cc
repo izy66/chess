@@ -16,18 +16,26 @@ void KingMove::MakeMoveOn(Board* chess_board) {
 			if (toupper(board->GetPieceName(rook_loc)) == ROOK) break;
 			rook_loc[0] += (to[0] - from[0]) / 2;
 		}
-		// board->MovePiece(rook_loc, rook_dest);
-		rook = (*board)[rook_loc];
-		rook->TakeMove(rook_dest);
+
+		(*board)[rook_loc]->TakeMove(rook_dest);
 	}
-	captured = board->Capture(to);
+
+	captured = board->Retrieve(to);
+
+	if (captured != nullptr) board->Capture(captured->Name(), captured->Player());
+
 	(*board)[from]->TakeMove(to);
 	board->KingIsHere(to);
 }
 
 void KingMove::Undo() noexcept {
-	if (rook != nullptr) rook->UndoMove(rook_loc);
+	if (!rook_dest.empty()) (*board)[rook_dest]->UndoMove(rook_loc);
 	(*board)[to]->UndoMove(from);
+	
 	board->KingIsHere(from);
-	board->Release(captured);
+
+	if (captured != nullptr) {
+		board->Release(captured->Player());
+		board->Place(std::move(captured));
+	}
 }

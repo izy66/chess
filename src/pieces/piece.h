@@ -37,8 +37,9 @@ class Piece {
 		
 		virtual ~Piece();
 		
-		char Print() const;
-		bool Empty() const { return false; }
+		char Name() const { return toupper(name); }
+		char Player() const { return player; }
+		std::string Location() const { return loc; }
 
 		static const int HIGHEST_RANK = 100;
 		static const int PAWN_RANK = 2;
@@ -50,16 +51,11 @@ class Piece {
 
 		virtual int Priority() const { return false; }
 
-		char Name() const { return name; }
-		char Player() const { return player; }
-		std::string Location() const { return loc; }
-
 		bool HasMoved() const { return move_count != 0; }
 		bool FirstMove() const { return move_count == 1; }
 
 		void TakeMove(const std::string&);
 		void UndoMove(const std::string&);
-		// void MakeMove(const std::string&);
 
 		// if an opponent piece is on this square, can I capture?
 		virtual bool CanCover(const std::string&);

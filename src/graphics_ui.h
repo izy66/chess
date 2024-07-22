@@ -21,7 +21,7 @@ class GraphicsUI : public Observer {
 	void DrawPieces();
 	void DrawPiece(char piece, char player, int x, int y);
 
-	std::map<std::string, char> board_image, was_empty, capture_status;
+	std::map<std::string, char> board_player, board_name, was_empty, capture_status;
 	bool board_is_drawn;
 	
 	public:
@@ -29,7 +29,6 @@ class GraphicsUI : public Observer {
 	  GraphicsUI(Board* chess_board);
     ~GraphicsUI();
     void Notify() override;
-    // void Init();
 };
 
 #endif
