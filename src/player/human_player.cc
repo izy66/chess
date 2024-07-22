@@ -43,7 +43,7 @@ void HumanPlayer::TakeAction() {
 		if (chess_board->GetPiecePlayer(to) == player) { 
 			throw _invalid_move_{"You can't step over your own pieces!"}; 
 		}
-		if (chess_board->CanPromote(from)) {
+		if ((*chess_board)[from]->CanPromote()) {
 			if (!(ss >> promotion)) {
 				throw _parsing_error_{"Missing pawn promotion."}; 
 			}

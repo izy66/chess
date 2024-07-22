@@ -13,6 +13,7 @@ class Pawn : public Piece {
 
 		bool CanCover(const std::string&) override;
 		bool CanMove(const std::string&) override;
+		bool CanPromote() override;
 
 		int Priority() const override { return Piece::PAWN_RANK; }
 

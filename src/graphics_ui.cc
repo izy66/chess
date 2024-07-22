@@ -45,20 +45,20 @@ const char *knight_piece[] = {
 };
 
 const char *bishop_piece[] = {
-	"B BB  ",
+	"B BBB ",
 	"B    B",
-	"BBB B ",
+	"B BBB ",
 	"B    B",
-	"B   B ",
+	"B    B",
 	"B BB  "
 };
 
 
 const char *rook_piece[] = {
-	"RRRR  ",
+	"R RRR ",
+	"R    R",
 	"R   R ",
-	"R  R  ",
-	"RR R  ",
+	"R RR  ",
 	"R   R ",
 	"R    R"
 };

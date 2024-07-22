@@ -37,3 +37,8 @@ bool Pawn::CanCover(const std::string& to) {
 	}
 	return false;
 }
+
+bool Pawn::CanPromote() {
+	if (player == WHITE) return loc[1] == TOP_ROW - 1;
+	return loc[1] == BOT_ROW + 1;
+}

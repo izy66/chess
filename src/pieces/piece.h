@@ -59,13 +59,13 @@ class Piece {
 
 		void TakeMove(const std::string&);
 		void UndoMove(const std::string&);
-		void MakeMove(const std::string&);
-		void UndoMove();
+		// void MakeMove(const std::string&);
 
 		// if an opponent piece is on this square, can I capture?
 		virtual bool CanCover(const std::string&);
 		// can I move to this square?
 		virtual bool CanMove(const std::string&);
+		virtual bool CanPromote();
 		
 		bool CanGetCaptured(const std::string&);
 		virtual int CapturedRank(const std::string&);

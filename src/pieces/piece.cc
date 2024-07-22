@@ -30,6 +30,10 @@ bool Piece::CanMove(const std::string& to) {
 	return chess_board->GetPiecePlayer(to) != player && !chess_board->IsRevealingKing(this, to);
 }
 
+bool Piece::CanPromote() {
+	return false;
+}
+
 int Piece::CapturedRank(const std::string& loc) {
 	auto capture = (*chess_board)[loc];
 	if (capture != nullptr) return capture->Priority();
@@ -52,10 +56,6 @@ void Piece::UndoMove(const std::string& from) {
 	--move_count;
 }
 
-void Piece::MakeMove(const std::string& loc) {
+// void Piece::MakeMove(const std::string& loc) {
 	
-}
-
-void Piece::UndoMove() {
-	chess_board->Undo();
-}
+// }

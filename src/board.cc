@@ -286,12 +286,6 @@ void Board::Undo() {
 	refresh_vision();
 }
 
-bool Board::CanPromote(const std::string& from) {
-	if (Empty(from) || !pieces[from]->IsPawn()) return false;
-	if (player == BLACK) return from[1] == BOT_ROW + 1;
-	return from[1] == TOP_ROW - 1;
-}
-
 bool Board::IsRevealingKing(Piece* piece, const std::string& to) {
 	auto opponent = piece->Player() == WHITE ? BLACK : WHITE;
 	auto tmp = piece->Location();

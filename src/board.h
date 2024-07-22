@@ -39,8 +39,6 @@ class Board : public Subject {
 	std::map<char, std::string> king_loc;
 	std::stack<std::unique_ptr<AbstractMove>> moves;
 
-	std::stack<std::shared_ptr<Piece>> promoted;
-
 	char player = WHITE, opponent = BLACK;
 	bool game_over = false, draw = false;
 
@@ -122,7 +120,7 @@ class Board : public Subject {
 
 		/* game logic interface */
 		std::string LastMove() { return move_path.top(); }
-		virtual bool CanPromote(const std::string&);
+		
 		std::shared_ptr<Piece> Promote(const std::string&, char);
 		void Demote(std::shared_ptr<Piece>&);
 
