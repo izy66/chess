@@ -25,6 +25,7 @@ void SlideIterator<NUM_DIR>::operator++() {
 	}
 	// no moves left
 	board = nullptr;
+	done = true;
 }
 
 template

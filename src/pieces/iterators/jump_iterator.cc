@@ -15,7 +15,7 @@ void JumpIterator<NUM_DIR>::operator++() {
 		}
 	}
 	// no moves left
-	if (!found_step) board = nullptr;
+	if (!found_step) { board = nullptr; done = true; }
 }
 
 template

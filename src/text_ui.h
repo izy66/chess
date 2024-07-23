@@ -12,9 +12,9 @@
 #define LIGHT_BLUE_ "101"
 
 class TextUI : public Observer {
-	Board *chess_board;
+	Board *board;
 	public:
-		TextUI(Board* chess_board);
+		TextUI(Board* board);
 		void Notify() override;
 };
 

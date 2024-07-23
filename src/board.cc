@@ -1,9 +1,14 @@
 #include "board.h"
 #include "moves/move.h"
+#include "pieces/king.h"
+#include "pieces/queen.h"
+#include "pieces/bishop.h"
+#include "pieces/knight.h"
+#include "pieces/pawn.h"
+#include "pieces/rook.h"
 #include "player/player.h"
 #include "player/human_player.h"
 #include "player/computer_player.h"
-#include "player/parser.h"
 #include <iostream>
 
 void Board::SetPiece(const std::string& loc, char name, char player) {
@@ -93,27 +98,27 @@ void Board::SetUpDone() {
 
 void Board::Reset() {
 	Clear();
-	SetPiece("a1", 'R', WHITE);
-	SetPiece("b1", 'N', WHITE);
-	SetPiece("c1", 'B', WHITE);
-	SetPiece("d1", 'Q', WHITE);
-	SetPiece("e1", 'K', WHITE);
-	SetPiece("f1", 'B', WHITE);
-	SetPiece("g1", 'N', WHITE);
-	SetPiece("h1", 'R', WHITE);
+	SetPiece("a1", ROOK, WHITE);
+	SetPiece("b1", KNIGHT, WHITE);
+	SetPiece("c1", BISHOP, WHITE);
+	SetPiece("d1", QUEEN, WHITE);
+	SetPiece("e1", KING, WHITE);
+	SetPiece("f1", BISHOP, WHITE);
+	SetPiece("g1", KNIGHT, WHITE);
+	SetPiece("h1", ROOK, WHITE);
 	for (char c = 'a'; c <= 'h'; ++c) {
-		SetPiece(std::string() + c + '2', 'P', WHITE);
+		SetPiece(std::string() + c + '2', PAWN, WHITE);
 	}
-	SetPiece("a8", 'r', BLACK);
-	SetPiece("b8", 'n', BLACK);
-	SetPiece("c8", 'b', BLACK);
-	SetPiece("d8", 'q', BLACK);
-	SetPiece("e8", 'k', BLACK);
-	SetPiece("f8", 'b', BLACK);
-	SetPiece("g8", 'n', BLACK);
-	SetPiece("h8", 'r', BLACK);
+	SetPiece("a8", ROOK, BLACK);
+	SetPiece("b8", KNIGHT, BLACK);
+	SetPiece("c8", BISHOP, BLACK);
+	SetPiece("d8", QUEEN, BLACK);
+	SetPiece("e8", KING, BLACK);
+	SetPiece("f8", BISHOP, BLACK);
+	SetPiece("g8", KNIGHT, BLACK);
+	SetPiece("h8", ROOK, BLACK);
 	for (char c = 'a'; c <= 'h'; ++c) {
-		SetPiece(std::string() + c + '7', 'p', BLACK);
+		SetPiece(std::string() + c + '7', PAWN, BLACK);
 	}
 	king_loc[WHITE] = "e1";
 	king_loc[BLACK] = "e8";
@@ -125,12 +130,14 @@ void Board::Reset() {
 	opponent = BLACK;
 }
 
-void Board::AddHumanPlayer(char player) { 
+void Board::AddHumanPlayer() { 
 	players[player] = std::make_shared<HumanPlayer>(this, player); 
+	std::swap(player, opponent);
 }
 
-void Board::AddComputerPlayer(char player, int level) {
+void Board::AddComputerPlayer(int level) {
 	players[player] = std::make_shared<ComputerPlayer>(this, player, level);
+	std::swap(player, opponent);
 }
 
 std::vector<Piece*> Board::GetHand(char player) {

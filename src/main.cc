@@ -1,10 +1,21 @@
 #include "game.h"
 #include "chessboard.h"
+#include "shogi/shogi_board.h"
 #include "window.h"
 using namespace std;
 
 int main() {
-	ChessBoard chess_board;
-	Game chess_game;
-	chess_game.Start(&chess_board);
+	Game game;
+	string board_game;
+	cin >> board_game;
+	if (board_game.compare("chess") == 0) {
+		ChessBoard board;
+		game.Start(&board);
+	} else
+	if (board_game.compare("shogi") == 0) {
+		ShogiBoard board;
+		game.Start(&board);
+	} else {
+		cout << "Please choose one of chess or shogi to play!" << endl;
+	}
 }

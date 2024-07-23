@@ -10,7 +10,7 @@ std::shared_ptr<DecisionTree> DecisionTree::AddDecision(std::unique_ptr<Move> de
 	return new_decision;
 }
 
-std::shared_ptr<DecisionTree> DecisionTree::UndoDecision(Board* chess_board) {
-	decision->Undo(chess_board);
+std::shared_ptr<DecisionTree> DecisionTree::UndoDecision(Board* board) {
+	decision->Undo(board);
 	return last_decision; 
 }

@@ -1,3 +1,5 @@
+#include "chessboard.h"
+#include "shogi/shogi_board.h"
 #include "controller.h"
 #include "pieces/piece.h"
 #include <iostream>
@@ -11,12 +13,12 @@
 
 Controller::~Controller() { 
 	std::cout << "Final Score:" << std::endl;
-	chess_board->DisplayScores();
+	board->DisplayScores();
 }
 
 void Controller::StartGame() {
 	std::string command, mode, player1, player2;
-	chess_board->Reset();
+	board->Reset();
 	while (true) {
 		if (!getline(std::cin, command)) {
 			break;
@@ -30,34 +32,34 @@ void Controller::StartGame() {
 			if (!(ss >> player1)) {}
 			if (!(ss >> player2)) {}
 			if (player1.compare(HUMAN_PLAYER) == 0) {
-				chess_board->AddHumanPlayer(WHITE);
+				board->AddHumanPlayer();
 			} else
 			if (player1.compare(COMPUTER_LEVEL1) == 0) {
-				chess_board->AddComputerPlayer(WHITE, 1);
+				board->AddComputerPlayer(1);
 			} else
 			if (player1.compare(COMPUTER_LEVEL2) == 0) {
-				chess_board->AddComputerPlayer(WHITE, 2);
+				board->AddComputerPlayer(2);
 			} else
 			if (player1.compare(COMPUTER_LEVEL3) == 0) {
-				chess_board->AddComputerPlayer(WHITE, 3);
+				board->AddComputerPlayer(3);
 			} else
 			if (player1.compare(COMPUTER_LEVEL4) == 0) {
-				chess_board->AddComputerPlayer(WHITE, 4);
+				board->AddComputerPlayer(4);
 			}
 			if (player2.compare(HUMAN_PLAYER) == 0) {
-				chess_board->AddHumanPlayer(BLACK);
+				board->AddHumanPlayer();
 			} else
 			if (player2.compare(COMPUTER_LEVEL1) == 0) {
-				chess_board->AddComputerPlayer(BLACK, 1);
+				board->AddComputerPlayer(1);
 			} else
 			if (player2.compare(COMPUTER_LEVEL2) == 0) {
-				chess_board->AddComputerPlayer(BLACK, 2);
+				board->AddComputerPlayer(2);
 			} else
 			if (player2.compare(COMPUTER_LEVEL3) == 0) {
-				chess_board->AddComputerPlayer(BLACK, 3);
+				board->AddComputerPlayer(3);
 			} else
 			if (player2.compare(COMPUTER_LEVEL4) == 0) {
-				chess_board->AddComputerPlayer(BLACK, 4);
+				board->AddComputerPlayer(4);
 			}
 			while (true) {
 				try {
@@ -74,19 +76,19 @@ void Controller::StartGame() {
 
 void Controller::GameOver() {
 	std::cout << "Current Score:" << std::endl;
-	chess_board->DisplayScores();
-	chess_board->Reset();
+	board->DisplayScores();
+	board->Reset();
 }
 
 void Controller::RunGame() {
 	while (true) {
-		chess_board->Print();
-		if (chess_board->GameOver()) { // ok, last move was very good
+		board->Print();
+		if (board->GameOver()) { // ok, last move was very good
 			GameOver();
 			return;
 		}
 		try {
-			chess_board->PlayerMakeMove();
+			board->PlayerMakeMove();
 		} catch (_end_of_line_& eol) {
 			throw;
 		} catch (...) {
@@ -97,12 +99,12 @@ void Controller::RunGame() {
 
 void Controller::Setup() {
 	std::cout << "Entering setup mode." << std::endl;
-	chess_board->Clear();
+	board->Clear();
 
 	std::string command, option, param1, param2;
 
 	while (true) {
-		chess_board->Print();
+		board->Print();
 		if (!getline(std::cin, command)) {
 			break;
 		}
@@ -110,7 +112,7 @@ void Controller::Setup() {
 		ss >> option;
 		if (option.compare("done") == 0) {
 			try {
-				chess_board->SetUpDone();
+				board->SetUpDone();
 				break;
 			} catch (...) {
 				continue;;
@@ -121,9 +123,9 @@ void Controller::Setup() {
 			if (!(ss >> param2)) { }
 			try {
 				if (isupper(param1[0])) {
-					chess_board->SetPiece(param2, param1[0], WHITE);
+					board->SetPiece(param2, param1[0], WHITE);
 				} else {
-					chess_board->SetPiece(param2, param1[0], BLACK);
+					board->SetPiece(param2, param1[0], BLACK);
 				}
 			} catch(...) {
 				continue;
@@ -131,11 +133,11 @@ void Controller::Setup() {
 		} else 
 		if (option.compare("-") == 0) {
 			if (!(ss >> param1)) { }
-			chess_board->RemovePiece(param1);
+			board->RemovePiece(param1);
 		} else 
 		if (option.compare("=") == 0) {
 			if (!(ss >> param1)) { }
-			chess_board->PlayerMovesNext(toupper(param1[0]));
+			board->PlayerMovesNext(toupper(param1[0]));
 		} else {
 			_parsing_error_{"Setup command unknown."};
 		}

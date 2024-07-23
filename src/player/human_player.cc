@@ -11,14 +11,14 @@ void HumanPlayer::TakeAction() {
 	std::stringstream ss{readline};
 	ss >> command;
 	if (command.compare("resign") == 0) {
-		chess_board->PlayerResign();
+		board->PlayerResign();
 	} else
 	if (command.compare("draw") == 0) {
-		chess_board->Draw();
+		board->Draw();
 	} else
 	if (command.compare("undo") == 0) {
 		try {
-			chess_board->Undo();
+			board->Undo();
 		} catch (...) {
 			throw;
 		}
@@ -31,19 +31,19 @@ void HumanPlayer::TakeAction() {
 		if (!(ss >> to)) { 
 			throw _parsing_error_{"Missing second coordinate."}; 
 		}
-		if (chess_board->Empty(from)) { 
+		if (board->Empty(from)) { 
 			throw _invalid_move_{"You should move a piece!"}; 
 		}
-		if (chess_board->GetPiecePlayer(from) != player) { 
+		if (board->GetPiecePlayer(from) != player) { 
 			throw _invalid_move_{"You should move one of your pieces!"}; 
 		}
 		if (from == to) { 
 			throw _invalid_move_{"You should move to a different square!"}; 
 		}
-		if (chess_board->GetPiecePlayer(to) == player) { 
+		if (board->GetPiecePlayer(to) == player) { 
 			throw _invalid_move_{"You can't step over your own pieces!"}; 
 		}
-		if ((*chess_board)[from]->CanPromote()) {
+		if ((*board)[from]->CanPromote()) {
 			if (!(ss >> promotion)) {
 				throw _parsing_error_{"Missing pawn promotion."}; 
 			}
@@ -53,7 +53,7 @@ void HumanPlayer::TakeAction() {
 		}
 		try {
 			MakeMove();
-			vision->Refresh(chess_board, player);
+			vision->Refresh(board, player);
 		} catch (...) {
 			throw;
 		}
@@ -65,12 +65,12 @@ void HumanPlayer::TakeAction() {
 void HumanPlayer::MakeMove() {
 	std::unique_ptr<AbstractMove> move;
 	if (promotion.empty()) {
-		move = parser->ParseCommand(chess_board, from, to);
+		move = parser->ParseCommand(board, from, to);
 	} else {
-		move = parser->ParseCommand(chess_board, from, to, promotion[0]);
+		move = parser->ParseCommand(board, from, to, promotion[0]);
 	}
 	try {
-		chess_board->MakeMove(std::move(move));
+		board->MakeMove(std::move(move));
 	} catch (...) {
 		throw;
 	}

@@ -28,5 +28,5 @@ void PawnIterator::operator++() {
 		++cur_dir;
 	}
 	// no moves left
-	if (!found_next) board = nullptr;
+	if (!found_next) { board = nullptr; done = true; }
 }

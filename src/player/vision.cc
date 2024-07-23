@@ -3,14 +3,14 @@
 #include "player.h"
 
 void Vision::Refresh(Board* board, char player) {
-	for (char c = LEFT_COL; c <= RIGHT_COL; ++c) {
-		for (char r = BOT_ROW; r <= TOP_ROW; ++r) {
+	for (char c = board->LeftCol(); c <= board->RightCol(); ++c) {
+		for (char r = board->BotRow(); r <= board->TopRow(); ++r) {
 			std::string loc = std::string() + c + r;
 			vision[loc] = 0;
 		}
 	}
-	for (char c = LEFT_COL; c <= RIGHT_COL; ++c) {
-		for (char r = BOT_ROW; r <= TOP_ROW; ++r) {
+	for (char c = board->LeftCol(); c <= board->RightCol(); ++c) {
+		for (char r = board->BotRow(); r <= board->TopRow(); ++r) {
 			auto loc = std::string() + c + r;
 			
 			if (board->GetPiecePlayer(loc) == player) {

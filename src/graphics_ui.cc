@@ -2,8 +2,8 @@
 #include <iostream>
 #include <string>
 
-#define WINDOW_WIDTH 600
-#define WINDOW_HEIGHT 600
+#define WINDOW_WIDTH 648
+#define WINDOW_HEIGHT 648
 #define BOARD_SIZE 8
 #define SQUARE_SIZE (WINDOW_WIDTH / BOARD_SIZE)
 
@@ -72,8 +72,53 @@ const char *pawn_piece[] = {
 	"P     "
 };
 
-GraphicsUI::GraphicsUI(Board* board) : chess_board{board}, display{nullptr}, window{0}, gc{0}, board_is_drawn{false} {
-  chess_board->Attach(this);
+const char *dragon_piece[] = {
+  "D DD  ",
+  "D    D",
+  "D    D",
+  "D    D",
+  "D   D ",
+  "D DD  "
+};
+
+const char *gold_piece[] = {
+  "  GGG ",
+  "G     ",
+  "G     ",
+  "G  GGG",
+  "G    G",
+  "  GGG "
+};
+
+const char *horse_piece[] = {
+  "H    H",
+  "H    H",
+  "H    H",
+  "H HH H",
+  "H    H",
+  "H    H"
+};
+
+const char *lance_piece[] = {
+  "L     ",
+  "L     ",
+  "L     ",
+  "L     ",
+  "L     ",
+  " LLLLL",
+};
+
+const char *silver_piece[] = {
+  "  SSSS",
+  "S     ",
+  " SS   ",
+  "    SS",
+  "     S",
+  "SSSS  "
+};
+
+GraphicsUI::GraphicsUI(Board* board) : board{board}, display{nullptr}, window{0}, gc{0}, board_is_drawn{false} {
+  board->Attach(this);
   display = XOpenDisplay(nullptr);
   if (display == nullptr) {
     std::cerr << "Cannot open display\n";
@@ -82,7 +127,8 @@ GraphicsUI::GraphicsUI(Board* board) : chess_board{board}, display{nullptr}, win
   screen = DefaultScreen(display);
   width = WINDOW_WIDTH;
   height = WINDOW_HEIGHT;
-  cell_size = width / BOARD_SIZE;
+  cell_size = width / board->BoardSize();
+  square_size = WINDOW_WIDTH / board->BoardSize();
 
   window = XCreateSimpleWindow(display, RootWindow(display, screen), 10, 10, width, height, 1, BlackPixel(display, screen), WhitePixel(display, screen));
   XSelectInput(display, window, ExposureMask | KeyPressMask);
@@ -106,15 +152,15 @@ void GraphicsUI::Notify() {
 }
 
 void GraphicsUI::DrawBoard() {
-  for (char r = TOP_ROW; r >= BOT_ROW; --r) {
-    for (char c = LEFT_COL; c <= RIGHT_COL; ++c) {
+  for (char r = board->TopRow(); r >= board->BotRow(); --r) {
+    for (char c = board->LeftCol(); c <= board->RightCol(); ++c) {
       std::string loc = std::string() + c + r;
-      int col = c - LEFT_COL;
-      int row = TOP_ROW - r;
-      int x = col * SQUARE_SIZE;
-      int y = row * SQUARE_SIZE;
+      int col = c - board->LeftCol();
+      int row = board->TopRow() - r;
+      int x = col * square_size;
+      int y = row * square_size;
 
-      if (!board_is_drawn || (!was_empty[loc] && chess_board->Empty(loc)) || board_player[loc] != chess_board->GetPiecePlayer(loc) || board_name[loc] != chess_board->GetPieceName(loc)) {
+      if (!board_is_drawn || (!was_empty[loc] && board->Empty(loc)) || board_player[loc] != board->GetPiecePlayer(loc) || board_name[loc] != board->GetPieceName(loc)) {
         // Alternate colors for the squares
         if ((row + col) % 2 == 0) {
           XSetForeground(display, gc, LIGHT_COLOR);
@@ -122,29 +168,29 @@ void GraphicsUI::DrawBoard() {
           XSetForeground(display, gc, DARK_COLOR);
         }
 
-        XFillRectangle(display, window, gc, x, y, SQUARE_SIZE, SQUARE_SIZE);
+        XFillRectangle(display, window, gc, x, y, square_size, square_size);
       }
 
-      was_empty[loc] = chess_board->Empty(loc);
+      was_empty[loc] = board->Empty(loc);
     }
   }
 
 }
 
 void GraphicsUI::DrawPieces() {
-  for (char r = TOP_ROW; r >= BOT_ROW; --r) {
-    for (char c = LEFT_COL; c <= RIGHT_COL; ++c) {
+  for (char r = board->TopRow(); r >= board->BotRow(); --r) {
+    for (char c = board->LeftCol(); c <= board->RightCol(); ++c) {
       std::string loc = std::string() + c + r;
-      char piece = chess_board->GetPieceName(loc);
-      char player = chess_board->GetPiecePlayer(loc);
+      char piece = board->GetPieceName(loc);
+      char player = board->GetPiecePlayer(loc);
 
-      if (piece != ' ' && (board_player[loc] != chess_board->GetPiecePlayer(loc) || capture_status[loc] != chess_board->CanBeCaptured(loc, player) || board_name[loc] != chess_board->GetPieceName(loc))) {
-        DrawPiece(piece, player, c - LEFT_COL, TOP_ROW - r);
+      if (piece != ' ' && (board_player[loc] != board->GetPiecePlayer(loc) || capture_status[loc] != board->CanBeCaptured(loc, player) || board_name[loc] != board->GetPieceName(loc))) {
+        DrawPiece(piece, player, c - board->LeftCol(), board->TopRow() - r);
       }
 
-      board_player[loc] = chess_board->GetPiecePlayer(loc);
-      board_player[loc] = chess_board->GetPieceName(loc);
-      capture_status[loc] = chess_board->CanBeCaptured(loc, player);
+      board_player[loc] = board->GetPiecePlayer(loc);
+      board_player[loc] = board->GetPieceName(loc);
+      capture_status[loc] = board->CanBeCaptured(loc, player);
     }
   }
 }
@@ -153,8 +199,8 @@ void GraphicsUI::DrawPiece(char piece, char player, int x, int y) {
 
   int piece_height = PIECE_SIZE;
   int piece_width = PIECE_SIZE;
-  int x_offset = x * SQUARE_SIZE + (SQUARE_SIZE - piece_width * 10) / 2;
-  int y_offset = y * SQUARE_SIZE + (SQUARE_SIZE - piece_height * 10) / 2;
+  int x_offset = x * square_size + (square_size - piece_width * 10) / 2;
+  int y_offset = y * square_size + (square_size - piece_height * 10) / 2;
 
   auto piece_display = king_piece;
 
@@ -177,15 +223,30 @@ void GraphicsUI::DrawPiece(char piece, char player, int x, int y) {
     case KNIGHT:
       piece_display = knight_piece;
       break;
+    case DRAGON:
+      piece_display = dragon_piece;
+      break;
+    case GOLD:
+      piece_display = gold_piece;
+      break;
+    case HORSE:
+      piece_display = horse_piece;
+      break;
+    case LANCE:
+      piece_display = lance_piece;
+      break;
+    case SILVER:
+      piece_display = silver_piece;
+      break;
     default:
       break;
   }
 
   if (player == BLACK) XSetForeground(display, gc, BLACK_PIECE);
   if (player == WHITE) XSetForeground(display, gc, WHITE_PIECE);
-  char c = 'a' + x;
-  char r = '8' - y;
-  if (chess_board->CanBeCaptured(std::string() + c + r, player)) {
+  char c = board->LeftCol() + x;
+  char r = board->TopRow() - y;
+  if (board->CanBeCaptured(std::string() + c + r, player)) {
     XSetForeground(display, gc, player == WHITE ? WHITE_CAPPED_PIECE : BLACK_CAPPED_PIECE);
   }
 

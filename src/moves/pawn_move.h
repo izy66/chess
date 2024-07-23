@@ -6,7 +6,7 @@
 
 class PawnMove final : public AbstractMove {
 
-	Board *board;
+	Board *my_board;
 	std::string from, to;
 
 	std::unique_ptr<Piece> captured;

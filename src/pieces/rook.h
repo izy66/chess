@@ -15,7 +15,7 @@ class Rook : public Piece {
 	};
 
 	public:
-	Rook(Board* chess_board, const std::string& loc, char player) : Piece{chess_board, loc, ROOK, player} {}
+	Rook(Board* board, const std::string& loc, char player) : Piece{board, loc, ROOK, player} {}
 
 	Rook(const Piece& other) : Piece{other} {
 		name = ROOK;
@@ -26,13 +26,9 @@ class Rook : public Piece {
 	int Priority() const override { return Piece::ROOK_RANK; }
 
 	Iterator begin() override {
-		auto iter = Iterator{std::make_shared<SlideIterator<Rook::NUM_DIR>>(chess_board, loc, dir, player == WHITE ? 1 : -1)};
+		auto iter = Iterator{std::make_shared<SlideIterator<Rook::NUM_DIR>>(board, loc, dir, player == WHITE ? 1 : -1)};
 		++iter;
 		return iter;
-	}
-
-	Iterator end() override {
-		return Iterator{std::make_shared<SlideIterator<Rook::NUM_DIR>>(chess_board, "  ", dir, player == WHITE ? 1 : -1)};
 	}
 };
 

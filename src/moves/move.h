@@ -8,7 +8,7 @@ class Piece;
 
 class Move final : public AbstractMove {
 
-	Board *board;
+	Board *my_board;
 	std::string from, to;
 
 	int capture_count;

@@ -20,7 +20,7 @@ class Knight : public Piece {
 
 	public:
 		
-		Knight(Board* chess_board, const std::string& loc, char player) : Piece{chess_board, loc, KNIGHT, player} {}
+		Knight(Board* board, const std::string& loc, char player) : Piece{board, loc, KNIGHT, player} {}
 
 		Knight(const Piece& other) : Piece{other} {
 			name = KNIGHT;
@@ -29,13 +29,9 @@ class Knight : public Piece {
 		int Priority() const override { return Piece::KNIGHT_RANK; }
 
 		Iterator begin() override {
-			auto iter = Iterator{std::make_shared<JumpIterator<Knight::NUM_DIR>>(chess_board, loc, dir, player == WHITE ? 1 : -1)};
+			auto iter = Iterator{std::make_shared<JumpIterator<Knight::NUM_DIR>>(board, loc, dir, player == WHITE ? 1 : -1)};
 			++iter;
 			return iter;
-		}
-
-		Iterator end() override {
-			return Iterator{std::make_shared<JumpIterator<Knight::NUM_DIR>>(chess_board, "  ", dir, player == WHITE ? 1 : -1)};
 		}
 };
 

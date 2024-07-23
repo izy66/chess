@@ -2,7 +2,7 @@
 #include "board.h"
 #include "vision.h"
 
-ComputerPlayer::ComputerPlayer(Board* chess_board, char player, int level) : Player{chess_board, player}, level{level}, level_4{chess_board} {}
+ComputerPlayer::ComputerPlayer(Board* board, char player, int level) : Player{board, player}, level{level}, level_4{board} {}
 
 void ComputerPlayer::TakeAction() {
 	std::string readline, command;
@@ -10,14 +10,14 @@ void ComputerPlayer::TakeAction() {
 	std::stringstream ss{readline};
 	ss >> command;
 	if (command.compare("resign") == 0) {
-		chess_board->PlayerResign();
+		board->PlayerResign();
 	} else
 	if (command.compare("draw") == 0) {
-		chess_board->Draw();
+		board->Draw();
 	} else
 	if (command.compare("undo") == 0) {
 		try {
-			chess_board->Undo();
+			board->Undo();
 		} catch (...) {
 			throw;
 		}
@@ -25,7 +25,7 @@ void ComputerPlayer::TakeAction() {
 	if (command.compare("move") == 0) {
 		try {
 			MakeMove();
-			vision->Refresh(chess_board, player);
+			vision->Refresh(board, player);
 		} catch (...) {
 			throw;
 		}
@@ -57,7 +57,7 @@ void ComputerPlayer::MakeMove() {
 		try {
 			level_1.MakeMove(this);
 		} catch (...) {
-			chess_board->PlayerResign();
+			board->PlayerResign();
 		}
 	}
 }

@@ -8,9 +8,9 @@ void ComputerLevel3::MakeMove(ComputerPlayer* player) {
 	int highest_rank = 0;
 	std::string escape_from = "", escape_to = "";
 
-	for (const auto& piece : player->chess_board->GetHand(player->player)) {
+	for (const auto& piece : player->board->GetHand(player->player)) {
 
-		if (player->chess_board->CanBeSeen(piece->Location(), player->player) && piece->Priority() >= highest_rank) {
+		if (player->board->CanBeSeen(piece->Location(), player->player) && piece->Priority() >= highest_rank) {
 
 			auto from = piece->Location();
 
@@ -18,7 +18,7 @@ void ComputerLevel3::MakeMove(ComputerPlayer* player) {
 				if (!escape_to.empty()) break;
 				if (!piece->CanMove(to)) continue;
 
-				player->chess_board->ApplyMove(player->ParseCommand(from, to));
+				player->board->ApplyMove(player->ParseCommand(from, to));
 
 				if (!piece->CanGetCaptured(piece->Location())) {
 
@@ -27,12 +27,12 @@ void ComputerLevel3::MakeMove(ComputerPlayer* player) {
 					escape_to = to;
 				}
 
-				player->chess_board->Undo();
+				player->board->Undo();
 			}
 
 			if (!escape_to.empty()) break;
 
-			for (const auto& savior : player->chess_board->GetHand(player->player)) {
+			for (const auto& savior : player->board->GetHand(player->player)) {
 				if (savior == piece) continue;
 
 				for (const auto& savior_move : *savior) {
@@ -40,7 +40,7 @@ void ComputerLevel3::MakeMove(ComputerPlayer* player) {
 					if (!savior->CanMove(savior_move)) continue;
 
 					auto savior_from = savior->Location();
-					player->chess_board->ApplyMove(player->ParseCommand(savior_from, savior_move));
+					player->board->ApplyMove(player->ParseCommand(savior_from, savior_move));
 
 					if (!piece->CanGetCaptured(piece->Location()) && (!savior->CanGetCaptured(savior->Location()) || savior->Priority() < piece->Priority())) {
 
@@ -49,7 +49,7 @@ void ComputerLevel3::MakeMove(ComputerPlayer* player) {
 						escape_to = savior_move;
 					}
 
-					player->chess_board->Undo();
+					player->board->Undo();
 				}
 			}
 		}
@@ -57,7 +57,7 @@ void ComputerLevel3::MakeMove(ComputerPlayer* player) {
 
 	if (!escape_to.empty()) {
 		try {
-			player->chess_board->MakeMove(player->ParseCommand(escape_from, escape_to));
+			player->board->MakeMove(player->ParseCommand(escape_from, escape_to));
 			return;
 		} catch (...) {
 			throw;

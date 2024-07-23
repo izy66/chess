@@ -8,14 +8,14 @@
 #include <memory>
 
 class GraphicsUI : public Observer {
-	Board* chess_board;
+	Board* board;
 	Display* display;
 	Window window;
 	GC gc;
 	int screen;
 	unsigned int width;
 	unsigned int height;
-	unsigned int cell_size;
+	unsigned int cell_size, square_size;
 
 	void DrawBoard();
 	void DrawPieces();
@@ -26,7 +26,7 @@ class GraphicsUI : public Observer {
 	
 	public:
   
-	  GraphicsUI(Board* chess_board);
+	  GraphicsUI(Board* board);
     ~GraphicsUI();
     void Notify() override;
 };

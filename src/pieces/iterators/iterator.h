@@ -14,16 +14,24 @@ class PieceIterator {
 		Board* board;
 		std::string sloc, cloc;
 		int cur_dir;
-	
+		bool done;
+
 	public:
-	
-		PieceIterator(Board* board, const std::string& loc) : board{board}, sloc{loc}, cloc{loc}, cur_dir{0} {}
+
+		PieceIterator() : board{nullptr}, done{true} {}
+
+		PieceIterator(Board* board, const std::string& loc) : board{board}, sloc{loc}, cloc{loc}, cur_dir{0}, done{false} {}
+
 		virtual ~PieceIterator() {}
-		virtual bool operator!=(PieceIterator& other) {
-			return board != nullptr && (board != other.board || sloc != other.sloc || cloc != other.cloc);
+		
+		bool operator!=(PieceIterator& other) {
+			return (!done || !other.done) && (sloc != other.sloc || cloc != other.cloc);
 		}
-		virtual void operator++() = 0;
-		virtual std::string operator*() { return cloc; }
+
+		std::string operator*() { return cloc; }
+		virtual void operator++() {}
+
+		bool Done() { return done; }
 };
 
 #endif 

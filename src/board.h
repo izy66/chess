@@ -2,15 +2,9 @@
 #define BOARD_H
 
 #include "exceptions.h"
-#include "moves/move.h"
-#include "pieces/blank.h"
+// #include "pieces/blank.h"
 #include "pieces/piece.h"
-#include "pieces/king.h"
-#include "pieces/queen.h"
-#include "pieces/bishop.h"
-#include "pieces/knight.h"
-#include "pieces/pawn.h"
-#include "pieces/rook.h"
+#include "moves/move.h"
 #include "subject.h"
 #include <vector>
 #include <memory>
@@ -24,32 +18,40 @@
 #define FOG '?'
 #define DRAW 'D'
 
+
 class AbstractMove;
 class Player;
 
 class Board : public Subject {
 	
-	Blank blank;
+	static const char LEFT_COL = 'a';
+	static const char RIGHT_COL = 'h';
+	static const char TOP_ROW =	'8';
+	static const char BOT_ROW =	'1';
 	
-	std::map<char, std::vector<char>> captured_by;
-	
-	std::stack<std::string> move_path;
-	std::stack<std::string> move_origin;
-
-	std::map<char, std::string> king_loc;
-	std::stack<std::unique_ptr<AbstractMove>> moves;
-
-	char player = WHITE, opponent = BLACK;
-	bool game_over = false, draw = false;
-
-	std::map<char, std::shared_ptr<Player>> players;
-	std::map<char, float> scores;
-
-	std::random_device rd;
-	std::default_random_engine gen;
+	static const int ROW_DIM = 8;
+	static const int COL_DIM = 8;
 
 	protected:
 
+		// Blank blank;
+		
+		std::map<char, std::vector<char>> captured_by;
+		
+		std::stack<std::string> move_path;
+		std::stack<std::string> move_origin;
+
+		std::map<char, std::string> king_loc;
+		std::stack<std::unique_ptr<AbstractMove>> moves;
+
+		std::map<char, std::shared_ptr<Player>> players;
+		std::map<char, float> scores;
+
+		std::random_device rd;
+		std::default_random_engine gen;
+
+		bool game_over = false, draw = false;
+		char player = WHITE, opponent = BLACK;
 		std::map<std::string, std::unique_ptr<Piece>> pieces;
 	
 		/* internal state refresher */
@@ -60,17 +62,25 @@ class Board : public Subject {
 		Board() { gen = std::default_random_engine(rd()); }
 
 		/* general interface */
+
+		virtual char LeftCol() const { return LEFT_COL; }
+		virtual char RightCol() const { return RIGHT_COL; }
+		virtual char TopRow() const { return TOP_ROW; }
+		virtual char BotRow() const { return BOT_ROW; }
+		virtual int BoardSize() const { return ROW_DIM; }
+
 		bool Empty(const std::string& loc) { return pieces[loc] == BLANK; }
-		void SetPiece(const std::string&, char name, char player);
+		
+		virtual void SetPiece(const std::string&, char name, char player);
 		void RemovePiece(const std::string&);
 		char GetPieceName(const std::string&);
-		virtual char PrintPieceName(const std::string&);  // overwritten in Fog of War
+		char PrintPieceName(const std::string&);
 		char GetPiecePlayer(const std::string&);
 
 		void PlayerMovesNext(char);
 
-		virtual void Reset(); // overwritten in Horde, 960
-		void Clear();
+		virtual void Reset();
+		virtual void Clear();
 		void Print();
 
 		bool LastMoved(const std::string&);
@@ -87,8 +97,8 @@ class Board : public Subject {
 
 		void PlayerExit() { game_over = 1; }
 
-		void AddHumanPlayer(char);
-		void AddComputerPlayer(char, int level = 1);
+		void AddHumanPlayer();
+		void AddComputerPlayer(int level = 1);
 		void PlayerMakeMove();
 
 		void PlayerResign() {

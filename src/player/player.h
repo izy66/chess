@@ -19,7 +19,7 @@ class Player {
 
 	protected:	
 
-		Board* chess_board;
+		Board* board;
 		char player;
 		std::unique_ptr<Parser> parser;
 

@@ -4,8 +4,8 @@
 
 PawnMove::PawnMove(const std::string& from, const std::string& to, char promo) : from{from}, to{to}, captured{nullptr}, promoted{nullptr}, promotion{promo} {}
 
-void PawnMove::MakeMoveOn(Board* chess_board) {
-	board = chess_board;
+void PawnMove::MakeMoveOn(Board* board) {
+	my_board = board;
 
 	if (!(*board)[from]->CanMove(to) && !(*board)[from]->IsEnPassant(to)) throw _invalid_move_{"Can't move from " + from + " to " + to};
 	
@@ -31,11 +31,11 @@ void PawnMove::MakeMoveOn(Board* chess_board) {
 }
 
 void PawnMove::Undo() noexcept {
-	(*board)[to]->UndoMove(from);
-	board->Place(std::move(promoted));
+	(*my_board)[to]->UndoMove(from);
+	my_board->Place(std::move(promoted));
 	
 	if (captured != nullptr) {
-		board->Release(captured->Player());
-		board->Place(std::move(captured));
+		my_board->Release(captured->Player());
+		my_board->Place(std::move(captured));
 	}
 }

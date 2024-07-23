@@ -1,17 +1,17 @@
 #ifndef CONTROLLER_H
 #define CONTROLLER_H
 
-#include "chessboard.h"
-#include "decisiontree.h"
 #include <memory>
 #include <iostream>
 #include <stack>
 
+class Board;
+
 class Controller {
-	ChessBoard* chess_board;
+	Board* board;
 
 	public:
-		Controller(ChessBoard* board) : chess_board{board} {}
+		Controller(Board* board) : board{board} {}
 		~Controller();
 
 		void StartGame(); // start game flow

@@ -3,11 +3,6 @@
 
 #include <string>
 
-#define LEFT_COL 	'a'
-#define RIGHT_COL 'h'
-#define TOP_ROW 	'8'
-#define BOT_ROW 	'1'
-
 class Square {
 	public:
 		virtual ~Square() {}

@@ -6,7 +6,7 @@
 
 class Pawn : public Piece {
 	public:
-		Pawn(Board* chess_board, const std::string& loc, char player) : Piece{chess_board, loc, PAWN, player} {}
+		Pawn(Board* board, const std::string& loc, char player) : Piece{board, loc, PAWN, player} {}
 
 		bool IsPawn() const override { return true; }
 		bool IsEnPassant(const std::string&) const override; 
@@ -20,13 +20,9 @@ class Pawn : public Piece {
 		int CapturedRank(const std::string&) override;
 
 		Iterator begin() override {
-			auto iter = Iterator{std::make_shared<PawnIterator>(chess_board, loc)};
+			auto iter = Iterator{std::make_shared<PawnIterator>(board, loc)};
 			++iter;
 			return iter;
-		}
-
-		Iterator end() override {
-			return Iterator{std::make_shared<PawnIterator>(chess_board, "xx")};
 		}
 };
 

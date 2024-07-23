@@ -13,7 +13,7 @@ void ComputerLevel2::MakeMove(ComputerPlayer* player) {
 	std::string check_move_from = "", check_move_to = "";
 	std::string move_from = "", move_to = "";
 
-	for (const auto& piece : player->chess_board->GetHand(player->player)) {
+	for (const auto& piece : player->board->GetHand(player->player)) {
 
 		auto from = piece->Location();
 
@@ -25,9 +25,9 @@ void ComputerLevel2::MakeMove(ComputerPlayer* player) {
 			
 			try {
 
-				player->chess_board->ApplyMove(player->ParseCommand(from, to));
+				player->board->ApplyMove(player->ParseCommand(from, to));
 
-				if ((captured_rank >= piece->Priority() || !player->chess_board->CanBeCaptured(to, player->player)) &&
+				if ((captured_rank >= piece->Priority() || !player->board->CanBeCaptured(to, player->player)) &&
 					(captured_rank > highest_captured_rank || (captured_rank == highest_captured_rank && piece->Priority() < lowest_used_rank))) {
 
 					highest_captured_rank = captured_rank;
@@ -36,19 +36,19 @@ void ComputerLevel2::MakeMove(ComputerPlayer* player) {
 					capture_move_to = to;
 				}
 
-				if (!player->chess_board->CanBeCaptured(to, player->player) && player->chess_board->Check()) {
+				if (!player->board->CanBeCaptured(to, player->player) && player->board->Check()) {
 					
 					check_move_from = from;
 					check_move_to = to;
 				}
 
-				if (player->chess_board->CheckMate()) {
+				if (player->board->CheckMate()) {
 
 					checkmate_move_from = from;
 					checkmate_move_to = to;
 				}
 
-				player->chess_board->Undo();
+				player->board->Undo();
 
 			} catch (...) {}
 		}
@@ -68,7 +68,7 @@ void ComputerLevel2::MakeMove(ComputerPlayer* player) {
 
 	if (move != nullptr) {
 		try {
-			player->chess_board->MakeMove(std::move(move));
+			player->board->MakeMove(std::move(move));
 			return;
 		} catch (...) {
 			throw;

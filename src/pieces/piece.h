@@ -2,6 +2,8 @@
 #define PIECE_H
 
 #include "iterators/iterator.h"
+#include "iterators/slide_iterator.h"
+#include "iterators/jump_iterator.h"
 #include <string>
 #include <memory>
 #include <iostream>
@@ -16,6 +18,12 @@
 #define ROOK 'R'
 #define PAWN 'P'
 
+#define LANCE 'L'
+#define SILVER 'S'
+#define GOLD 'G'
+#define DRAGON 'D'
+#define HORSE 'H'
+
 class Board;
 class Move;
 
@@ -23,16 +31,16 @@ class Piece {
 	
 	protected:
 		
-		Board* chess_board;
+		Board* board;
 		std::string loc;
 		char name, player; // default capital = WHITE lowercase = BLACK
 		int move_count;
 	
 	public:
 	
-		Piece(Board* chess_board, const std::string& loc, char n, char p) : chess_board{chess_board}, loc{loc}, name{n}, player{p}, move_count{0} {}
+		Piece(Board* board, const std::string& loc, char n, char p) : board{board}, loc{loc}, name{n}, player{p}, move_count{0} {}
 
-		Piece(const Piece& other) : chess_board{other.chess_board}, loc{other.loc}, name{other.name}, player{other.player}, move_count{other.move_count} {}
+		Piece(const Piece& other) : board{other.board}, loc{other.loc}, name{other.name}, player{other.player}, move_count{other.move_count} {}
 		
 		virtual ~Piece();
 		
@@ -41,12 +49,18 @@ class Piece {
 		std::string Location() const { return loc; }
 
 		static const int HIGHEST_RANK = 100;
-		static const int PAWN_RANK = 2;
-		static const int KNIGHT_RANK = 9;
-		static const int BISHOP_RANK = 10;
+		static const int PAWN_RANK = 5;
+		static const int KNIGHT_RANK = 10;
+		static const int BISHOP_RANK = 15;
 		static const int ROOK_RANK = 20;
 		static const int QUEEN_RANK = 50;
 		static const int KING_RANK = 100;
+
+		static const int DRAGON_RANK = 60;
+		static const int HORSE_RANK = 60;
+		static const int GOLD_RANK = 50;
+		static const int SILVER_RANK = 40;
+		static const int LANCE_RANK = 12;
 
 		virtual int Priority() const { return false; }
 
@@ -77,18 +91,32 @@ class Piece {
 			friend class Piece;
 			
 			std::shared_ptr<PieceIterator> iterator;
+			std::shared_ptr<PieceIterator> second_iterator;
 			public:
 
-				Iterator(const std::shared_ptr<PieceIterator>& it) : iterator{it} {}
-				virtual bool operator!=(const Iterator& other) {
-					return *iterator != *other.iterator;
+				Iterator() : iterator{std::make_shared<PieceIterator>()}, second_iterator{std::make_shared<PieceIterator>()} {}
+
+				Iterator(const std::shared_ptr<PieceIterator>& it) : iterator{it}, second_iterator{std::make_shared<PieceIterator>()} {}
+
+				Iterator(const std::shared_ptr<PieceIterator>& it, const std::shared_ptr<PieceIterator>& it_2) : iterator{it}, second_iterator{it_2} {}
+
+				bool operator!=(const Iterator& other) {
+					return *iterator != *other.iterator || *second_iterator != *other.second_iterator;
 				}
-				virtual void operator++() { ++(*iterator); }
-				virtual std::string operator*() { return **iterator; }
+
+				void operator++() { 
+					++(*iterator);
+					if (iterator->Done()) iterator = second_iterator;
+				}
+
+				std::string operator*() { return **iterator; }
 		};
 
 		virtual Iterator begin() = 0;
-		virtual Iterator end() = 0;
+		
+		Iterator end() {
+			return Iterator{};
+		}
 };
 
 #endif

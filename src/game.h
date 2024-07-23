@@ -3,13 +3,13 @@
 
 #include <string>
 
-class ChessBoard;
+class Board;
 
 class Game {
 	std::string game_mode;
 
 	public:
-		void Start(ChessBoard* game_board);
+		void Start(Board* game_board);
 };
 
 #endif

@@ -5,11 +5,6 @@
 #include <memory>
 #include <stack>
 
-class Move;
-
-class ChessBoard : public Board {
-	public:
-		char PrintPieceName(const std::string&) override; // overwritten in Fog of War
-};
+class ChessBoard : public Board {};
 
 #endif
