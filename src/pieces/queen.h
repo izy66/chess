@@ -34,7 +34,7 @@ class Queen : public Piece {
 		}
 
 		Iterator end() override {
-			return Iterator{std::make_shared<SlideIterator<Queen::NUM_DIR>>(chess_board, "  ", dir, player == WHITE ? 1 : -1)};
+			return Iterator{std::make_shared<SlideIterator<Queen::NUM_DIR>>(nullptr, "  ", dir, player == WHITE ? 1 : -1)};
 		}
 };
 
