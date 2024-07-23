@@ -1,7 +1,6 @@
 #ifndef PIECE_H
 #define PIECE_H
 
-// #include "square.h"
 #include "iterators/iterator.h"
 #include <string>
 #include <memory>
@@ -88,7 +87,6 @@ class Piece {
 				virtual std::string operator*() { return **iterator; }
 		};
 
-		// virtual Iterator begin(const std::string& loc) = 0;
 		virtual Iterator begin() = 0;
 		virtual Iterator end() = 0;
 };

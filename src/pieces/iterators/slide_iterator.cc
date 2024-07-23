@@ -1,7 +1,8 @@
-#include "queen_iterator.h"
+#include "slide_iterator.h"
 #include "board.h"
 
-void QueenIterator::operator++() {
+template<size_t NUM_DIR>
+void SlideIterator<NUM_DIR>::operator++() {
 	// search for moves on current direction
 	std::string next_loc = cloc;
 	if (board->Empty(cloc) || cloc == sloc) {
@@ -25,3 +26,12 @@ void QueenIterator::operator++() {
 	// no moves left
 	board = nullptr;
 }
+
+template
+void SlideIterator<8>::operator++();
+
+template
+void SlideIterator<4>::operator++();
+
+template
+void SlideIterator<2>::operator++();

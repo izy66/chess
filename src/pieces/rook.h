@@ -2,9 +2,18 @@
 #define ROOK_H
 
 #include "piece.h"
-#include "iterators/rook_iterator.h"
+#include "iterators/slide_iterator.h"
 
 class Rook : public Piece {
+
+	static const int NUM_DIR = 4;
+	int dir[NUM_DIR][2] = {
+		{1, 0},
+		{0, 1},
+		{-1, 0},
+		{0, -1},
+	};
+
 	public:
 	Rook(Board* chess_board, const std::string& loc, char player) : Piece{chess_board, loc, ROOK, player} {}
 
@@ -17,13 +26,13 @@ class Rook : public Piece {
 	int Priority() const override { return Piece::ROOK_RANK; }
 
 	Iterator begin() override {
-		auto iter = Iterator{std::make_shared<RookIterator>(chess_board, loc)};
+		auto iter = Iterator{std::make_shared<SlideIterator<Rook::NUM_DIR>>(chess_board, loc, dir)};
 		++iter;
 		return iter;
 	}
 
 	Iterator end() override {
-		return Iterator{std::make_shared<RookIterator>(chess_board, "  ")};
+		return Iterator{std::make_shared<SlideIterator<Rook::NUM_DIR>>(chess_board, "  ", dir)};
 	}
 };
 
