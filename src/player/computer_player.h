@@ -25,10 +25,6 @@ class ComputerPlayer final : public Player {
 
 	protected:
 
-		static const int NUM_PIECE = 6;
-		const char piece_rank[NUM_PIECE] = {PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING};
-		int get_rank(char c) const { for (int i = 0; i < 6; ++i) if (piece_rank[i] == toupper(c)) return i; return -1; }
-
 	public:
 		ComputerPlayer(Board*, char, int);
 		

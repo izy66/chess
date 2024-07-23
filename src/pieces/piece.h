@@ -57,7 +57,7 @@ class Piece {
 		void UndoMove(const std::string&);
 
 		// if an opponent piece is on this square, can I capture?
-		virtual bool CanCover(const std::string&);
+		virtual bool CanCapture(const std::string&);
 		// can I move to this square?
 		virtual bool CanMove(const std::string&);
 		virtual bool CanPromote();

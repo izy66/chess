@@ -25,8 +25,6 @@ class Player {
 
 		std::unique_ptr<Vision> vision;
 
-		// std::vector<std::shared_ptr<Piece>> get_hand() const;
-
 	public:
 
 		Player(Board*, char);

@@ -30,7 +30,7 @@ bool Pawn::CanMove(const std::string& to) {
 	return false;
 }
 
-bool Pawn::CanCover(const std::string& to) {
+bool Pawn::CanCapture(const std::string& to) {
 	for (const auto& move : *this) {
 		if (move == to && abs(to[0] - loc[0]) == 1 && abs(to[1] - loc[1]) == 1) return !chess_board->IsRevealingKing(this, to);
 	}

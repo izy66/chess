@@ -28,13 +28,13 @@ class Queen : public Piece {
 		int Priority() const override { return Piece::QUEEN_RANK; }
 
 		Iterator begin() override {
-			auto iter = Iterator{std::make_shared<SlideIterator<Queen::NUM_DIR>>(chess_board, loc, dir)};
+			auto iter = Iterator{std::make_shared<SlideIterator<Queen::NUM_DIR>>(chess_board, loc, dir, player == WHITE ? 1 : -1)};
 			++iter;
 			return iter;
 		}
 
 		Iterator end() override {
-			return Iterator{std::make_shared<SlideIterator<Queen::NUM_DIR>>(chess_board, "  ", dir)};
+			return Iterator{std::make_shared<SlideIterator<Queen::NUM_DIR>>(chess_board, "  ", dir, player == WHITE ? 1 : -1)};
 		}
 };
 

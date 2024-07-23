@@ -7,7 +7,7 @@ void SlideIterator<NUM_DIR>::operator++() {
 	std::string next_loc = cloc;
 	if (board->Empty(cloc) || cloc == sloc) {
 		next_loc[0] += dir[cur_dir][0];
-		next_loc[1] += dir[cur_dir][1];
+		next_loc[1] += dir[cur_dir][1] * mov_dir;
 		if (board->InBound(next_loc)) {
 			cloc = next_loc;
 			return;
@@ -35,3 +35,6 @@ void SlideIterator<4>::operator++();
 
 template
 void SlideIterator<2>::operator++();
+
+template
+void SlideIterator<1>::operator++();

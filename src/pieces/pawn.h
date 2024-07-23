@@ -11,7 +11,7 @@ class Pawn : public Piece {
 		bool IsPawn() const override { return true; }
 		bool IsEnPassant(const std::string&) const override; 
 
-		bool CanCover(const std::string&) override;
+		bool CanCapture(const std::string&) override;
 		bool CanMove(const std::string&) override;
 		bool CanPromote() override;
 

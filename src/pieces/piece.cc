@@ -4,7 +4,7 @@
 
 Piece::~Piece() {}
 
-bool Piece::CanCover(const std::string& to) {
+bool Piece::CanCapture(const std::string& to) {
 	// can't move away if current piece is protecting the king
 	if (chess_board->IsRevealingKing(this, to)) {
 		return false;
@@ -18,8 +18,8 @@ bool Piece::CanCover(const std::string& to) {
 }
 
 bool Piece::CanMove(const std::string& to) {
-	// can't move away if current piece is protecting the king
-	return chess_board->GetPiecePlayer(to) != player && CanCover(to);
+	// piece can move if it's following the rules and not stepping over
+	return chess_board->GetPiecePlayer(to) != player && CanCapture(to);
 }
 
 bool Piece::CanPromote() {

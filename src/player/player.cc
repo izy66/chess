@@ -18,7 +18,7 @@ int Player::CanSee(const std::string& loc) const {
 
 bool Player::CanCapture(const std::string& to) const {
 	for (const auto& piece : chess_board->GetHand(player)) {
-		if (piece->CanCover(to)) return true;
+		if (piece->CanCapture(to)) return true;
 	}
 	return false;
 }
