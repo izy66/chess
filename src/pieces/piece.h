@@ -78,6 +78,8 @@ class Piece {
 		
 		bool CanGetCaptured(const std::string&);
 		virtual int CapturedRank(const std::string&);
+
+		virtual bool CanDrop() { return true; }
 		
 		virtual bool IsKing() const { return false; }
 		virtual bool IsPawn() const { return false; }

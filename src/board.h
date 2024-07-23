@@ -35,6 +35,8 @@ class Board : public Subject {
 	protected:
 
 		// Blank blank;
+
+		bool is_shogi;
 		
 		std::map<char, std::vector<char>> captured_by;
 		
@@ -59,7 +61,10 @@ class Board : public Subject {
 
 	public:
 
-		Board() { gen = std::default_random_engine(rd()); }
+		Board() { 
+			gen = std::default_random_engine(rd()); 
+			is_shogi = false;
+		}
 
 		/* general interface */
 
@@ -134,16 +139,16 @@ class Board : public Subject {
 		/* game logic interface */
 		std::string LastMove() { return move_path.top(); }
 		
-
 		/* captured pieces interface */
 		std::vector<char> CapturedBy(char);
 		bool CanBeCaptured(const std::string&, char);
 		bool CanBeSeen(const std::string&, char);
 
 		void Capture(char, char);
+		void RemoveCapture(char, char);
 		void Release(char);
 
-		bool InBound(const std::string& loc) {
+		virtual bool InBound(const std::string& loc) {
 			return LEFT_COL <= loc[0] && loc[0] <= RIGHT_COL && BOT_ROW <= loc[1] && loc[1] <= TOP_ROW;
 		}
 

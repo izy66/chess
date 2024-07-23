@@ -25,6 +25,8 @@ class ShogiKing : public Piece {
 		
 		int Priority() const override { return Piece::KING_RANK; }
 
+		bool CanPromote() override { return move_count > 0; }
+		
 		Iterator begin() override {
 			auto iter = Iterator{std::make_shared<JumpIterator<ShogiKing::NUM_DIR>>(board, loc, dir, player == BLACK ? 1 : -1)};
 			++iter;

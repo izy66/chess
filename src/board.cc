@@ -9,37 +9,39 @@
 #include "player/player.h"
 #include "player/human_player.h"
 #include "player/computer_player.h"
+#include "shogi/shogi_player.h"
 #include <iostream>
 
 void Board::SetPiece(const std::string& loc, char name, char player) {
-	if (name == GetPieceName(loc)) return; // don't need to set again
-	switch(tolower(name)) {
-		case 'k':
+	RemovePiece(loc);
+	switch(toupper(name)) {
+		case KING:
 			if (king_loc[player] != "") {
 				throw _two_kings_{};
 			}
 			pieces[loc] = std::make_unique<King>(this, loc, player);
 			king_loc[player] = loc;
 			break;
-		case 'q':
+		case QUEEN:
 			pieces[loc] = std::make_unique<Queen>(this, loc, player);
 			break;
-		case 'b':
+		case BISHOP:
 			pieces[loc] = std::make_unique<Bishop>(this, loc, player);
 			break;
-		case 'n':
+		case KNIGHT:
 			pieces[loc] = std::make_unique<Knight>(this, loc, player);
 			break;
-		case 'p':
+		case PAWN:
 			if (loc[1] == BOT_ROW || loc[1] == TOP_ROW) {
 				throw _pawn_first_rank_{};
 			}
 			pieces[loc] = std::make_unique<Pawn>(this, loc, player);
 			break;
-		case 'r':
+		case ROOK:
 			pieces[loc] = std::make_unique<Rook>(this, loc, player);
 			break;
 	}
+	refresh_vision();
 }
 
 void Board::refresh_vision() {
@@ -64,7 +66,7 @@ char Board::PrintPieceName(const std::string& loc) {
 }
 
 void Board::RemovePiece(const std::string& loc) {
-	if (pieces[loc] != BLANK && pieces[loc]->IsKing()) king_loc[GetPiecePlayer(loc)] = "";
+	if (pieces[loc] != BLANK && pieces[loc]->IsKing()) king_loc[pieces[loc]->Player()] = "";
 	pieces[loc] = BLANK;
 }
 
@@ -131,7 +133,8 @@ void Board::Reset() {
 }
 
 void Board::AddHumanPlayer() { 
-	players[player] = std::make_shared<HumanPlayer>(this, player); 
+	if (!is_shogi) players[player] = std::make_shared<HumanPlayer>(this, player);
+	else players[player] = std::make_shared<ShogiPlayer>(this, player);
 	std::swap(player, opponent);
 }
 
@@ -201,11 +204,18 @@ std::unique_ptr<Piece> Board::Retrieve(const std::string& loc) {
 }
 
 void Board::Capture(char piece_name, char player) {
-	captured_by[player].push_back(piece_name);
+	// captured_by[player].push_back(piece_name);
+	if (player == WHITE) captured_by[BLACK].push_back(piece_name);
+	if (player == BLACK) captured_by[WHITE].push_back(piece_name);
+}
+
+void Board::RemoveCapture(char piece_name, char player) {
+	captured_by[player].erase(std::find(captured_by[player].begin(), captured_by[player].end(), piece_name));
 }
 
 void Board::Release(char player) {
-	captured_by[player].pop_back();
+	if (player == WHITE) captured_by[BLACK].pop_back();
+	if (player == BLACK) captured_by[WHITE].pop_back();
 }
 
 bool Board::CanBeCaptured(const std::string& loc, char player) {
@@ -374,14 +384,17 @@ int Board::BoardScore() {
 		for (char c = LEFT_COL; c <= RIGHT_COL; ++c) {
 			std::string loc = std::string() + c + r;
 			if (pieces[loc] != nullptr) {
-				score += pieces[loc]->Priority();
-				score += (players[player]->CanSee(loc) - players[opponent]->CanSee(loc)) * pieces[loc]->Priority();
+				if (pieces[loc]->Player() != player) {
+					score += (players[player]->CanSee(loc) - players[opponent]->CanSee(loc) - 1) * pieces[loc]->Priority();
+				} else {
+					score += (players[player]->CanSee(loc) - players[opponent]->CanSee(loc) + 1) * pieces[loc]->Priority();
+				}
 			} else {
 				score += players[player]->CanSee(loc) - players[opponent]->CanSee(loc);
 			}
 		}
 	}
-	if (Check()) score += CHECK_SCORE;
+	// if (Check()) score += CHECK_SCORE;
 	if (StaleMate()) score += STALE_SCORE;
 	if (CheckMate()) score = MAX_SCORE;
 	return score;

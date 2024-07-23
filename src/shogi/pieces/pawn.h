@@ -16,6 +16,11 @@ class ShogiPawn : public Piece {
 		
 		int Priority() const override { return Piece::PAWN_RANK; }
 
+		bool CanPromote() override { return move_count > 0; }
+		bool CanDrop() override;
+
+		bool IsPawn() const override { return true; }
+
 		Iterator begin() override {
 			auto iter = Iterator{std::make_shared<JumpIterator<ShogiPawn::NUM_DIR>>(board, loc, dir, player == BLACK ? 1 : -1)};
 			++iter;

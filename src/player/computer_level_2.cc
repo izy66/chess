@@ -13,11 +13,11 @@ void ComputerLevel2::MakeMove(ComputerPlayer* player) {
 	std::string check_move_from = "", check_move_to = "";
 	std::string move_from = "", move_to = "";
 
-	for (const auto& piece : player->board->GetHand(player->player)) {
+	for (const auto piece : player->board->GetHand(player->player)) {
 
 		auto from = piece->Location();
 
-		for (const auto& to : *piece) {
+		for (const auto to : *piece) {
 
 			if (!piece->CanMove(to)) continue;
 

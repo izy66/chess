@@ -19,6 +19,8 @@ class ShogiRook : public Piece {
 
 		int Priority() const override { return Piece::ROOK_RANK; }
 
+		bool CanPromote() override { return move_count > 0; }
+		
 		Iterator begin() override {
 			auto iter = Iterator{std::make_shared<SlideIterator<ShogiRook::NUM_DIR>>(board, loc, dir, player == BLACK ? 1 : -1)};
 			++iter;

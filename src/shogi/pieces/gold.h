@@ -25,6 +25,8 @@ class ShogiGold : public Piece {
 
 		int Priority() const override { return Piece::GOLD_RANK; }
 
+		bool CanPromote() override { return move_count > 0; }
+		
 		Iterator begin() override {
 			auto iter = Iterator{std::make_shared<JumpIterator<ShogiGold::NUM_DIR_JUMP>>(board, loc, dir_jump, player == BLACK ? 1 : -1)};
 			++iter;

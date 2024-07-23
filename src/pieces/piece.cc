@@ -10,7 +10,7 @@ bool Piece::CanCapture(const std::string& to) {
 		return false;
 	}
 	// compare this move with all valid moves
-	for (const auto& move : *this) {
+	for (const auto move : *this) {
 		if (move == to) return true;
 	}
 	// no match, not a valid move

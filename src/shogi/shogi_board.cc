@@ -67,6 +67,7 @@ void ShogiBoard::Clear() {
 }
 
 void ShogiBoard::SetPiece(const std::string& loc, char name, char player) {
+	RemovePiece(loc);
 	switch (toupper(name))
 	{
 	case BISHOP:
@@ -82,7 +83,11 @@ void ShogiBoard::SetPiece(const std::string& loc, char name, char player) {
 		pieces[loc] = std::make_unique<ShogiHorse>(this, loc, player);
 		break;
 	case KING:
+		if (king_loc[player] != "") {
+			throw _two_kings_{};
+		}
 		pieces[loc] = std::make_unique<ShogiKing>(this, loc, player);
+		king_loc[player] = loc;
 		break;
 	case KNIGHT:
 		pieces[loc] = std::make_unique<ShogiKnight>(this, loc, player);
@@ -102,4 +107,5 @@ void ShogiBoard::SetPiece(const std::string& loc, char name, char player) {
 	default:
 		break;
 	}
+	refresh_vision();
 }

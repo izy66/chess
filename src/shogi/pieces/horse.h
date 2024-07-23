@@ -31,6 +31,8 @@ class ShogiHorse : public Piece {
 
 		int Priority() const override { return Piece::HORSE_RANK; }
 
+		bool CanPromote() override { return move_count > 0; }
+		
 		Iterator begin() override {
 			auto iter = Iterator{std::make_shared<JumpIterator<ShogiHorse::NUM_DIR_JUMP>>(board, loc, dir_jump, player == BLACK ? 1 : -1), std::make_shared<SlideIterator<ShogiHorse::NUM_DIR_SLIDE>>(board, loc, dir_slide, player == BLACK ? 1 : -1)};
 			++iter;

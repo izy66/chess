@@ -16,6 +16,9 @@ class ShogiLance : public Piece {
 
 		int Priority() const override { return Piece::LANCE_RANK; }
 
+		bool CanPromote() override { return move_count > 0; }
+		bool CanDrop() override;
+
 		Iterator begin() override {
 			auto iter = Iterator{std::make_shared<SlideIterator<ShogiLance::NUM_DIR>>(board, loc, dir_slide, player == BLACK ? 1 : -1)};
 			++iter;

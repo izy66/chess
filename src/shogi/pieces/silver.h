@@ -20,6 +20,8 @@ class ShogiSilver : public Piece {
 		
 		int Priority() const override { return Piece::SILVER_RANK; }
 
+		bool CanPromote() override { return move_count > 0; }
+
 		Iterator begin() override {
 			auto iter = Iterator{std::make_shared<JumpIterator<ShogiSilver::NUM_DIR>>(board, loc, dir, player == BLACK ? 1 : -1)};
 			++iter;
