@@ -11,7 +11,7 @@ bool King::IsCastling(const std::string& to) const {
 	rook_dest[0] += castle_dir;
 	if ((*board)[rook_loc] != nullptr) return false; // can't castle if there are pieces on the way
 	while (board->InBound(rook_loc)) {
-		std::unique_ptr<Piece>& rook = (*board)[rook_loc];
+		const std::unique_ptr<Piece>& rook = (*board)[rook_loc];
 		if (rook != nullptr && !rook->IsRook()) return false; // can't castle if there are pieces on the way
 		if (rook != nullptr) {
 			if (!rook->HasMoved()) {

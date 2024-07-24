@@ -2,7 +2,7 @@
 #include "player/parser.h"
 #include "moves/promotion.h"
 #include "player/vision.h"
-#include "shogi/move/drop.h"
+#include "moves/drop.h"
 #include <iostream>
 #include <sstream>
 

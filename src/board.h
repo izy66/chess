@@ -21,6 +21,9 @@ class AbstractMove;
 class Player;
 
 class Board : public Subject {
+
+	friend class AbstractMove;
+	friend class Player;
 	
 	static const char LEFT_COL = 'a';
 	static const char RIGHT_COL = 'h';
@@ -31,8 +34,6 @@ class Board : public Subject {
 	static const int COL_DIM = 8;
 
 	protected:
-
-		// Blank blank;
 		
 		std::map<char, std::vector<char>> captured_by;
 		
@@ -54,6 +55,7 @@ class Board : public Subject {
 	
 		/* internal state refresher */
 		void refresh_vision();
+		
 
 	public:
 
@@ -62,6 +64,7 @@ class Board : public Subject {
 		}
 
 		/* general interface */
+		const std::unique_ptr<Piece>& operator[](const std::string& loc) { return pieces[loc]; }
 
 		virtual char LeftCol() const { return LEFT_COL; }
 		virtual char RightCol() const { return RIGHT_COL; }
@@ -88,8 +91,6 @@ class Board : public Subject {
 		std::vector<Piece*> GetHand(char player);
 		void Place(std::unique_ptr<Piece>);
 		std::unique_ptr<Piece> Retrieve(const std::string&);
-
-		std::unique_ptr<Piece>& operator[](const std::string& loc) { return pieces[loc]; }
 
 		/* game control interface */
 		bool GameOver() const { return game_over; }

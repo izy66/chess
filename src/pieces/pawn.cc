@@ -13,7 +13,7 @@ int Pawn::CapturedRank(const std::string& to) {
 	if (IsEnPassant(to)) {
 		capture_loc = std::string() + to[0] + loc[1];
 	}
-	std::unique_ptr<Piece>& capture = (*board)[capture_loc];
+	const std::unique_ptr<Piece>& capture = (*board)[capture_loc];
 	if (capture != nullptr) return capture->Priority();
 	return -1;
 }

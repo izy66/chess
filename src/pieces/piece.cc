@@ -27,7 +27,7 @@ bool Piece::CanPromote(const std::string& to) {
 }
 
 int Piece::CapturedRank(const std::string& loc) {
-	std::unique_ptr<Piece>& capture = (*board)[loc];
+	const std::unique_ptr<Piece>& capture = (*board)[loc];
 	if (capture != nullptr) return capture->Priority();
 	return -1;
 }
