@@ -1,5 +1,5 @@
 #include "pawn.h"
-#include "board.h"
+#include "shogi/shogi_board.h"
 
 bool ShogiPawn::CanDrop() {
 	if (player == BLACK && loc[1] == board->TopRow()) return false;

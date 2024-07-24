@@ -1,5 +1,5 @@
 #include "knight.h"
-#include "board.h"
+#include "shogi/shogi_board.h"
 
 bool ShogiKnight::CanDrop() {
 	if (player == BLACK && loc[1] >= board->TopRow() - 1) return false;

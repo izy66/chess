@@ -1,5 +1,5 @@
 #include "lance.h"
-#include "board.h"
+#include "shogi/shogi_board.h"
 
 bool ShogiLance::CanDrop() {
 	if (player == BLACK && loc[1] == board->TopRow()) return false;

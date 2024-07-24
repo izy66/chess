@@ -15,9 +15,7 @@
 #include <random>
 
 #define BLANK nullptr
-#define FOG '?'
-#define DRAW 'D'
-
+#define EMPTY ' '
 
 class AbstractMove;
 class Player;
@@ -35,8 +33,6 @@ class Board : public Subject {
 	protected:
 
 		// Blank blank;
-
-		bool is_shogi;
 		
 		std::map<char, std::vector<char>> captured_by;
 		
@@ -63,7 +59,6 @@ class Board : public Subject {
 
 		Board() { 
 			gen = std::default_random_engine(rd()); 
-			is_shogi = false;
 		}
 
 		/* general interface */
@@ -102,7 +97,7 @@ class Board : public Subject {
 
 		void PlayerExit() { game_over = 1; }
 
-		void AddHumanPlayer();
+		virtual void AddHumanPlayer();
 		void AddComputerPlayer(int level = 1);
 		void PlayerMakeMove();
 
@@ -120,7 +115,6 @@ class Board : public Subject {
 
 		void DisplayScores();
 		
-
 		/* action interface */
 		void MakeMove(std::unique_ptr<AbstractMove>);
 		void ApplyMove(std::unique_ptr<AbstractMove>);

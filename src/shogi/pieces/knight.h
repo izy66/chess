@@ -1,9 +1,9 @@
 #ifndef SHOGI_KNIGHT_H
 #define SHOGI_KNIGHT_H
 
-#include "pieces/piece.h"
+#include "shogi_piece.h"
 
-class ShogiKnight : public Piece {
+class ShogiKnight : public ShogiPiece {
 
 	static const int NUM_DIR = 2;
 	int dir[NUM_DIR][2] = {
@@ -13,11 +13,10 @@ class ShogiKnight : public Piece {
 
 	public:
 	
-		ShogiKnight(Board* board, const std::string& loc, char player) : Piece{board, loc, KNIGHT, player} {}
+		ShogiKnight(Board* board, const std::string& loc, char player) : ShogiPiece{board, loc, KNIGHT, player} {}
 		
-		int Priority() const override { return Piece::KNIGHT_RANK; }
+		int Priority() const override { return ShogiPiece::KNIGHT_RANK; }
 
-		bool CanPromote() override { return move_count > 0; }
 		bool CanDrop() override;
 
 		Iterator begin() override {

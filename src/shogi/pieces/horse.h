@@ -1,9 +1,9 @@
 #ifndef SHOGI_HORSE_H
 #define SHOGI_HORSE_H
 
-#include "pieces/piece.h"
+#include "shogi_piece.h"
 
-class ShogiHorse : public Piece {
+class ShogiHorse : public ShogiPiece {
 	
 	static const int NUM_DIR_JUMP = 4;
 	int dir_jump[NUM_DIR_JUMP][2] = {
@@ -23,16 +23,14 @@ class ShogiHorse : public Piece {
 
 	public:
 	
-		ShogiHorse(Board* board, const std::string& loc, char player) : Piece{board, loc, HORSE, player} {}
+		ShogiHorse(Board* board, const std::string& loc, char player) : ShogiPiece{board, loc, HORSE, player} {}
 
-		ShogiHorse(const Piece& other) : Piece{other} {
+		ShogiHorse(const ShogiPiece& other) : ShogiPiece{other} {
 			name = HORSE;
 		}
 
-		int Priority() const override { return Piece::HORSE_RANK; }
+		int Priority() const override { return ShogiPiece::HORSE_RANK; }
 
-		bool CanPromote() override { return move_count > 0; }
-		
 		Iterator begin() override {
 			auto iter = Iterator{std::make_shared<JumpIterator<ShogiHorse::NUM_DIR_JUMP>>(board, loc, dir_jump, player == BLACK ? 1 : -1), std::make_shared<SlideIterator<ShogiHorse::NUM_DIR_SLIDE>>(board, loc, dir_slide, player == BLACK ? 1 : -1)};
 			++iter;

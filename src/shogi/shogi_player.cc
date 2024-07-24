@@ -1,13 +1,13 @@
 #include "shogi_player.h"
 #include "player/parser.h"
-#include "moves/move.h"
+#include "moves/promotion.h"
 #include "player/vision.h"
 #include "shogi/move/drop.h"
 #include <iostream>
 #include <sstream>
 
 void ShogiPlayer::TakeAction() {
-	std::string readline, command;
+	std::string readline, drop_loc, name;
 	if (!getline(std::cin, readline)) throw _end_of_line_{};
 	std::stringstream ss{readline};
 	ss >> command;
@@ -32,15 +32,15 @@ void ShogiPlayer::TakeAction() {
 		if (!(ss >> name)) {
 			throw _parsing_error_{"Missing piece's name!"};
 		}
-		drop_name = name[0];
+		char drop_name = name[0];
 		try {
 			board->MakeMove(std::make_unique<Drop>(drop_loc, drop_name, player));
 		} catch (...) {
 			throw;
 		}
 	} else
-	if (command.compare("move") == 0) {
-		from = to = promotion = "";
+	if (command.compare("move") == 0 || command.compare("promote") == 0) {
+		from = to = "";
 		if (!(ss >> from)) { 
 			throw _parsing_error_{"Missing first coordinate."}; 
 		}
@@ -61,7 +61,7 @@ void ShogiPlayer::TakeAction() {
 		}
 		try {
 			MakeMove();
-			vision->Refresh(board, player);
+			// vision->Refresh(board, player);
 		} catch (...) {
 			throw;
 		}
@@ -71,10 +71,16 @@ void ShogiPlayer::TakeAction() {
 }
 
 void ShogiPlayer::MakeMove() {
-	std::unique_ptr<AbstractMove> move;
-	try {
-		board->MakeMove(std::make_unique<Move>(from, to));
-	} catch (...) {
-		throw;
+	switch (toupper(board->GetPieceName(from)))
+	{
+	case ROOK:
+		board->MakeMove(std::make_unique<Promotion>(from, to, DRAGON, command.compare("promote") == 0));
+		break;
+	case BISHOP:
+		board->MakeMove(std::make_unique<Promotion>(from, to, HORSE, command.compare("promote") == 0));
+		break;
+	default:
+		board->MakeMove(std::make_unique<Promotion>(from, to, GOLD, command.compare("promote") == 0));
+		break;
 	}
 }

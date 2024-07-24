@@ -1,9 +1,9 @@
 #ifndef SHOGI_LANCE_H
 #define SHOGI_LANCE_H
 
-#include "pieces/piece.h"
+#include "shogi_piece.h"
 
-class ShogiLance : public Piece {
+class ShogiLance : public ShogiPiece {
 	
 	static const int NUM_DIR = 1;
 	int dir_slide[NUM_DIR][2] = {
@@ -12,11 +12,10 @@ class ShogiLance : public Piece {
 
 	public:
 	
-		ShogiLance(Board* board, const std::string& loc, char player) : Piece{board, loc, LANCE, player} {}
+		ShogiLance(Board* board, const std::string& loc, char player) : ShogiPiece{board, loc, LANCE, player} {}
 
-		int Priority() const override { return Piece::LANCE_RANK; }
+		int Priority() const override { return ShogiPiece::LANCE_RANK; }
 
-		bool CanPromote() override { return move_count > 0; }
 		bool CanDrop() override;
 
 		Iterator begin() override {

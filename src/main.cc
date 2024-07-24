@@ -7,6 +7,7 @@ using namespace std;
 int main() {
 	Game game;
 	string board_game;
+	cout << "Type \"chess\" to enter chess mode, type \"shogi\" to enter shogi mode" << endl;
 	cin >> board_game;
 	if (board_game.compare("chess") == 0) {
 		ChessBoard board;

@@ -4,9 +4,11 @@
 #include "player/player.h"
 
 class ShogiPlayer final : public Player {
-	std::string from, to, promotion, drop_loc;
-	char drop_name;
+
+	std::string from, to, command;
+
 	public:
+		
 		ShogiPlayer(Board* board, char player) : Player{board, player} {}
 		
 		void TakeAction() override;

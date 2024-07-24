@@ -19,6 +19,8 @@ Controller::~Controller() {
 void Controller::StartGame() {
 	std::string command, mode, player1, player2;
 	board->Reset();
+	std::cout << "- setup : ennter setup mode." << std::endl;
+	std::cout << "- game [1st player] [2nd player] : start a match" << std::endl;
 	while (true) {
 		if (!getline(std::cin, command)) {
 			break;

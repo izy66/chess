@@ -22,7 +22,7 @@ bool Piece::CanMove(const std::string& to) {
 	return board->GetPiecePlayer(to) != player && CanCapture(to);
 }
 
-bool Piece::CanPromote() {
+bool Piece::CanPromote(const std::string& to) {
 	return false;
 }
 

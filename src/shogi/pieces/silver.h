@@ -1,9 +1,9 @@
 #ifndef SHOGI_SILVER_H
 #define SHOGI_SILVER_H
 
-#include "pieces/piece.h"
+#include "shogi_piece.h"
 
-class ShogiSilver : public Piece {
+class ShogiSilver : public ShogiPiece {
 
 	static const int NUM_DIR = 5;
 	int dir[NUM_DIR][2] = {
@@ -16,11 +16,9 @@ class ShogiSilver : public Piece {
 
 	public:
 	
-		ShogiSilver(Board* board, const std::string& loc, char player) : Piece{board, loc, SILVER, player} {}
+		ShogiSilver(Board* board, const std::string& loc, char player) : ShogiPiece{board, loc, SILVER, player} {}
 		
-		int Priority() const override { return Piece::SILVER_RANK; }
-
-		bool CanPromote() override { return move_count > 0; }
+		int Priority() const override { return ShogiPiece::SILVER_RANK; }
 
 		Iterator begin() override {
 			auto iter = Iterator{std::make_shared<JumpIterator<ShogiSilver::NUM_DIR>>(board, loc, dir, player == BLACK ? 1 : -1)};

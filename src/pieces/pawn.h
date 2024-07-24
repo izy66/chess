@@ -13,11 +13,13 @@ class Pawn : public Piece {
 
 		bool CanCapture(const std::string&) override;
 		bool CanMove(const std::string&) override;
-		bool CanPromote() override;
+		bool CanPromote(const std::string&) override;
 
 		int Priority() const override { return Piece::PAWN_RANK; }
 
 		int CapturedRank(const std::string&) override;
+
+		std::string CaptureLoc(const std::string& to) override;
 
 		Iterator begin() override {
 			auto iter = Iterator{std::make_shared<PawnIterator>(board, loc)};

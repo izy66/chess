@@ -74,7 +74,7 @@ class Piece {
 		virtual bool CanCapture(const std::string&);
 		// can I move to this square?
 		virtual bool CanMove(const std::string&);
-		virtual bool CanPromote();
+		virtual bool CanPromote(const std::string&);
 		
 		bool CanGetCaptured(const std::string&);
 		virtual int CapturedRank(const std::string&);
@@ -87,6 +87,8 @@ class Piece {
 
 		virtual bool IsEnPassant(const std::string& to) const { return false; };
 		virtual bool IsCastling(const std::string& to) const { return false; };
+
+		virtual std::string CaptureLoc(const std::string& to) { return to; }
 
 		/* iterate through all squares that can either move to or attack */
 		class Iterator {

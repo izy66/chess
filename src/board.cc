@@ -133,8 +133,7 @@ void Board::Reset() {
 }
 
 void Board::AddHumanPlayer() { 
-	if (!is_shogi) players[player] = std::make_shared<HumanPlayer>(this, player);
-	else players[player] = std::make_shared<ShogiPlayer>(this, player);
+	players[player] = std::make_shared<HumanPlayer>(this, player);
 	std::swap(player, opponent);
 }
 

@@ -1,9 +1,9 @@
 #ifndef SHOGI_PAWN_H
 #define SHOGI_PAWN_H
 
-#include "pieces/piece.h"
+#include "shogi_piece.h"
 
-class ShogiPawn : public Piece {
+class ShogiPawn : public ShogiPiece {
 
 	static const int NUM_DIR = 1;
 	int dir[NUM_DIR][2] = {
@@ -12,11 +12,10 @@ class ShogiPawn : public Piece {
 
 	public:
 	
-		ShogiPawn(Board* board, const std::string& loc, char player) : Piece{board, loc, PAWN, player} {}
+		ShogiPawn(Board* board, const std::string& loc, char player) : ShogiPiece{board, loc, PAWN, player} {}
 		
-		int Priority() const override { return Piece::PAWN_RANK; }
-
-		bool CanPromote() override { return move_count > 0; }
+		int Priority() const override { return ShogiPiece::PAWN_RANK; }
+		
 		bool CanDrop() override;
 
 		bool IsPawn() const override { return true; }

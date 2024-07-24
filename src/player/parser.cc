@@ -1,7 +1,7 @@
 #include "parser.h"
 #include "moves/move.h"
 #include "moves/king_move.h"
-#include "moves/pawn_move.h"
+#include "moves/promotion.h"
 #include <iostream>
 
 std::unique_ptr<AbstractMove> Parser::ParseCommand(Board* board, const std::string& from, const std::string& to, char promotion) noexcept {
@@ -10,7 +10,7 @@ std::unique_ptr<AbstractMove> Parser::ParseCommand(Board* board, const std::stri
 	case KING:
 		return std::make_unique<KingMove>(from, to);
 	case PAWN:
-		return std::make_unique<PawnMove>(from, to, promotion);
+		return std::make_unique<Promotion>(from, to, promotion, promotion != PAWN);
 	default:
 		return std::make_unique<Move>(from, to);
 	}

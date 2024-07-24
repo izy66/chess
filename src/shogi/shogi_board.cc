@@ -14,8 +14,7 @@
 #include "shogi/pieces/rook.h"
 #include "shogi/pieces/silver.h"
 #include "player/player.h"
-#include "player/human_player.h"
-#include "player/computer_player.h"
+#include "shogi/shogi_player.h"
 
 void ShogiBoard::Reset() {
 	Clear();
@@ -108,4 +107,9 @@ void ShogiBoard::SetPiece(const std::string& loc, char name, char player) {
 		break;
 	}
 	refresh_vision();
+}
+
+void ShogiBoard::AddHumanPlayer() {
+	players[player] = std::make_shared<ShogiPlayer>(this, player);
+	std::swap(player, opponent);
 }

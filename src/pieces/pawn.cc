@@ -37,7 +37,13 @@ bool Pawn::CanCapture(const std::string& to) {
 	return false;
 }
 
-bool Pawn::CanPromote() {
-	if (player == WHITE) return loc[1] == board->TopRow() - 1;
-	return loc[1] == board->BotRow() + 1;
+bool Pawn::CanPromote(const std::string& to) {
+	if (player == WHITE) return to[1] == board->TopRow();
+	return to[1] == board->BotRow();
+}
+
+std::string Pawn::CaptureLoc(const std::string& to) {
+	if (!board->Empty(to)) return to;
+	if (IsEnPassant(to)) return std::string() + to[0] + loc[1];
+	return "";
 }

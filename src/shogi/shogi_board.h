@@ -25,12 +25,13 @@ class ShogiBoard : public Board {
 		ShogiBoard() : Board{} { 
 			player = BLACK; 
 			opponent = WHITE; 
-			is_shogi = true;
 		}
 
 		void Reset() override;
 		void Clear() override;
 		void SetPiece(const std::string&, char name, char player) override;
+
+		void AddHumanPlayer() override;
 
 		bool InBound(const std::string& loc) override {
 			return LEFT_COL <= loc[0] && loc[0] <= RIGHT_COL && BOT_ROW <= loc[1] && loc[1] <= TOP_ROW;
