@@ -7,7 +7,8 @@ template<size_t NUM_DIR>
 class JumpIterator : public PieceIterator {
 	
 	int dir[NUM_DIR][2];
-	int cur_dir, mov_dir;
+	size_t cur_dir;
+	int mov_dir;
 
 	public:
 		

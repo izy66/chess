@@ -7,8 +7,9 @@ template<size_t NUM_DIR>
 class SlideIterator : public PieceIterator {
 	
 	int dir[NUM_DIR][2];
-	int cur_dir, mov_dir;
-
+	size_t cur_dir;
+	int mov_dir;
+	
 	public:
 		
 		SlideIterator(Board* board, const std::string& loc, int (&ndir)[NUM_DIR][2], int mov_dir) : PieceIterator{board, loc}, cur_dir{0}, mov_dir{mov_dir} {

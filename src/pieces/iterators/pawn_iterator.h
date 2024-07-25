@@ -5,13 +5,13 @@
 
 class PawnIterator : public PieceIterator {
 	
-	static const int NUM_DIR = 3;
+	static const size_t NUM_DIR = 3;
 	int dir[NUM_DIR][2] = {
 		{1, 1},
 		{0, 1},
 		{-1, 1},
 	};
-	int cur_dir;
+	size_t cur_dir;
 
 	public:
 		

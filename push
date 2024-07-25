@@ -3,6 +3,8 @@
 # Check if the correct number of arguments are provided
 remote_destination = "cs246/chess"
 
-scp -r src r473li@linux.student.cs.uwaterloo.ca:~/cs246/chess
+scp -r src r473li@linux.student.cs.uwaterloo.ca:~/cs246/chess/src
+scp -r build r473li@linux.student.cs.uwaterloo.ca:~/cs246/chess/build
 scp Makefile r473li@linux.student.cs.uwaterloo.ca:~/cs246/chess
-scp -r test r473li@linux.student.cs.uwaterloo.ca:~/cs246/chess
+scp design.pdf uml-final.pdf r473li@linux.student.cs.uwaterloo.ca:~/cs246/chess
+scp -r test r473li@linux.student.cs.uwaterloo.ca:~/cs246/chess/test

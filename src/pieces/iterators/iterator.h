@@ -13,7 +13,7 @@ class PieceIterator {
 		
 		Board* board;
 		std::string sloc, cloc;
-		int cur_dir;
+		size_t cur_dir;
 		bool done;
 
 	public:
