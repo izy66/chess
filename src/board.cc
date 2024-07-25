@@ -203,7 +203,11 @@ std::unique_ptr<Piece> Board::Retrieve(const std::string& loc) {
 }
 
 void Board::Capture(char piece_name, char player) {
-	// captured_by[player].push_back(piece_name);
+	if (toupper(piece_name) == KING) {
+		game_over = true;
+		if (player == WHITE) ++scores[BLACK];
+		if (player == BLACK) ++scores[WHITE];
+	}
 	if (player == WHITE) captured_by[BLACK].push_back(piece_name);
 	if (player == BLACK) captured_by[WHITE].push_back(piece_name);
 }
@@ -393,7 +397,6 @@ int Board::BoardScore() {
 			}
 		}
 	}
-	// if (Check()) score += CHECK_SCORE;
 	if (StaleMate()) score += STALE_SCORE;
 	if (CheckMate()) score = MAX_SCORE;
 	return score;

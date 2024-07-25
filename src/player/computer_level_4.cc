@@ -9,8 +9,7 @@ int ComputerLevel4::alpha_beta_max(ComputerPlayer* comp_player, int level, int a
 	}
 	// make a move, then select one that yields max return if player is white, or min if black
 	int best_score = - Board::MAX_SCORE - 1;
-	// comp_player->RefreshVision();
-	for (const auto piece : board->GetHand(player)) {
+	for (const auto& piece : board->GetHand(player)) {
 		for (const auto move : *piece) {
 			if (piece->CanMove(move)) {
 				board->ApplyMove(comp_player->ParseCommand(piece->Location(), move));
@@ -36,8 +35,7 @@ int ComputerLevel4::alpha_beta_min(ComputerPlayer* comp_player, int level, int a
 	}
 	// make a move, then select one that yields max return if player is white, or min if black
 	int best_score = Board::MAX_SCORE + 1;
-	// comp_player->RefreshVision();
-	for (const auto piece : board->GetHand(opponent)) {
+	for (const auto& piece : board->GetHand(opponent)) {
 		for (const auto move : *piece) {
 			if (piece->CanMove(move)) {
 				board->ApplyMove(comp_player->ParseCommand(piece->Location(), move));
@@ -55,12 +53,12 @@ int ComputerLevel4::alpha_beta_min(ComputerPlayer* comp_player, int level, int a
 
 void ComputerLevel4::MakeMove(ComputerPlayer* comp_player) {
 
-	if (++move_count < 6) throw _no_moves_found_{};
+	// if (++move_count < 6) throw _no_moves_found_{};
 
 	player = comp_player->player;
 	opponent = player == WHITE ? BLACK : WHITE;
 	
-	alpha_beta_max(comp_player, 3, -Board::MAX_SCORE - 1, Board::MAX_SCORE + 1);
+	alpha_beta_max(comp_player, 2, -Board::MAX_SCORE - 1, Board::MAX_SCORE + 1);
 	
 	try {
 		board->MakeMove(comp_player->ParseCommand(best_from, best_move));
