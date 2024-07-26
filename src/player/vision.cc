@@ -15,8 +15,10 @@ void Vision::Refresh(Board* board, char player) {
 			
 			if (board->GetPiecePlayer(loc) == player) {
 
+				const auto& piece = (*board)[loc];
 				for (const auto& move : *(*board)[loc]) {
-					++vision[move];
+					if (!piece->IsPawn()) ++vision[move];
+					else if (move[0] != piece->Location()[0]) ++vision[move];
 				}
 			}
 		}

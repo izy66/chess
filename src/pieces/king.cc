@@ -24,3 +24,9 @@ bool King::CanMove(const std::string& to) {
 	if (abs(loc[0] - to[0]) == 2 && !IsCastling(to)) return false;
 	return board->GetPiecePlayer(to) != player && CanCapture(to);
 }
+
+// bool King::CanCapture(const std::string& to) {
+// 	for (const auto& move : *this) {
+// 		if (move == to) return !board->CanBeSeen(to, player);
+// 	}
+// }

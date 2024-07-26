@@ -337,18 +337,22 @@ bool Board::CheckMate() {
 	// can't be a checkmate if not a check
 	if (!Check()) return false; 
 	
-	// not a checkmate if piece can be captured 
+	// not a checkmate if piece can be captured by king
 	auto last_moved = move_path.top();
-	if (CanBeCaptured(last_moved, player)) return false;
+	// if (CanBeCaptured(last_moved, player)) return false;
+	if (players[opponent]->CanCapture(last_moved)) return false;
+	// if (pieces[king_loc[player]]->CanCapture(last_moved)) return false;
 	
 	// not a checkmate if king can escape
 	const auto& oppo_king = pieces[king_loc[opponent]];
 	for (const auto& move : *oppo_king) {
-		if (!players[player]->CanSee(move) && oppo_king->CanMove(move)) { // king can escape here?
+		if (oppo_king->CanMove(move)) { // king can escape here?
 			
+			return false; 
+
 			ApplyMove(players[opponent]->ParseCommand(king_loc[opponent], move));
 			
-			bool escaped = !players[player]->CanSee(move);
+			bool escaped = !players[player]->CanCapture(move);
 			
 			Undo();
 			
@@ -363,6 +367,8 @@ bool Board::CheckMate() {
 		int rdir = king_loc[opponent][1] - last_moved[1];
 		if (rdir != 0) rdir /= abs(rdir);
 		std::string block = last_moved;
+		block[0] += cdir;
+		block[1] += rdir;
 		while (block != king_loc[opponent]) {
 			if (Distance(block, king_loc[opponent]) > 1 && players[opponent]->CanSee(block) > 0) return false;
 			if (Distance(block, king_loc[opponent]) == 1 && players[opponent]->CanSee(block) > 1) return false;

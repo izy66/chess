@@ -27,6 +27,7 @@ class King : public Piece {
 		bool IsKing() const override { return true; }
 		bool IsCastling(const std::string&) const override;
 		bool CanMove(const std::string&) override;
+		// bool CanCapture(const std::string&) override;
 		
 		int Priority() const override { return Piece::KING_RANK; }
 
