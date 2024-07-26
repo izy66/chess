@@ -8,7 +8,7 @@ int ComputerLevel4::alpha_beta_max(ComputerPlayer* comp_player, size_t level, in
 		return board->BoardScore();
 	}
 	// make a move, then select one that yields max return if player is white, or min if black
-	int best_score = board->BoardScore();
+	int best_score = - Board::MAX_SCORE - 1;
 	for (const auto& piece : board->GetHand(WHITE)) {
 		auto location = piece->Location();
 		std::vector<std::string> valid_moves;
@@ -37,7 +37,7 @@ int ComputerLevel4::alpha_beta_min(ComputerPlayer* comp_player, size_t level, in
 		return board->BoardScore();
 	}
 	// make a move, then select one that yields max return if player is white, or min if black
-	int best_score = board->BoardScore();
+	int best_score = Board::MAX_SCORE + 1;
 	for (const auto& piece : board->GetHand(BLACK)) {
 		auto location = piece->Location();
 		std::vector<std::string> valid_moves;
@@ -67,7 +67,7 @@ void ComputerLevel4::MakeMove(ComputerPlayer* comp_player) {
 
 	player = comp_player->player;
 
-	START_LEVEL = 4;
+	START_LEVEL = 3;
 	
 	if (player == WHITE) alpha_beta_max(comp_player, START_LEVEL, -Board::MAX_SCORE - 1, Board::MAX_SCORE + 1);
 	else alpha_beta_min(comp_player, START_LEVEL, -Board::MAX_SCORE - 1, Board::MAX_SCORE + 1);
