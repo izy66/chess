@@ -13,8 +13,10 @@ class ComputerLevel4 {
 	std::string best_from, best_move;
 	char player, opponent;
 
-	int alpha_beta_max(ComputerPlayer* comp_player, int level, int alpha, int beta);
-	int alpha_beta_min(ComputerPlayer* comp_player, int level, int alpha, int beta);
+	size_t START_LEVEL;
+
+	int alpha_beta_max(ComputerPlayer* comp_player, size_t level, int alpha, int beta);
+	int alpha_beta_min(ComputerPlayer* comp_player, size_t level, int alpha, int beta);
 
 	int move_count;
 

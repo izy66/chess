@@ -8,13 +8,13 @@ void ComputerLevel3::MakeMove(ComputerPlayer* player) {
 	int highest_rank = 0;
 	std::string escape_from = "", escape_to = "";
 
-	for (const auto piece : player->board->GetHand(player->player)) {
+	for (const auto& piece : player->board->GetHand(player->player)) {
 
 		if (player->board->CanBeSeen(piece->Location(), player->player) && piece->Priority() >= highest_rank) {
 
 			auto from = piece->Location();
 
-			for (const auto to : *piece) {
+			for (const auto& to : *piece) {
 				if (!escape_to.empty()) break;
 				if (!piece->CanMove(to)) continue;
 
@@ -32,10 +32,10 @@ void ComputerLevel3::MakeMove(ComputerPlayer* player) {
 
 			if (!escape_to.empty()) break;
 
-			for (const auto savior : player->board->GetHand(player->player)) {
+			for (const auto& savior : player->board->GetHand(player->player)) {
 				if (savior == piece) continue;
 
-				for (const auto savior_move : *savior) {
+				for (const auto& savior_move : *savior) {
 					if (!escape_to.empty()) break;
 					if (!savior->CanMove(savior_move)) continue;
 

@@ -5,15 +5,12 @@
 Piece::~Piece() {}
 
 bool Piece::CanCapture(const std::string& to) {
-	// can't move away if current piece is protecting the king
-	if (board->IsRevealingKing(this, to)) {
-		return false;
-	}
 	// compare this move with all valid moves
 	for (const auto move : *this) {
-		if (move == to) return true;
+		if (move == to) return !board->IsRevealingKing(this, to);
 	}
 	// no match, not a valid move
+	// can't move away if current piece is protecting the king
 	return false;
 }
 
@@ -27,7 +24,7 @@ bool Piece::CanPromote(const std::string& to) {
 }
 
 int Piece::CapturedRank(const std::string& loc) {
-	const std::unique_ptr<Piece>& capture = (*board)[loc];
+	const auto& capture = (*board)[loc];
 	if (capture != nullptr) return capture->Priority();
 	return -1;
 }

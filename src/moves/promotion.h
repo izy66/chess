@@ -9,8 +9,8 @@ class Promotion final : public AbstractMove {
 	Board *my_board;
 	std::string from, to;
 
-	std::unique_ptr<Piece> captured;
-	std::unique_ptr<Piece> promoted;
+	std::shared_ptr<Piece> captured;
+	std::shared_ptr<Piece> promoted;
 	char promotion;
 	bool promote;
 	

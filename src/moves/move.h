@@ -12,7 +12,7 @@ class Move final : public AbstractMove {
 	std::string from, to;
 
 	int capture_count;
-	std::unique_ptr<Piece> captured;
+	std::shared_ptr<Piece> captured;
 
 	public:
 

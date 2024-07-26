@@ -82,6 +82,9 @@ void Board::Clear() {
 		}
 	}
 	king_loc[player] = king_loc[opponent] = "";
+	while (!moves.empty()) moves.pop();
+	captured_by[WHITE].clear();
+	captured_by[BLACK].clear();
 }
 
 void Board::Print() { 
@@ -124,8 +127,6 @@ void Board::Reset() {
 	}
 	king_loc[WHITE] = "e1";
 	king_loc[BLACK] = "e8";
-	captured_by[WHITE].clear();
-	captured_by[BLACK].clear();
 	game_over = false;
 	draw = false;
 	player = WHITE;
@@ -142,11 +143,14 @@ void Board::AddComputerPlayer(int level) {
 	std::swap(player, opponent);
 }
 
-std::vector<Piece*> Board::GetHand(char player) {
-	std::vector<Piece*> hand;
+std::vector<std::shared_ptr<Piece>> Board::GetHand(char player) {
+	std::vector<std::shared_ptr<Piece>> hand;
 	for (const auto& [loc, piece] : pieces) {
 		if (piece != nullptr && piece->Player() == player) {
-			hand.push_back(&*piece);
+			hand.push_back(piece);
+			if (piece->Location() != loc) {
+				std::cout << "Piece is on " << loc << " but it thinks it's on " << piece->Location() << std::endl;
+			}
 		}
 	}
 	std::shuffle(hand.begin(), hand.end(), gen);
@@ -194,22 +198,22 @@ void Board::KingIsHere(const std::string& loc) {
 	king_loc[pieces[loc]->Player()] = loc;
 }
 
-void Board::Place(std::unique_ptr<Piece> piece) {
+void Board::Place(std::shared_ptr<Piece> piece) {
 	if (piece != nullptr) pieces[piece->Location()] = std::move(piece);
 }
 
-std::unique_ptr<Piece> Board::Retrieve(const std::string& loc) {
+std::shared_ptr<Piece> Board::Retrieve(const std::string& loc) {
+	if (loc.empty()) return nullptr;
 	return std::move(pieces[loc]);
 }
 
 void Board::Capture(char piece_name, char player) {
+	char opponent = player == WHITE ? BLACK : WHITE;
 	if (toupper(piece_name) == KING) {
 		game_over = true;
-		if (player == WHITE) ++scores[BLACK];
-		if (player == BLACK) ++scores[WHITE];
+		++scores[opponent];
 	}
-	if (player == WHITE) captured_by[BLACK].push_back(piece_name);
-	if (player == BLACK) captured_by[WHITE].push_back(piece_name);
+	captured_by[opponent].push_back(piece_name);
 }
 
 void Board::RemoveCapture(char piece_name, char player) {
@@ -217,18 +221,22 @@ void Board::RemoveCapture(char piece_name, char player) {
 }
 
 void Board::Release(char player) {
-	if (player == WHITE) captured_by[BLACK].pop_back();
-	if (player == BLACK) captured_by[WHITE].pop_back();
+	char opponent = player == WHITE ? BLACK : WHITE;
+	if (toupper(captured_by[opponent].back()) == KING) {
+		game_over = false;
+		--scores[opponent];
+	}
+	captured_by[opponent].pop_back();
 }
 
 bool Board::CanBeCaptured(const std::string& loc, char player) {
-	if (player == WHITE) return players[BLACK] != nullptr ? players[BLACK]->CanCapture(loc) : false;
-	if (player == BLACK) return players[WHITE] != nullptr ? players[WHITE]->CanCapture(loc) : false;
+	char opponent = player == WHITE ? BLACK : WHITE;
+	return players[opponent] != nullptr ? players[opponent]->CanCapture(loc) : false;
 }
 
 bool Board::CanBeSeen(const std::string& loc, char player) {
-	if (player == WHITE) return players[BLACK]->CanSee(loc);
-	if (player == BLACK) return players[WHITE]->CanSee(loc);
+	char opponent = player == WHITE ? BLACK : WHITE;
+	return players[opponent]->CanSee(loc);
 }
 
 std::vector<char> Board::CapturedBy(char player) {
@@ -299,12 +307,7 @@ bool Board::IsRevealingKing(Piece* piece, const std::string& to) {
 	return king_under_attack;
 }
 
-bool Board::HaveAdvantage(const std::string& loc, char player) {
-	if (player == WHITE) return players[WHITE]->CanSee(loc) >= players[BLACK]->CanSee(loc);
-	if (player == BLACK) return players[BLACK]->CanSee(loc) >= players[WHITE]->CanSee(loc);
-}
-
-std::string Board::FindSafePlace(const std::unique_ptr<Piece>& piece) {
+std::string Board::FindSafePlace(const std::shared_ptr<Piece>& piece) {
 	std::string escape_move = "";
 	int max_diff = -1;
 	for (const auto& to : *piece) {
@@ -339,7 +342,7 @@ bool Board::CheckMate() {
 	if (CanBeCaptured(last_moved, player)) return false;
 	
 	// not a checkmate if king can escape
-	std::unique_ptr<Piece>& oppo_king = pieces[king_loc[opponent]];
+	const auto& oppo_king = pieces[king_loc[opponent]];
 	for (const auto& move : *oppo_king) {
 		if (!players[player]->CanSee(move) && oppo_king->CanMove(move)) { // king can escape here?
 			
@@ -374,9 +377,9 @@ bool Board::StaleMate() {
 	for (const auto& [loc, piece] : pieces) {
 		if (piece != BLANK && piece->Player() == opponent && !pieces[loc]->IsKing()) return false;
 	}
-	std::unique_ptr<Piece>& opponent_king = pieces[king_loc[opponent]];
-	for (Piece::Iterator move = opponent_king->begin(); move != opponent_king->end(); ++move) {
-		if (*move != king_loc[opponent] && !players[player]->CanSee(*move)) return false;
+	const auto& opponent_king = pieces[king_loc[opponent]];
+	for (const auto move : *opponent_king) {
+		if (move != king_loc[opponent] && !players[player]->CanSee(move)) return false;
 	}
 	return true;
 }
@@ -386,18 +389,26 @@ int Board::BoardScore() {
 	for (char r = TOP_ROW; r >= BOT_ROW; --r) {
 		for (char c = LEFT_COL; c <= RIGHT_COL; ++c) {
 			std::string loc = std::string() + c + r;
+			int advantage = players[WHITE]->CanSee(loc) - players[BLACK]->CanSee(loc);
+			int location_weight = (std::min(abs(r - TopRow()), abs(r - BotRow())) + std::min(abs(c - LeftCol()), abs(c - RightCol())));
 			if (pieces[loc] != nullptr) {
-				if (pieces[loc]->Player() != player) {
-					score += (players[player]->CanSee(loc) - players[opponent]->CanSee(loc) - 1) * pieces[loc]->Priority();
-				} else {
-					score += (players[player]->CanSee(loc) - players[opponent]->CanSee(loc) + 1) * pieces[loc]->Priority();
-				}
+				if (pieces[loc]->Player() == WHITE) score += pieces[loc]->Priority();
+				else score -= pieces[loc]->Priority();
 			} else {
-				score += players[player]->CanSee(loc) - players[opponent]->CanSee(loc);
+				if (player == WHITE && advantage <= 0) --advantage;
+				if (player == BLACK && advantage >= 0) ++advantage;
+				score += advantage * location_weight;
 			}
 		}
 	}
-	if (StaleMate()) score += STALE_SCORE;
-	if (CheckMate()) score = MAX_SCORE;
+	if (player == WHITE) {
+		if (Check()) score += CHECK_SCORE;
+		if (CheckMate()) score = MAX_SCORE;
+		if (StaleMate()) score += STALE_SCORE;
+	} else {
+		if (Check()) score -= CHECK_SCORE;
+		if (CheckMate()) score = -MAX_SCORE;
+		if (StaleMate()) score -= STALE_SCORE;
+	}
 	return score;
 }

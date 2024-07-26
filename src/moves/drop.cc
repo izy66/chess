@@ -22,6 +22,6 @@ void Drop::MakeMoveOn(Board* board) {
 }
 
 void Drop::Undo() noexcept {
-	my_board->Capture(name, player);
+	my_board->Capture(name, player == WHITE ? BLACK : WHITE);
 	my_board->RemovePiece(loc);
 } 

@@ -160,18 +160,22 @@ void GraphicsUI::DrawBoard() {
       int x = col * square_size;
       int y = row * square_size;
 
-      if (!board_is_drawn || (!was_empty[loc] && board->Empty(loc)) || board_player[loc] != board->GetPiecePlayer(loc) || board_name[loc] != board->GetPieceName(loc)) {
+      char player = board->GetPiecePlayer(loc);
+
+      // if (!board_is_drawn || (!was_empty[loc] && board->Empty(loc)) || board_player[loc] != board->GetPiecePlayer(loc) || board_name[loc] != board->GetPieceName(loc)) {
+      if (!board_is_drawn || board_player[loc] != board->GetPiecePlayer(loc) || board_name[loc] != board->GetPieceName(loc) || capture_status[loc] != board->CanBeCaptured(loc, player) || move_status[loc] != board->LastMoved(loc)) {
         // Alternate colors for the squares
         if ((row + col) % 2 == 0) {
           XSetForeground(display, gc, LIGHT_COLOR);
+          if (board->LastMoved(loc)) {
+            XSetForeground(display, gc, LIGHT_COLOR);
+          }
         } else {
           XSetForeground(display, gc, DARK_COLOR);
         }
 
         XFillRectangle(display, window, gc, x, y, square_size, square_size);
       }
-
-      was_empty[loc] = board->Empty(loc);
     }
   }
 
@@ -181,16 +185,18 @@ void GraphicsUI::DrawPieces() {
   for (char r = board->TopRow(); r >= board->BotRow(); --r) {
     for (char c = board->LeftCol(); c <= board->RightCol(); ++c) {
       std::string loc = std::string() + c + r;
-      char piece = board->GetPieceName(loc);
+      char name = board->GetPieceName(loc);
       char player = board->GetPiecePlayer(loc);
 
-      if (piece != ' ' && (board_player[loc] != board->GetPiecePlayer(loc) || capture_status[loc] != board->CanBeCaptured(loc, player) || board_name[loc] != board->GetPieceName(loc))) {
-        DrawPiece(piece, player, c - board->LeftCol(), board->TopRow() - r);
+      // if (name != EMPTY && (board_player[loc] != board->GetPiecePlayer(loc) || capture_status[loc] != board->CanBeCaptured(loc, player) || board_name[loc] != board->GetPieceName(loc))) {
+      if (name != EMPTY && (board_player[loc] != board->GetPiecePlayer(loc) || board_name[loc] != board->GetPieceName(loc) || capture_status[loc] != board->CanBeCaptured(loc, player) || move_status[loc] != board->LastMoved(loc))) {
+        DrawPiece(name, player, c - board->LeftCol(), board->TopRow() - r);
       }
 
       board_player[loc] = board->GetPiecePlayer(loc);
-      board_player[loc] = board->GetPieceName(loc);
+      board_name[loc] = board->GetPieceName(loc);
       capture_status[loc] = board->CanBeCaptured(loc, player);
+      move_status[loc] = board->LastMoved(loc);
     }
   }
 }

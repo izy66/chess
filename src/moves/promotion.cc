@@ -4,8 +4,6 @@
 
 Promotion::Promotion(const std::string& from, const std::string& to, char promotion, bool promote) : from{from}, to{to}, captured{nullptr}, promoted{nullptr}, promotion{promotion}, promote{promote} {}
 
-// Promotion::Promotion(const std::string& from, const std::string& to, bool promo) : from{from}, to{to}, captured{nullptr}, promoted{nullptr}, promotion{EMPTY}, promote{promo} {}
-
 void Promotion::MakeMoveOn(Board* board) {
 	my_board = board;
 

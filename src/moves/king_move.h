@@ -9,10 +9,10 @@ class KingMove final : public AbstractMove {
 	std::string from, to;
 
 	int capture_count;
-	std::unique_ptr<Piece> captured;
+	std::shared_ptr<Piece> captured;
 
 	std::string rook_loc, rook_dest;
-	std::unique_ptr<Piece> rook;
+	std::shared_ptr<Piece> rook;
 	
 	public:
 

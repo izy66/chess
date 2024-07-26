@@ -48,13 +48,13 @@ class Piece {
 		char Player() const { return player; }
 		std::string Location() const { return loc; }
 
-		static const int HIGHEST_RANK = 100;
-		static const int PAWN_RANK = 5;
-		static const int KNIGHT_RANK = 10;
-		static const int BISHOP_RANK = 15;
-		static const int ROOK_RANK = 20;
-		static const int QUEEN_RANK = 50;
-		static const int KING_RANK = 100;
+		static const int HIGHEST_RANK = 100000;
+		static const int PAWN_RANK = 100;
+		static const int KNIGHT_RANK = 200;
+		static const int BISHOP_RANK = 300;
+		static const int ROOK_RANK = 500;
+		static const int QUEEN_RANK = 1000;
+		static const int KING_RANK = 2000;
 
 		static const int DRAGON_RANK = 60;
 		static const int HORSE_RANK = 60;

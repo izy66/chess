@@ -2,7 +2,6 @@
 #define BOARD_H
 
 #include "exceptions.h"
-// #include "pieces/blank.h"
 #include "pieces/piece.h"
 #include "moves/move.h"
 #include "subject.h"
@@ -51,7 +50,7 @@ class Board : public Subject {
 
 		bool game_over = false, draw = false;
 		char player = WHITE, opponent = BLACK;
-		std::map<std::string, std::unique_ptr<Piece>> pieces;
+		std::map<std::string, std::shared_ptr<Piece>> pieces;
 	
 		/* internal state refresher */
 		void refresh_vision();
@@ -64,7 +63,7 @@ class Board : public Subject {
 		}
 
 		/* general interface */
-		const std::unique_ptr<Piece>& operator[](const std::string& loc) { return pieces[loc]; }
+		const std::shared_ptr<Piece>& operator[](const std::string& loc) { return pieces[loc]; }
 
 		virtual char LeftCol() const { return LEFT_COL; }
 		virtual char RightCol() const { return RIGHT_COL; }
@@ -88,9 +87,9 @@ class Board : public Subject {
 
 		bool LastMoved(const std::string&);
 
-		std::vector<Piece*> GetHand(char player);
-		void Place(std::unique_ptr<Piece>);
-		std::unique_ptr<Piece> Retrieve(const std::string&);
+		std::vector<std::shared_ptr<Piece>> GetHand(char player);
+		void Place(std::shared_ptr<Piece>);
+		std::shared_ptr<Piece> Retrieve(const std::string&);
 
 		/* game control interface */
 		bool GameOver() const { return game_over; }
@@ -125,7 +124,7 @@ class Board : public Subject {
 		bool IsRevealingKing(Piece*, const std::string&);
 		bool HaveAdvantage(const std::string&, char);
 
-		std::string FindSafePlace(const std::unique_ptr<Piece>&);
+		std::string FindSafePlace(const std::shared_ptr<Piece>&);
 
 		void Undo();
 
@@ -157,9 +156,9 @@ class Board : public Subject {
 		}
 
 		/* for advanced ai */
-		static const int STALE_SCORE = 10;
-		static const int CHECK_SCORE = 20;
-		static const int MAX_SCORE = 100000;
+		static const int STALE_SCORE = 100;
+		static const int CHECK_SCORE = 100;
+		static const int MAX_SCORE = 10000000;
 		int BoardScore();
 };
 

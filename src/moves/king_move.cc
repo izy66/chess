@@ -6,7 +6,7 @@ KingMove::KingMove(const std::string& from, const std::string& to) : from{from},
 void KingMove::MakeMoveOn(Board* board) {
 	my_board = board;
 
-	if (!(*my_board)[from]->CanMove(to) && !(*my_board)[from]->IsCastling(to)) throw _invalid_move_{"Can't move from " + from + " to " + to};
+	if (!(*my_board)[from]->CanMove(to)) throw _invalid_move_{"Can't move from " + from + " to " + to};
 	// valid move
 	if ((*my_board)[from]->IsCastling(to)) { // if castling
 		rook_dest = from;
